@@ -28,12 +28,16 @@ with dataset:
 
     dropout_data.loc[dropout_data['Gender'] == 1, "Gender"] = 'Male'
     dropout_data.loc[dropout_data['Gender'] == 0, "Gender"] = 'Female'
-
     st.write(dropout_data.head())
     
     df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
     st.title('Gender of students')
     st.subheader('Gráfico feito com plotly')
     fig = px.pie(df, values='count', names='Gender')
-
     st.write(fig)
+
+    st.title('Dropout rates by gender')
+    df_droupout_gender = dropout_data[(dropout_data['Target'] == 'Dropout')] #novo dataframe apenas com registros em que target = dropout]
+    dfaux_dropout_gender = df_droupout_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_dropout_gender') #DF auxiliar com total de male e female para ser usado no gráfico abaixo
+    pie_dropout_gender = px.pie(dfaux_dropout_gender, values='soma_dropout_gender', names='Gender')
+    st.write(pie_dropout_gender)
