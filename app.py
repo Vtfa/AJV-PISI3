@@ -37,7 +37,13 @@ with dataset:
     st.write(fig)
 
     st.title('Dropout rates by gender')
-    df_droupout_gender = dropout_data[(dropout_data['Target'] == 'Dropout')] #novo dataframe apenas com registros em que target = dropout]
+    df_droupout_gender = dropout_data[(dropout_data['Target'] == 'Dropout')] #novo dataframe apenas com registros em que target = dropout
     dfaux_dropout_gender = df_droupout_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_dropout_gender') #DF auxiliar com total de male e female para ser usado no gráfico abaixo
     pie_dropout_gender = px.pie(dfaux_dropout_gender, values='soma_dropout_gender', names='Gender')
     st.write(pie_dropout_gender)
+
+    st.title('Graduation rates by gender')
+    df_graduate_gender = dropout_data[(dropout_data['Target'] == 'Graduate')] #novo dataframe apenas com registros em que target = graduate
+    dfaux_graduate_gender = df_graduate_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_graduate_gender') #DF auxiliar com total de male e female para ser usado no gráfico abaixo
+    pie_graduate_gender = px.pie(dfaux_graduate_gender, values='soma_graduate_gender', names='Gender')
+    st.write(pie_graduate_gender)
