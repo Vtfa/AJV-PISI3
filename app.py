@@ -47,3 +47,23 @@ with dataset:
     dfaux_graduate_gender = df_graduate_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_graduate_gender') #DF auxiliar com total de male e female para ser usado no gráfico abaixo
     pie_graduate_gender = px.pie(dfaux_graduate_gender, values='soma_graduate_gender', names='Gender')
     st.write(pie_graduate_gender)
+
+    
+    # Aqui começa o codigo do grafico relacionando a coluna 'Debtor' com a evasao
+    estudantes_sem_divida = dropout_data.loc[dropout_data['Debtor'] == 0]
+    estudantes_com_divida = dropout_data.loc[dropout_data['Debtor'] == 1]
+
+    option = st.selectbox(
+        'Mudar o grupo visualizado',
+        ('Todos estudantes', 'Endividados', 'Sem dívidas'))
+
+    grafico_target_geral = px.pie(dropout_data, names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes ')
+    grafico_target_endividados = px.pie(estudantes_com_divida, values='Debtor', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes Endividados')
+    grafico_target_estudantes_sem_dividas = px.pie(estudantes_sem_divida, names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes Sem dívidas')
+    if option == 'Todos estudantes':
+        st.plotly_chart(grafico_target_geral)
+    elif option == 'Endividados':
+        st.plotly_chart(grafico_target_endividados)
+    else:
+        st.plotly_chart(grafico_target_estudantes_sem_dividas)
+
