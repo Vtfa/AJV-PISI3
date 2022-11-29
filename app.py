@@ -59,7 +59,6 @@ with dataset:
     df_com_divida = dropout_data[dropout_data.Debtor==1]
     dfaux_com_divida = df_com_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_com_divida')
     
-    estudantes_com_divida = dropout_data.loc[dropout_data['Debtor'] == 1]
 
     option = st.selectbox(
         'Mudar o grupo visualizado',
@@ -68,6 +67,7 @@ with dataset:
     grafico_target_geral = px.pie(dfaux_target, values='soma_target', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes ')
     grafico_target_endividados = px.pie(dfaux_com_divida, values='soma_com_divida', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes Endividados')
     grafico_target_estudantes_sem_dividas = px.pie(dfaux_sem_divida, values='soma_sem_divida', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação Acadêmica dos Estudantes Sem dívidas')
+    
     if option == 'Todos estudantes':
         st.plotly_chart(grafico_target_geral)
     elif option == 'Endividados':
