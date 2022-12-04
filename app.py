@@ -59,7 +59,7 @@ with dataset:
     df_com_divida = dropout_data[dropout_data.Debtor==1]
     dfaux_com_divida = df_com_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_com_divida')
     
-
+    st.title('Situação dos estudantes por dívida')
     option = st.selectbox(
         'Mudar o grupo visualizado',
         ('Todos estudantes', 'Endividados', 'Sem dívidas'))
@@ -75,3 +75,15 @@ with dataset:
     else:
         st.plotly_chart(grafico_target_estudantes_sem_dividas)
 
+   
+st.title('Situação dos estudantes internacionais')
+option_internacioal = st.selectbox('Mudar o grupo visualizado', ('Todos estudantes', 'Estudantes Internacionais'))
+
+df_internacional = dropout_data[dropout_data.Nacionality != 1]
+dfaux_internacional = df_internacional.groupby(['Target'])['Target'].count().reset_index(name='soma_target_internacional')
+pie_target_internacional = px.pie(dfaux_internacional, values='soma_target_internacional', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes')
+
+if option_internacioal == 'Todos estudantes':
+    st.write(grafico_target_geral)
+else:
+    st.write(pie_target_internacional)
