@@ -51,12 +51,14 @@ with dataset:
 
     st.title("Histograma de dropout por curso")
     st.subheader('Fica mais fácil visualizar tendências em um Histograma, aqui procuro tendências do dropout relacionados aos cursos dos alunos. Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.')
-#Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
+    #Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
     course_dropout= dropout_data[(dropout_data['Target']== 'Dropout')]#Dataframe com registros em que target = dropout
     mapping= {33: 'Biofuel Production Technologies', 171: 'Animation and Multimedia Design', 8014: 'Social Service', 9003:'Agronomy', 9070:'Communication Design', 9085:'Veterinary Nursing', 9119:'Informatics Engineering',9130: 'Equinculture', 9147: 'Management', 9238: 'Social Service', 9254:'Tourism', 9500:'Nursing', 9556:'Oral Hygiene', 9670:'Advertising and Marketing Management', 9773: 'Journalism and Communication', 9853: 'Basic Education', 9991: 'Management(Evening)'}    
     course_dropout['Course'] = course_dropout['Course'].map(mapping)
     histograma_drop= px.histogram(course_dropout, x= "Course")
     st.write(histograma_drop)
+
+
 
 
     
@@ -114,5 +116,8 @@ pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', 
 if option_scholarship =='Estudantes não portadores de bolsas de estudo':
     st.write(pie_no_scholarship)
 else:
+
     st.write(pie_scholarship)
 
+
+    st.write(pie_scholarship)
