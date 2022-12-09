@@ -110,8 +110,8 @@ dfaux_scholarship = df_scholarship.groupby(['Target'])['Target'].count().reset_i
 df_no_scholarship = dropout_data[(dropout_data['Scholarship holder'] == 0)]
 dfaux_no_scholarship = df_no_scholarship.groupby(['Target'])['Target'].count().reset_index(name='soma_no_scholarship')
 
-pie_scholarship = px.pie(dfaux_scholarship, values='soma_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes')
-pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes')
+pie_scholarship = px.pie(dfaux_scholarship, values='soma_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes sem bolsa de estudo')
+pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes sem bolsa de estudos')
 
 if option_scholarship =='Estudantes não portadores de bolsas de estudo':
     st.write(pie_no_scholarship)
