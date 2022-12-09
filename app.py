@@ -116,8 +116,4 @@ pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', 
 if option_scholarship =='Estudantes não portadores de bolsas de estudo':
     st.write(pie_no_scholarship)
 else:
-
-    st.write(pie_scholarship)
-
-
     st.write(pie_scholarship)
