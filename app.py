@@ -7,12 +7,46 @@ header = st.container()
 dataset = st.container()
 
 
+
+
 with header:
     st.title("Predict Dropout or Academic Success")
 
 
 with dataset:
     dropout_data = pd.read_csv('data/dropout.csv')
+    
+    #função para mapear os valores das profissões das mães
+    def escolaridade_mae(valor): 
+        array_fund_inc = [11, 26, 35, 36, 37, 38]
+        array_medio_inc = [9, 10, 12, 14, 19, 27, 29, 30]
+        medio = 1 
+        array_tecnico = [18, 22, 39]
+        array_superior = [2, 3, 4, 5, 6, 40, 41, 42, 43, 44]
+
+        if valor in array_fund_inc:
+            return 'fundamental incompleto'
+        elif valor in array_medio_inc:
+            return 'medio incompleto'
+        elif valor == medio:
+            return 'medio completo'
+        elif valor in array_tecnico:
+            return 'ensino tecnico'
+        elif valor in array_superior: 
+            return 'ensino superior'
+        else: return 'no info'
+        
+    #utiliza a função para criar uma coluna nova
+    dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_mae(valor))
+
+    #esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
+    #df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
+    #df_teste_mae_novo = dropout_data.groupby(["Escolaridade mae"])["Escolaridade mae"].count().reset_index(name='soma_mae')
+    #st.write(df_teste_mae)
+    #st.write(df_teste_mae_novo)
+
+
+
     st.write(dropout_data.head())
 
     st.subheader('Enrollment age of students')
