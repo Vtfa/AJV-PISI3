@@ -17,11 +17,11 @@ with dataset:
     dropout_data = pd.read_csv('data/dropout.csv')
     
     #função para mapear os valores das profissões das mães
-    def escolaridade_mae(valor): 
-        array_fund_inc = [11, 26, 35, 36, 37, 38]
-        array_medio_inc = [9, 10, 12, 14, 19, 27, 29, 30]
+    def escolaridade_pais(valor): 
+        array_fund_inc = [11, 26, 35, 36, 37, 38, 29, 30]
+        array_medio_inc = [9, 10, 12, 13, 14, 19, 27, 13, 25]
         medio = 1 
-        array_tecnico = [18, 22, 39]
+        array_tecnico = [18, 22, 39, 31, 33]
         array_superior = [2, 3, 4, 5, 6, 40, 41, 42, 43, 44]
 
         if valor in array_fund_inc:
@@ -37,7 +37,9 @@ with dataset:
         else: return 'no info'
         
     #utiliza a função para criar uma coluna nova
-    dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_mae(valor))
+    dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor))
+    dropout_data["Escolaridade pai"] = dropout_data["Father's qualification"].apply(lambda valor: escolaridade_pais(valor))
+
 
     #esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
     #df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
