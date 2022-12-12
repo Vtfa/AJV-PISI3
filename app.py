@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
+from plotly.subplots import make_subplots
 # from datetime import datetime
 
 title = "Predict Dropout or Academic Success"
@@ -119,18 +120,22 @@ with dataset:
     st.write(dropout_data.head(10))
 
     st.subheader('Age of students')
-    age_bins = list(range(17, np.max(dropout_data['Age at enrollment'].values), 3))
-    bins_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
+    age_bins = list(range(17, np.max(dropout_data['Age at enrollment'].values), 4))
+    ages_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
     dropout_data['age_range'] = pd.cut(
         dropout_data['Age at enrollment'],
         age_bins,
-        labels=bins_labels,
+        labels=ages_labels,
         right=False,
         ordered=False,
         )
 
     dropout_data['Gender'] = np.where(dropout_data['Gender'], 'Male', 'Female')
-    course_data = dropout_data[['age_range', 'Gender', 'Course']].groupby(['age_range', 'Gender']).count()
+    course_data = (
+        dropout_data[['age_range', 'Gender', 'Course']]
+        .groupby(['age_range', 'Gender'])
+        .count()
+    )
     course_data = course_data.unstack('Gender').droplevel(0, 'columns')
 
     dem_pyramid = go.Figure()
@@ -189,9 +194,88 @@ with dataset:
 
     st.plotly_chart(dem_pyramid, use_container_width=True)
 
-    course_data = dropout_data[['age_range', 'Gender', 'Course']].set_index('Course')
+    course_data = (
+        dropout_data[['age_range', 'Gender', 'Course', 'Displaced']]
+        .groupby(['Course', 'Gender', 'age_range'])
+        .count()
+        .reset_index()
+    )
 
-    st.write(course_data)
+    course_gender_age = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1)
+    course_gender_age_index = (
+        course_data['Course'].str.replace('(', ' ')
+        .str.replace(' ', '<br>')
+        .str.replace(')', '')
+        .unique()
+    )
+    course_gender_age_range = [0, 650]
+
+    for age_range in ages_labels:
+        course_gender_age.add_trace(
+            go.Bar(
+                name=age_range,
+                x=course_gender_age_index,
+                y=course_data.query('Gender == "Female" and age_range == @age_range')['Displaced'],
+                orientation='v',
+                legendgroup='female',
+                legendgrouptitle={'text': '<b>Female</b>'}
+            ),
+            row=1,
+            col=1,
+        )
+
+    for age_range in ages_labels:
+        course_gender_age.add_trace(
+            go.Bar(
+                name=age_range,
+                x=course_gender_age_index,
+                y=course_data.query('Gender == "Male" and age_range == @age_range')['Displaced'],
+                orientation='v',
+                legendgroup='male',
+                legendgrouptitle={'text': '<b>Male</b>'},
+            ),
+            row=2,
+            col=1,
+        )
+
+    course_gender_age.update_yaxes(
+        range=course_gender_age_range,
+        title_text='Female students',
+        row=1,
+        col=1,
+    )
+
+    course_gender_age.update_yaxes(
+        range=course_gender_age_range,
+        title_text='Male students',
+        row=2,
+        col=1,
+    )
+
+    course_gender_age.update_yaxes(
+        title_standoff=25,
+    )
+
+    course_gender_age.update_xaxes(
+        title_standoff=25,
+        title_text='Course',
+        tickangle=-90,
+        row=2,
+        col=1,
+    )
+
+    course_gender_age.update_layout(
+        title='Gender distribution by course and age',
+        font_size=14,
+        barmode='stack',
+        height=900,
+        # showlegend=False,
+        hovermode='x unified',
+        margin={'b': 175},
+        margin_pad=10,
+    )
+
+    st.plotly_chart(course_gender_age, use_container_width=True)
 
     st.subheader('Enrollment age of students')
     age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
@@ -213,7 +297,7 @@ with dataset:
     st.title('Gender of students')
     st.subheader('Gráfico feito com plotly')
     fig = px.pie(df, values='count', names='Gender')
-    st.write(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     st.title('Dropout rates by gender')
 
@@ -222,8 +306,12 @@ with dataset:
 
     # DF auxiliar com total de male e female para ser usado no gráfico abaixo
     dfaux_dropout_gender = df_droupout_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_dropout_gender')
-    pie_dropout_gender = px.pie(dfaux_dropout_gender, values='soma_dropout_gender', names='Gender')
-    st.write(pie_dropout_gender)
+    pie_dropout_gender = px.pie(
+        dfaux_dropout_gender,
+        values='soma_dropout_gender',
+        names='Gender'
+    )
+    st.plotly_chart(pie_dropout_gender, use_container_width=True)
 
     st.title('Graduation rates by gender')
 
@@ -237,7 +325,8 @@ with dataset:
         values='soma_graduate_gender',
         names='Gender'
     )
-    st.write(pie_graduate_gender)
+
+    st.plotly_chart(pie_graduate_gender, use_container_width=True)
 
     st.title("Histograma de dropout por curso")
     st.subheader('Fica mais fácil visualizar tendências em um Histograma, aqui procuro tendências do dropout relacionados aos cursos dos alunos. Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.')
@@ -269,7 +358,9 @@ with dataset:
         dropout_data,
         x = "Course",
     )
-    st.write(histograma_drop)
+
+    st.plotly_chart(histograma_drop, use_container_width=True)
+
 
     #
     #
@@ -328,11 +419,11 @@ with dataset:
     )
 
     if option == 'Todos estudantes':
-        st.plotly_chart(grafico_target_geral)
+        st.plotly_chart(grafico_target_geral, use_container_width=True)
     elif option == 'Endividados':
-        st.plotly_chart(grafico_target_endividados)
+        st.plotly_chart(grafico_target_endividados, use_container_width=True)
     else:
-        st.plotly_chart(grafico_target_estudantes_sem_dividas)
+        st.plotly_chart(grafico_target_estudantes_sem_dividas, use_container_width=True)
 
 st.title('Situação dos estudantes internacionais')
 option_internacioal = st.selectbox('Mudar o grupo visualizado', ('Todos estudantes', 'Estudantes Internacionais'))
@@ -353,9 +444,9 @@ pie_target_internacional = px.pie(
 )
 
 if option_internacioal == 'Todos estudantes':
-    st.write(grafico_target_geral)
+    st.plotly_chart(grafico_target_geral, use_container_width=True)
 else:
-    st.write(pie_target_internacional)
+    st.plotly_chart(pie_target_internacional, use_container_width=True)
 
 st.title('Situação dos estudantes portadores de bolsas de estudo')
 option_scholarship = st.selectbox('Mudar o grupo visualizado', ('Estudantes não portadores de bolsas de estudo', 'Estudantes portadores de bolsas de estudo'))
@@ -393,6 +484,6 @@ pie_no_scholarship = px.pie(
 )
 
 if option_scholarship == 'Estudantes não portadores de bolsas de estudo':
-    st.write(pie_no_scholarship)
+    st.plotly_chart(pie_no_scholarship, use_container_width=True)
 else:
-    st.write(pie_scholarship)
+    st.plotly_chart(pie_scholarship, use_container_width=True)
