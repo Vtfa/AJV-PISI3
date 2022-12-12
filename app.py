@@ -251,9 +251,9 @@ with dataset:
 
     course_gender_age = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1)
     course_gender_age_index = (
-        course_data['Course'].str.replace('(', ' ')
+        course_data['Course'].str.replace('(', ' ', regex=False)
         .str.replace(' ', '<br>')
-        .str.replace(')', '')
+        .str.replace(')', '', regex=False)
         .unique()
     )
     course_gender_age_range = [0, 650]
@@ -557,8 +557,6 @@ debt_data = (
 debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
 debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
 
-
-st.write(debt_data)
 debt_gender_tree = px.treemap(
             debt_data,
             title='Target distribution by gender',
