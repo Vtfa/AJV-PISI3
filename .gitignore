@@ -1,5 +1,7 @@
-__pycache__/
-.vscode/
-.idea/
+__pycache__/**
+.vscode/**
+.idea/**
+.venv/**
 
 *.py[cod]
+.~lock*
