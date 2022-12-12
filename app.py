@@ -94,6 +94,27 @@ with dataset:
     # st.write(df_teste_mae)
     # st.write(df_teste_mae_novo)
 
+    courses_map = {
+        33: 'Biofuel Production Technologies',
+        171: 'Animation and Multimedia Design',
+        8014: 'Social Service',
+        9003: 'Agronomy',
+        9070: 'Communication Design',
+        9085: 'Veterinary Nursing',
+        9119: 'Informatics Engineering',
+        9130: 'Equinculture',
+        9147: 'Management',
+        9238: 'Social Service',
+        9254: 'Tourism',
+        9500: 'Nursing',
+        9556: 'Oral Hygiene',
+        9670: 'Advertising and Marketing Management',
+        9773: 'Journalism and Communication',
+        9853: 'Basic Education',
+        9991: 'Management(Evening)'
+    }
+    dropout_data['Course'] = dropout_data['Course'].map(courses_map)
+
     st.subheader('Data sample')
     st.write(dropout_data.head(10))
 
@@ -109,14 +130,14 @@ with dataset:
         )
 
     dropout_data['Gender'] = np.where(dropout_data['Gender'], 'Male', 'Female')
-    dem_data = dropout_data[['age_range', 'Gender', 'Course']].groupby(['age_range', 'Gender']).count()
-    dem_data = dem_data.unstack('Gender').droplevel(0, 'columns')
+    course_data = dropout_data[['age_range', 'Gender', 'Course']].groupby(['age_range', 'Gender']).count()
+    course_data = course_data.unstack('Gender').droplevel(0, 'columns')
 
     dem_pyramid = go.Figure()
     dem_pyramid.add_trace(
         go.Bar(
-            x=dem_data['Male'],
-            y=dem_data.index,
+            x=course_data['Male'],
+            y=course_data.index,
             orientation='h',
             name='Male',
             marker={
@@ -128,9 +149,9 @@ with dataset:
 
     dem_pyramid.add_trace(
         go.Bar(
-            x=dem_data['Female'] * -1,
-            y=dem_data.index,
-            text=dem_data['Female'],
+            x=course_data['Female'] * -1,
+            y=course_data.index,
+            text=course_data['Female'],
             textfont_color='rgba(0, 0, 0, 0)',
             orientation='h',
             name='Female',
@@ -167,6 +188,10 @@ with dataset:
     )
 
     st.plotly_chart(dem_pyramid, use_container_width=True)
+
+    course_data = dropout_data[['age_range', 'Gender', 'Course']].set_index('Course')
+
+    st.write(course_data)
 
     st.subheader('Enrollment age of students')
     age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
@@ -219,29 +244,29 @@ with dataset:
 
     # Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
     # Dataframe com registros em que target = dropout
-    course_dropout = dropout_data[(dropout_data['Target']== 'Dropout')]
-    courses_map = {
-        33: 'Biofuel Production Technologies',
-        171: 'Animation and Multimedia Design',
-        8014: 'Social Service',
-        9003: 'Agronomy',
-        9070: 'Communication Design',
-        9085: 'Veterinary Nursing',
-        9119: 'Informatics Engineering',
-        9130: 'Equinculture',
-        9147: 'Management',
-        9238: 'Social Service',
-        9254: 'Tourism',
-        9500: 'Nursing',
-        9556: 'Oral Hygiene',
-        9670: 'Advertising and Marketing Management',
-        9773: 'Journalism and Communication',
-        9853: 'Basic Education',
-        9991: 'Management(Evening)'
-    }
-    course_dropout['Course'] = course_dropout['Course'].map(courses_map)
+    # course_dropout = dropout_data[(dropout_data['Target'] == 'Dropout')].copy()
+    # courses_map = {
+    #     33: 'Biofuel Production Technologies',
+    #     171: 'Animation and Multimedia Design',
+    #     8014: 'Social Service',
+    #     9003: 'Agronomy',
+    #     9070: 'Communication Design',
+    #     9085: 'Veterinary Nursing',
+    #     9119: 'Informatics Engineering',
+    #     9130: 'Equinculture',
+    #     9147: 'Management',
+    #     9238: 'Social Service',
+    #     9254: 'Tourism',
+    #     9500: 'Nursing',
+    #     9556: 'Oral Hygiene',
+    #     9670: 'Advertising and Marketing Management',
+    #     9773: 'Journalism and Communication',
+    #     9853: 'Basic Education',
+    #     9991: 'Management(Evening)'
+    # }
+    # course_dropout['Course'] = course_dropout['Course'].map(courses_map)
     histograma_drop = px.histogram(
-        course_dropout,
+        dropout_data,
         x = "Course",
     )
     st.write(histograma_drop)
