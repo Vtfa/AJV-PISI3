@@ -31,7 +31,13 @@ dropout_data = pd.read_csv('data\dropout.csv')
 
 dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor)) 
 dropout_data["Escolaridade pai"] = dropout_data["Father's qualification"].apply(lambda valor: escolaridade_pais(valor))
-dropout_data.drop(['Nacionality', 'Previous qualification (grade)', "Mother's qualification", "Father's qualification"], axis=1, inplace=True) 
+dropout_data.drop(['Nacionality', 'Previous qualification (grade)', "Mother's qualification", "Father's qualification", "Curricular units 1st sem (credited)", 
+"Curricular units 1st sem (evaluations)", "Curricular units 1st sem (without evaluations)", "Curricular units 2nd sem (credited)", "Curricular units 2nd sem (evaluations)",
+"Curricular units 2nd sem (without evaluations)"], axis=1, inplace=True)
+
+dropout_data.loc[dropout_data['Target'] == 'Dropout', "Target"] = 0
+dropout_data.loc[dropout_data['Target'] == 'Enrolled', "Target"] = 1
+dropout_data.loc[dropout_data['Target'] == 'Graduate', "Target"] = 2 
 
 pr = dropout_data.profile_report()
 st_profile_report(pr)
