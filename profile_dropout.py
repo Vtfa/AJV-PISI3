@@ -25,12 +25,13 @@ def escolaridade_pais(valor):
             return 5
         else: return 0
         
-    #utiliza a função para criar uma coluna nova
 
 dropout_data = pd.read_csv('data\dropout.csv')
 
+
 dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor)) 
 dropout_data["Escolaridade pai"] = dropout_data["Father's qualification"].apply(lambda valor: escolaridade_pais(valor))
+dropout_data.drop(['Nacionality', 'Previous qualification (grade)', "Mother's qualification", "Father's qualification"], axis=1, inplace=True) 
 
 pr = dropout_data.profile_report()
 st_profile_report(pr)
