@@ -131,18 +131,18 @@ with dataset:
         )
 
     dropout_data['Gender'] = np.where(dropout_data['Gender'], 'Male', 'Female')
-    course_data = (
+    gender_data = (
         dropout_data[['age_range', 'Gender', 'Course']]
         .groupby(['age_range', 'Gender'])
         .count()
     )
-    course_data = course_data.unstack('Gender').droplevel(0, 'columns')
+    gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
 
     dem_pyramid = go.Figure()
     dem_pyramid.add_trace(
         go.Bar(
-            x=course_data['Male'],
-            y=course_data.index,
+            x=gender_data['Male'],
+            y=gender_data.index,
             orientation='h',
             name='Male',
             marker={
@@ -154,9 +154,9 @@ with dataset:
 
     dem_pyramid.add_trace(
         go.Bar(
-            x=course_data['Female'] * -1,
-            y=course_data.index,
-            text=course_data['Female'],
+            x=gender_data['Female'] * -1,
+            y=gender_data.index,
+            text=gender_data['Female'],
             textfont_color='rgba(0, 0, 0, 0)',
             orientation='h',
             name='Female',
@@ -200,6 +200,54 @@ with dataset:
         .count()
         .reset_index()
     )
+    course_data.rename(columns={'Displaced': 'count'}, inplace=True)
+
+    gender_tree = px.treemap(
+            course_data,
+            title='Gender distribution by course',
+            path=[ 'Course', 'Gender'],
+            color_continuous_scale='RdBu',
+            color='count',
+            values='count',
+            height=1000,
+    )
+
+    gender_tree.update_layout(
+        title_font_size=22,
+        font_size=13,
+    )
+
+    st.plotly_chart(gender_tree, use_container_width=True)
+
+    female_tree = px.treemap(
+            course_data.query('Gender == "Female"'),
+            title='Course and age distribution for female students',
+            path=['Gender', 'Course', 'age_range'],
+            values='count',
+            height=1000,
+    )
+
+    female_tree.update_layout(
+        title_font_size=22,
+        font_size=13,
+    )
+
+    st.plotly_chart(female_tree, use_container_width=True)
+
+    male_tree = px.treemap(
+            course_data.query('Gender == "Male"'),
+            title='Course and age distribution for male students',
+            path=['Gender', 'Course', 'age_range'],
+            values='count',
+            height=1000,
+    )
+
+    male_tree.update_layout(
+        title_font_size=22,
+        font_size=13,
+    )
+
+    st.plotly_chart(male_tree, use_container_width=True)
 
     course_gender_age = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1)
     course_gender_age_index = (
@@ -211,11 +259,11 @@ with dataset:
     course_gender_age_range = [0, 650]
 
     for age_range in ages_labels:
-        course_gender_age.add_trace(
+        course_gender_age.append_trace(
             go.Bar(
                 name=age_range,
                 x=course_gender_age_index,
-                y=course_data.query('Gender == "Female" and age_range == @age_range')['Displaced'],
+                y=course_data.query('Gender == "Female" and age_range == @age_range')['count'],
                 orientation='v',
                 legendgroup='female',
                 legendgrouptitle={'text': '<b>Female</b>'}
@@ -225,11 +273,11 @@ with dataset:
         )
 
     for age_range in ages_labels:
-        course_gender_age.add_trace(
+        course_gender_age.append_trace(
             go.Bar(
                 name=age_range,
                 x=course_gender_age_index,
-                y=course_data.query('Gender == "Male" and age_range == @age_range')['Displaced'],
+                y=course_data.query('Gender == "Male" and age_range == @age_range')['count'],
                 orientation='v',
                 legendgroup='male',
                 legendgrouptitle={'text': '<b>Male</b>'},
@@ -265,11 +313,10 @@ with dataset:
     )
 
     course_gender_age.update_layout(
-        title='Gender distribution by course and age',
-        font_size=14,
-        barmode='stack',
         height=900,
-        # showlegend=False,
+        font_size=14,
+        title='Gender distribution by course and age',
+        barmode='stack',
         hovermode='x unified',
         margin={'b': 175},
         margin_pad=10,
@@ -311,6 +358,7 @@ with dataset:
         values='soma_dropout_gender',
         names='Gender'
     )
+
     st.plotly_chart(pie_dropout_gender, use_container_width=True)
 
     st.title('Graduation rates by gender')
@@ -329,7 +377,11 @@ with dataset:
     st.plotly_chart(pie_graduate_gender, use_container_width=True)
 
     st.title("Histograma de dropout por curso")
-    st.subheader('Fica mais fácil visualizar tendências em um Histograma, aqui procuro tendências do dropout relacionados aos cursos dos alunos. Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.')
+    st.subheader(
+        'Fica mais fácil visualizar tendências em um Histograma,' +
+        ' aqui procuro tendências do dropout relacionados aos cursos dos alunos.' +
+        ' Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.'
+    )
 
     # Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
     # Dataframe com registros em que target = dropout
@@ -449,7 +501,10 @@ else:
     st.plotly_chart(pie_target_internacional, use_container_width=True)
 
 st.title('Situação dos estudantes portadores de bolsas de estudo')
-option_scholarship = st.selectbox('Mudar o grupo visualizado', ('Estudantes não portadores de bolsas de estudo', 'Estudantes portadores de bolsas de estudo'))
+option_scholarship = st.selectbox(
+    'Mudar o grupo visualizado',
+    ('Estudantes não portadores de bolsas de estudo', 'Estudantes portadores de bolsas de estudo')
+)
 
 df_scholarship = dropout_data[(dropout_data['Scholarship holder'] == 1)]
 dfaux_scholarship = df_scholarship.groupby(['Target'])['Target'].count().reset_index(name='soma_scholarship')
@@ -487,3 +542,34 @@ if option_scholarship == 'Estudantes não portadores de bolsas de estudo':
     st.plotly_chart(pie_no_scholarship, use_container_width=True)
 else:
     st.plotly_chart(pie_scholarship, use_container_width=True)
+
+
+dropout_data['debt'] = np.where(
+    (dropout_data['Debtor'] == 1) | (dropout_data['Tuition fees up to date']), 1, 0
+)
+
+debt_data = (
+    dropout_data[['age_range', 'Gender', 'Course', 'debt', 'Displaced', 'Target']]
+    .groupby(['Gender', 'Target', 'Course', 'age_range', 'debt'])
+    .count()
+    .reset_index()
+)
+debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
+debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
+
+
+st.write(debt_data)
+debt_tree = px.treemap(
+            debt_data,
+            title='Gender distribution by course',
+            path=['Gender', 'Target', 'debt'],
+            values='count',
+            height=1000,
+    )
+
+debt_tree.update_layout(
+    title_font_size=22,
+    font_size=13,
+)
+
+st.plotly_chart(debt_tree, use_container_width=True)
