@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+
 header = st.container()
 dataset = st.container()
+
+
 
 
 with header:
@@ -11,14 +14,48 @@ with header:
 
 
 with dataset:
-    dropout_data = pd.read_csv('data\dropout.csv')
+    dropout_data = pd.read_csv('data/dropout.csv')
+    
+    #função para mapear os valores das profissões das mães
+    def escolaridade_pais(valor): 
+        array_fund_inc = [11, 26, 35, 36, 37, 38, 29, 30]
+        array_medio_inc = [9, 10, 12, 13, 14, 19, 27, 13, 25]
+        medio = 1 
+        array_tecnico = [18, 22, 39, 31, 33]
+        array_superior = [2, 3, 4, 5, 6, 40, 41, 42, 43, 44]
+
+        if valor in array_fund_inc:
+            return 'fundamental incompleto'
+        elif valor in array_medio_inc:
+            return 'medio incompleto'
+        elif valor == medio:
+            return 'medio completo'
+        elif valor in array_tecnico:
+            return 'ensino tecnico'
+        elif valor in array_superior: 
+            return 'ensino superior'
+        else: return 'no info'
+        
+    #utiliza a função para criar uma coluna nova
+    dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor))
+    dropout_data["Escolaridade pai"] = dropout_data["Father's qualification"].apply(lambda valor: escolaridade_pais(valor))
+
+
+    #esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
+    #df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
+    #df_teste_mae_novo = dropout_data.groupby(["Escolaridade mae"])["Escolaridade mae"].count().reset_index(name='soma_mae')
+    #st.write(df_teste_mae)
+    #st.write(df_teste_mae_novo)
+
+
+
     st.write(dropout_data.head())
 
     st.subheader('Enrollment age of students')
     age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
     st.bar_chart(age)
 
-    st.subheader('Gender of students 1 for male and 2 for female')
+    st.subheader('Gender of students 1 for male and 0 for female')
     gender = pd.DataFrame(dropout_data['Gender'].value_counts())
     st.bar_chart(gender)
     # O gráfico desse bloquinho acima de 3 linhas ficou estranho com o gráfico do streamlit. Ver como fazer no ploty
@@ -47,6 +84,18 @@ with dataset:
     dfaux_graduate_gender = df_graduate_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_graduate_gender') #DF auxiliar com total de male e female para ser usado no gráfico abaixo
     pie_graduate_gender = px.pie(dfaux_graduate_gender, values='soma_graduate_gender', names='Gender')
     st.write(pie_graduate_gender)
+
+    st.title("Histograma de dropout por curso")
+    st.subheader('Fica mais fácil visualizar tendências em um Histograma, aqui procuro tendências do dropout relacionados aos cursos dos alunos. Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.')
+    #Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
+    course_dropout= dropout_data[(dropout_data['Target']== 'Dropout')]#Dataframe com registros em que target = dropout
+    mapping= {33: 'Biofuel Production Technologies', 171: 'Animation and Multimedia Design', 8014: 'Social Service', 9003:'Agronomy', 9070:'Communication Design', 9085:'Veterinary Nursing', 9119:'Informatics Engineering',9130: 'Equinculture', 9147: 'Management', 9238: 'Social Service', 9254:'Tourism', 9500:'Nursing', 9556:'Oral Hygiene', 9670:'Advertising and Marketing Management', 9773: 'Journalism and Communication', 9853: 'Basic Education', 9991: 'Management(Evening)'}    
+    course_dropout['Course'] = course_dropout['Course'].map(mapping)
+    histograma_drop= px.histogram(course_dropout, x= "Course")
+    st.write(histograma_drop)
+
+
+
 
     
     # Aqui começa o codigo do grafico relacionando a coluna 'Debtor' com a evasao
@@ -97,8 +146,8 @@ dfaux_scholarship = df_scholarship.groupby(['Target'])['Target'].count().reset_i
 df_no_scholarship = dropout_data[(dropout_data['Scholarship holder'] == 0)]
 dfaux_no_scholarship = df_no_scholarship.groupby(['Target'])['Target'].count().reset_index(name='soma_no_scholarship')
 
-pie_scholarship = px.pie(dfaux_scholarship, values='soma_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes')
-pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes')
+pie_scholarship = px.pie(dfaux_scholarship, values='soma_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes sem bolsa de estudo')
+pie_no_scholarship = px.pie(dfaux_no_scholarship, values='soma_no_scholarship', names='Target', color='Target', color_discrete_map={'Dropout':'rgb(239, 85, 59)', 'Enrolled':'rgb(99, 110, 250)', 'Graduate':'rgb(0, 204, 150)'}, title='Situação acadêmica dos estudantes sem bolsa de estudos')
 
 if option_scholarship =='Estudantes não portadores de bolsas de estudo':
     st.write(pie_no_scholarship)
