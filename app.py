@@ -559,10 +559,25 @@ debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
 
 
 st.write(debt_data)
+debt_gender_tree = px.treemap(
+            debt_data,
+            title='Target distribution by gender',
+            path=['Gender', 'Target', 'debt'],
+            values='count',
+            height=1000,
+    )
+
+debt_gender_tree.update_layout(
+    title_font_size=22,
+    font_size=13,
+)
+
+st.plotly_chart(debt_gender_tree, use_container_width=True)
+
 debt_tree = px.treemap(
             debt_data,
-            title='Gender distribution by course',
-            path=['Gender', 'Target', 'debt'],
+            title='Target distribution by age and debt',
+            path=['age_range', 'Target', 'debt'],
             values='count',
             height=1000,
     )
