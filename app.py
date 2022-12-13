@@ -120,7 +120,7 @@ with dataset:
     st.write(dropout_data.head(10))
 
     st.subheader('Age of students')
-    age_bins = list(range(17, np.max(dropout_data['Age at enrollment'].values), 4))
+    age_bins = list(range(17, np.max(dropout_data['Age at enrollment'].values), 5))
     ages_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
     dropout_data['age_range'] = pd.cut(
         dropout_data['Age at enrollment'],
@@ -129,7 +129,7 @@ with dataset:
         right=False,
         ordered=False,
         )
-    
+
     dropout_data['Gender'] = np.where(dropout_data['Gender'], 'Male', 'Female')
     gender_data = (
         dropout_data[['age_range', 'Gender', 'Course']]
@@ -216,9 +216,11 @@ with dataset:
             height=1000,
     )
 
+    gender_tree.data[0].textinfo = 'label+text+percent root+value'
+
     gender_tree.update_layout(
-        title_font_size=22,
-        font_size=13,
+        title_font_size=26,
+        font_size=16,
     )
 
     st.plotly_chart(gender_tree, use_container_width=True)
@@ -231,9 +233,11 @@ with dataset:
             height=1000,
     )
 
+    female_tree.data[0].textinfo = 'label+text+percent root+value'
+
     female_tree.update_layout(
-        title_font_size=22,
-        font_size=13,
+        title_font_size=26,
+        font_size=16,
     )
 
     st.plotly_chart(female_tree, use_container_width=True)
@@ -246,14 +250,16 @@ with dataset:
             height=1000,
     )
 
+    male_tree.data[0].textinfo = 'label+text+percent root+value'
+
     male_tree.update_layout(
-        title_font_size=22,
-        font_size=13,
+        title_font_size=26,
+        font_size=16,
     )
 
     st.plotly_chart(male_tree, use_container_width=True)
 
-    course_gender_age = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1)
+    course_gender_age = go.Figure()
     course_gender_age_index = (
         course_data['Course'].str.replace('(', ' ', regex=False)
         .str.replace(' ', '<br>')
@@ -262,73 +268,50 @@ with dataset:
     )
     course_gender_age_range = [0, 650]
 
-    for age_range in ages_labels:
-        course_gender_age.append_trace(
-            go.Bar(
-                name=age_range,
-                x=course_gender_age_index,
-                y=course_data.query('Gender == "Female" and age_range == @age_range')['count'],
-                orientation='v',
-                legendgroup='female',
-                legendgrouptitle={'text': '<b>Female</b>'}
-            ),
-            row=1,
-            col=1,
-        )
+    course_gender_data = course_data.groupby(['Course', 'Gender']).sum().unstack().droplevel(0, 1)
 
-    for age_range in ages_labels:
-        course_gender_age.append_trace(
-            go.Bar(
-                name=age_range,
-                x=course_gender_age_index,
-                y=course_data.query('Gender == "Male" and age_range == @age_range')['count'],
-                orientation='v',
-                legendgroup='male',
-                legendgrouptitle={'text': '<b>Male</b>'},
-            ),
-            row=2,
-            col=1,
-        )
-
-    course_gender_age.update_yaxes(
-        range=course_gender_age_range,
-        title_text='Female students',
-        row=1,
-        col=1,
+    course_gender_age.add_trace(
+        go.Bar(
+            name="Female",
+            x=course_gender_age_index,
+            y=course_gender_data["Female"],
+            orientation='v',
+        ),
     )
 
-    course_gender_age.update_yaxes(
-        range=course_gender_age_range,
-        title_text='Male students',
-        row=2,
-        col=1,
-    )
-
-    course_gender_age.update_yaxes(
-        title_standoff=25,
+    course_gender_age.add_trace(
+        go.Bar(
+            name="Male",
+            x=course_gender_age_index,
+            y=course_gender_data["Male"],
+            orientation='v',
+        ),
     )
 
     course_gender_age.update_xaxes(
-        title_standoff=25,
         title_text='Course',
+        title_standoff=35,
         tickangle=-90,
-        row=2,
-        col=1,
+    )
+
+    course_gender_age.update_yaxes(
+        title_text='Students',
+        title_standoff=25,
     )
 
     course_gender_age.update_layout(
         height=900,
         font_size=14,
-        title='Gender distribution by course and age',
+        title='Gender distribution by course',
         barmode='stack',
         hovermode='x unified',
-        margin={'b': 175},
+        margin={'b': 190},
         margin_pad=10,
     )
 
     st.plotly_chart(course_gender_age, use_container_width=True)
 
-  
+
 
     #st.title("Testando plotly e manipulação de valores de colunas no pandas!")
     #st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
@@ -542,7 +525,7 @@ else:
 
 
 dropout_data['debt'] = np.where(
-    (dropout_data['Debtor'] == 1) | (dropout_data['Tuition fees up to date']), 1, 0
+    (dropout_data['Debtor'] == 1) | (dropout_data['Tuition fees up to date'] == 0), 'has debt', 'up to date'
 )
 
 debt_data = (
@@ -551,7 +534,7 @@ debt_data = (
     .count()
     .reset_index()
 )
-debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
+# debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
 debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
 
 debt_gender_tree = px.treemap(
@@ -562,9 +545,11 @@ debt_gender_tree = px.treemap(
             height=1000,
     )
 
+debt_gender_tree.data[0].textinfo = 'label+text+percent root+value'
+
 debt_gender_tree.update_layout(
-    title_font_size=22,
-    font_size=13,
+    title_font_size=26,
+    font_size=16,
 )
 
 st.plotly_chart(debt_gender_tree, use_container_width=True)
@@ -577,9 +562,11 @@ debt_tree = px.treemap(
             height=1000,
     )
 
+debt_tree.data[0].textinfo = 'label+text+percent root+value'
+
 debt_tree.update_layout(
-    title_font_size=22,
-    font_size=13,
+    title_font_size=26,
+    font_size=16,
 )
 
 st.plotly_chart(debt_tree, use_container_width=True)
