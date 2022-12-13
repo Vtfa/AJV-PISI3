@@ -328,10 +328,6 @@ with dataset:
     age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
     st.bar_chart(age)
 
-    st.subheader('Gender of students 1 for male and 0 for female')
-    gender = pd.DataFrame(dropout_data['Gender'].value_counts())
-    st.bar_chart(gender)
-    # O gráfico desse bloquinho acima de 3 linhas ficou estranho com o gráfico do streamlit. Ver como fazer no ploty
 
     st.title("Testando plotly e manipulação de valores de colunas no pandas!")
     st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
