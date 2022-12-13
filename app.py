@@ -194,6 +194,10 @@ with dataset:
 
     st.plotly_chart(dem_pyramid, use_container_width=True)
 
+    bar_age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
+    st.bar_chart(bar_age)
+
+
     course_data = (
         dropout_data[['age_range', 'Gender', 'Course', 'Displaced']]
         .groupby(['Course', 'Gender', 'age_range'])
@@ -324,10 +328,7 @@ with dataset:
 
     st.plotly_chart(course_gender_age, use_container_width=True)
 
-    st.subheader('Enrollment age of students')
-    age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
-    st.bar_chart(age)
-
+  
 
     st.title("Testando plotly e manipulação de valores de colunas no pandas!")
     st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
