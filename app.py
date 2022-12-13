@@ -129,7 +129,7 @@ with dataset:
         right=False,
         ordered=False,
         )
-
+    
     dropout_data['Gender'] = np.where(dropout_data['Gender'], 'Male', 'Female')
     gender_data = (
         dropout_data[['age_range', 'Gender', 'Course']]
@@ -330,8 +330,8 @@ with dataset:
 
   
 
-    st.title("Testando plotly e manipulação de valores de colunas no pandas!")
-    st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
+    #st.title("Testando plotly e manipulação de valores de colunas no pandas!")
+    #st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
 
     # dropout_data.loc[dropout_data['Gender'] == 1, "Gender"] = 'Male'
     # dropout_data.loc[dropout_data['Gender'] == 0, "Gender"] = 'Female'
