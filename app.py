@@ -268,7 +268,8 @@ with dataset:
     )
     course_gender_age_range = [0, 650]
 
-    course_gender_data = course_data.groupby(['Course', 'Gender']).sum().unstack().droplevel(0, 1)
+    course_gender_data = course_data.groupby(['Course', 'Gender'])[['count']].sum()
+    course_gender_data = course_gender_data.unstack().droplevel(0, 1)
 
     course_gender_age.add_trace(
         go.Bar(
@@ -276,6 +277,9 @@ with dataset:
             x=course_gender_age_index,
             y=course_gender_data["Female"],
             orientation='v',
+             marker={
+                'color': 'rgba(99, 110, 250, 0.5)'
+            },
         ),
     )
 
@@ -285,6 +289,9 @@ with dataset:
             x=course_gender_age_index,
             y=course_gender_data["Male"],
             orientation='v',
+             marker={
+                'color': 'rgba(0, 204, 150, 0.5)'
+            },
         ),
     )
 
