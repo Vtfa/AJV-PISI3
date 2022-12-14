@@ -325,7 +325,7 @@ with dataset:
 
     # dropout_data.loc[dropout_data['Gender'] == 1, "Gender"] = 'Male'
     # dropout_data.loc[dropout_data['Gender'] == 0, "Gender"] = 'Female'
-    st.write(dropout_data.head())
+  
 
     df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
     st.title('Gender of students')

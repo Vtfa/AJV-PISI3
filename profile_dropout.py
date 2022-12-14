@@ -14,16 +14,16 @@ def escolaridade_pais(valor):
         array_superior = [2, 3, 4, 5, 6, 40, 41, 42, 43, 44]
 
         if valor in array_fund_inc:
-            return 1
+            return 'fundamental incompleto'
         elif valor in array_medio_inc:
-            return 2
+            return 'medio imcompleto'
         elif valor == medio:
-            return 3
+            return 'medio completo'
         elif valor in array_tecnico:
-            return 4
+            return 'tecnico'
         elif valor in array_superior: 
-            return 5
-        else: return 0
+            return 'superior compleco'
+        else: return 'sem informacoes'
         
 
 dropout_data = pd.read_csv('data\dropout.csv')
@@ -35,9 +35,9 @@ dropout_data.drop(['Nacionality', 'Previous qualification (grade)', "Mother's qu
 "Curricular units 1st sem (evaluations)", "Curricular units 1st sem (without evaluations)", "Curricular units 2nd sem (credited)", "Curricular units 2nd sem (evaluations)",
 "Curricular units 2nd sem (without evaluations)"], axis=1, inplace=True)
 
-dropout_data.loc[dropout_data['Target'] == 'Dropout', "Target"] = 0
-dropout_data.loc[dropout_data['Target'] == 'Enrolled', "Target"] = 1
-dropout_data.loc[dropout_data['Target'] == 'Graduate', "Target"] = 2 
+#dropout_data.loc[dropout_data['Target'] == 'Dropout', "Target"] = 0
+#dropout_data.loc[dropout_data['Target'] == 'Enrolled', "Target"] = 1
+#dropout_data.loc[dropout_data['Target'] == 'Graduate', "Target"] = 2 
 
 pr = dropout_data.profile_report()
 st_profile_report(pr)
