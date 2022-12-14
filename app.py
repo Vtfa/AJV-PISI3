@@ -329,7 +329,6 @@ with dataset:
 
     df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
     st.title('Gender of students')
-    st.subheader('Gráfico feito com plotly')
     fig = px.pie(df, values='count', names='Gender')
     st.plotly_chart(fig, use_container_width=True)
 
@@ -364,11 +363,11 @@ with dataset:
     st.plotly_chart(pie_graduate_gender, use_container_width=True)
 
     st.title("Histograma de dropout por curso")
-    st.subheader(
-        'Fica mais fácil visualizar tendências em um Histograma,' +
-        ' aqui procuro tendências do dropout relacionados aos cursos dos alunos.' +
-        ' Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.'
-    )
+    #st.subheader(
+       # 'Fica mais fácil visualizar tendências em um Histograma,' +
+      #  ' aqui procuro tendências do dropout relacionados aos cursos dos alunos.' +
+       # ' Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.'
+   # )
 
     # Aqui mapeio os valores numericos dos cursos com seu nome para usar o .replace() do pandas para trocar valores.
     # Dataframe com registros em que target = dropout
