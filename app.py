@@ -216,7 +216,7 @@ with dataset:
             height=1000,
     )
 
-    gender_tree.data[0].textinfo = 'label+text+percent root+value'
+    gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
     gender_tree.update_layout(
         title_font_size=26,
@@ -233,7 +233,7 @@ with dataset:
             height=1000,
     )
 
-    female_tree.data[0].textinfo = 'label+text+percent root+value'
+    female_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
     female_tree.update_layout(
         title_font_size=26,
@@ -250,7 +250,7 @@ with dataset:
             height=1000,
     )
 
-    male_tree.data[0].textinfo = 'label+text+percent root+value'
+    male_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
     male_tree.update_layout(
         title_font_size=26,
@@ -551,7 +551,7 @@ debt_gender_tree = px.treemap(
             height=1000,
     )
 
-debt_gender_tree.data[0].textinfo = 'label+text+percent root+value'
+debt_gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
 debt_gender_tree.update_layout(
     title_font_size=26,
@@ -568,7 +568,7 @@ debt_tree = px.treemap(
             height=1000,
     )
 
-debt_tree.data[0].textinfo = 'label+text+percent root+value'
+debt_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
 debt_tree.update_layout(
     title_font_size=26,
