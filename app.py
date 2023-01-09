@@ -78,13 +78,43 @@ with dataset:
 
     def renda_pais(data: pd.Series) -> pd.Series:
         var_1 = data == 1
-        
+        var_2 = data == 2
+        var_4 = data == 4
+        var_5 = data == 5
+        var_6 = data == 6
+        var_7 = data == 7
+        var_8 = data == 8
+        var_9 = data == 9
+        var_10 = data == 10
+        var_122 = data == 122
+        var_123 = data == 123
+        var_125 = data == 125
+        var_131 = data == 131
+        var_132 = data == 132
+        var_134 = data == 134
+        var_141 = data == 141
+        var_143 = data == 143
+        var_144 = data == 144
+        var_151 = data == 151
+        var_152 = data == 152
+        var_153 = data == 153
+        var_171 = data == 171
+        var_173 = data == 173
+        var_175 = data == 175
+        var_191 = data == 191
+        var_192 = data == 192
+        var_193 = data == 193
+        var_194 = data == 194
+
         niveis = [
-            '3456',
+            '3456', '2141', '930', '840', '875', '997', '940', '840', '1749', '2556', '2200', '3452', '1352', '1417', '930', '2248', '930',
+            '805', '1073', '740', '1042', '827', '915', '873', '799', '824', '710',
         ]
 
         return pd.Series(np.select(
-            [var_1],
+            [var_1, var_2, var_4, var_5, var_6, var_7, var_8, var_9, var_10, var_122, var_123, var_125, var_131, var_134, var_141, var_143, var_144,
+            var_151, var_152, var_153, var_171, var_173, var_175, var_191, var_192, var_193, var_194
+            ],
             niveis,
             'nulo'
         ))
