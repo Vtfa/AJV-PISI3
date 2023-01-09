@@ -76,6 +76,19 @@ with dataset:
             'no info'
         ))
 
+    def renda_pais(data: pd.Series) -> pd.Series:
+        var_1 = data == 1
+        
+        niveis = [
+            '3456',
+        ]
+
+        return pd.Series(np.select(
+            [var_1],
+            niveis,
+            'nulo'
+        ))
+
     # utiliza a função para criar uma coluna nova
     # s0 = datetime.now()
     # dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor))
@@ -88,6 +101,9 @@ with dataset:
 
     dropout_data["Escolaridade mae"] = escolaridade_pais(dropout_data["Mother's qualification"])
     dropout_data["Escolaridade pai"] = escolaridade_pais(dropout_data["Father's qualification"])
+
+    dropout_data["Renda pai"] = renda_pais(dropout_data["Father's occupation"])
+    dropout_data["Renda mae"] = renda_pais(dropout_data["Mother's occupation"])
 
     # esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
     # df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
@@ -117,7 +133,8 @@ with dataset:
     dropout_data['Course'] = dropout_data['Course'].map(courses_map)
 
     st.subheader('Data sample')
-    st.write(dropout_data.head(10))
+    #st.write(dropout_data.head(10))
+    st.write(dropout_data)
 
     st.subheader('Age of students')
     age_bins = list(range(17, np.max(dropout_data['Age at enrollment'].values), 5))
