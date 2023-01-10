@@ -116,7 +116,7 @@ with dataset:
             var_151, var_152, var_153, var_171, var_173, var_175, var_191, var_192, var_193, var_194
             ],
             niveis,
-            'nulo'
+            '0'
         ))
 
     # utiliza a função para criar uma coluna nova
