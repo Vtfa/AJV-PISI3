@@ -107,8 +107,8 @@ with dataset:
         var_194 = data == 194
 
         niveis = [
-            '3456', '2141', '930', '840', '875', '997', '940', '840', '1749', '2556', '2200', '3452', '1352', '1417', '930', '2248', '930',
-            '805', '1073', '740', '1042', '827', '915', '873', '799', '824', '710',
+            3456, 2141, 930, 840, 875, 997, 940, 840, 1749, 2556, 2200, 3452, 1352, 1417, 930, 2248, 930,
+            805, 1073, 740, 1042, 827, 915, 873, 799, 824, 710,
         ]
 
         return pd.Series(np.select(
@@ -116,7 +116,7 @@ with dataset:
             var_151, var_152, var_153, var_171, var_173, var_175, var_191, var_192, var_193, var_194
             ],
             niveis,
-            '0'
+            0
         ))
 
     # utiliza a função para criar uma coluna nova
@@ -134,6 +134,8 @@ with dataset:
 
     dropout_data["Renda pai"] = renda_pais(dropout_data["Father's occupation"])
     dropout_data["Renda mae"] = renda_pais(dropout_data["Mother's occupation"])
+
+    dropout_data["Renda total"] = dropout_data["Renda pai"] + dropout_data["Renda mae"]
 
     # esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
     # df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
