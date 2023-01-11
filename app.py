@@ -32,7 +32,7 @@ with header:
 
 with dataset:
     dropout_data = pd.read_csv('data/dropout.csv')
-
+    st.session_state['dropout_data_state'] = dropout_data
     # função para mapear os valores das profissões dos pais
     # def escolaridade_pais(valor: str) -> str:
     #     array_fund_inc = [11, 26, 35, 36, 37, 38, 29, 30]
