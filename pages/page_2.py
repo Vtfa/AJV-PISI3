@@ -34,15 +34,15 @@ with dataset:
 
     st.write(result_df)
 
-    # Create the Funnel Graph
+    # Creates Funnel Graph
     funnel_total = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[total_students, status_totals["Graduate"], status_totals["Dropout"], status_totals["Enrolled"]],
-        textinfo="value+percent total",
+        textinfo="value+percent initial",
         marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
     ))
 
-    # Add title and labels
+    # Funnel's title and labels
     funnel_total.update_layout(
         title="Student Status Funnel Graph",
         yaxis_title="Student Status"
