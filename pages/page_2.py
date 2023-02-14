@@ -95,3 +95,7 @@ with dataset:
     st.title('Marital status of students')
     fig = px.pie(df_marital_status, values='count', names='Marital status')
     st.plotly_chart(fig, use_container_width=True)
+
+    
+    box_marital_status = px.box(dropout_data, x='Marital status', y='Age at enrollment', points="outliers")
+    st.write(box_marital_status)

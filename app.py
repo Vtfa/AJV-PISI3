@@ -137,13 +137,13 @@ with dataset:
             0
         ))
 
-
+    # não solteiros foram agrupados por serem poucos
     dropout_data.loc[dropout_data['Marital status'] == 1, "Marital status"] = 'Solteiro'
-    dropout_data.loc[dropout_data['Marital status'] == 2, "Marital status"] = 'Casado'
-    dropout_data.loc[dropout_data['Marital status'] == 3, "Marital status"] = 'Viúvo'
-    dropout_data.loc[dropout_data['Marital status'] == 4, "Marital status"] = 'Divorciado'
-    dropout_data.loc[dropout_data['Marital status'] == 5, "Marital status"] = 'União estável'
-    dropout_data.loc[dropout_data['Marital status'] == 6, "Marital status"] = 'Separado'
+    dropout_data.loc[dropout_data['Marital status'] == 2, "Marital status"] = 'Outros'
+    dropout_data.loc[dropout_data['Marital status'] == 3, "Marital status"] = 'Outros'
+    dropout_data.loc[dropout_data['Marital status'] == 4, "Marital status"] = 'Outros'
+    dropout_data.loc[dropout_data['Marital status'] == 5, "Marital status"] = 'Outros'
+    dropout_data.loc[dropout_data['Marital status'] == 6, "Marital status"] = 'Outros'
 
 
     # utiliza a função para criar uma coluna nova
