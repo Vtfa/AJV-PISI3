@@ -137,6 +137,15 @@ with dataset:
             0
         ))
 
+
+    dropout_data.loc[dropout_data['Marital status'] == 1, "Marital status"] = 'Solteiro'
+    dropout_data.loc[dropout_data['Marital status'] == 2, "Marital status"] = 'Casado'
+    dropout_data.loc[dropout_data['Marital status'] == 3, "Marital status"] = 'Viúvo'
+    dropout_data.loc[dropout_data['Marital status'] == 4, "Marital status"] = 'Divorciado'
+    dropout_data.loc[dropout_data['Marital status'] == 5, "Marital status"] = 'União estável'
+    dropout_data.loc[dropout_data['Marital status'] == 6, "Marital status"] = 'Separado'
+
+
     # utiliza a função para criar uma coluna nova
     # s0 = datetime.now()
     # dropout_data["Escolaridade mae"] = dropout_data["Mother's qualification"].apply(lambda valor: escolaridade_pais(valor))

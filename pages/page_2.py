@@ -89,3 +89,9 @@ with dataset:
 
     with col2:
         st.write(funnel_male)
+
+
+    df_marital_status = dropout_data.groupby(['Marital status'])['Marital status'].count().reset_index(name='count')
+    st.title('Marital status of students')
+    fig = px.pie(df_marital_status, values='count', names='Marital status')
+    st.plotly_chart(fig, use_container_width=True)
