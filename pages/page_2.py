@@ -51,12 +51,16 @@ with dataset:
     ))
 
     funnel_total.update_layout(
-        title="Student Status Funnel Graph",
-        yaxis_title="Student Status"
+        title="Total students",
+        title_x = 0.5
     )
 
     st.write(funnel_total)
 
+    col1, col2 = st.columns(2)
+
+
+    
     funnel_female = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[female_students_total, female_target_totals["Graduate"], female_target_totals["Dropout"], female_target_totals["Enrolled"]],
@@ -65,11 +69,11 @@ with dataset:
     ))
 
     funnel_female.update_layout(
-        title="Student Status Funnel Graph",
-        yaxis_title="Student Status"
+        title="Female students",
+        title_x = 0.5
     )
-
-    st.write(funnel_female)
+    with col1:
+        st.write(funnel_female)
 
     funnel_male = go.Figure(go.Funnel(
         y=["Total Students", "Dropout", "Graduate", "Enrolled"],
@@ -79,8 +83,9 @@ with dataset:
     ))
 
     funnel_male.update_layout(
-        title="Student Status Funnel Graph",
-        yaxis_title="Student Status"
+        title="Male students",
+        title_x = 0.5
     )
 
-    st.write(funnel_male)
+    with col2:
+        st.write(funnel_male)
