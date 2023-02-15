@@ -149,3 +149,13 @@ with dataset:
         )
 
         st.write(donut_target_non_single)
+
+
+
+    box_renda = px.box(dropout_data, y='Renda total', points='all')
+    st.write(box_renda)
+
+
+    df_country = dropout_data.groupby(['Nacionality'])['Nacionality'].count().reset_index(name='count')
+    pie_country = px.bar(df_country)
+    st.plotly_chart(pie_country, use_container_width=True)
