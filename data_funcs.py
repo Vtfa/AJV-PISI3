@@ -24,6 +24,7 @@ def escolaridade_pais(data: pd.Series) -> pd.Series:
         'no info'
     ))
 
+
 #perdão pela monstruosidade. -Vinicius
 def renda_pais(data: pd.Series) -> pd.Series:
     var_1 = data == 1
@@ -85,3 +86,46 @@ def renda_pais(data: pd.Series) -> pd.Series:
         niveis,
         0
     ))
+
+# funcao para substituir o codido pelo nome dos cursos
+def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
+    courses_map = {
+        33: 'Biofuel Production Technologies',
+        171: 'Animation and Multimedia Design',
+        8014: 'Social Service',
+        9003: 'Agronomy',
+        9070: 'Communication Design',
+        9085: 'Veterinary Nursing',
+        9119: 'Informatics Engineering',
+        9130: 'Equinculture',
+        9147: 'Management',
+        9238: 'Social Service',
+        9254: 'Tourism',
+        9500: 'Nursing',
+        9556: 'Oral Hygiene',
+        9670: 'Advertising and Marketing Management',
+        9773: 'Journalism and Communication',
+        9853: 'Basic Education',
+        9991: 'Management(Evening)'
+    }
+    return df[course_col].map(courses_map)
+
+
+# funcao para calcular as faixas etarias
+def age_range_calc(df: pd.DataFrame, age_col: str) -> pd.Series:
+    age_bins = list(range(17, np.max(df[age_col].values), 5))
+    ages_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
+
+    return pd.cut(
+        df[age_col],
+        age_bins,
+        labels=ages_labels,
+        right=False,
+        ordered=False,
+    )
+
+
+def rename_gender(df: pd.DataFrame, gender_col: str) -> pd.Series:
+    return np.where(df['Gender'], 'Male', 'Female')
+
+
