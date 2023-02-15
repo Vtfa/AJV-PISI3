@@ -129,3 +129,24 @@ def rename_gender(df: pd.DataFrame, gender_col: str) -> pd.Series:
     return np.where(df['Gender'], 'Male', 'Female')
 
 
+def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Series:
+            # não solteiros foram agrupados por serem poucos
+            return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
+
+
+def treat_data(df: pd.DataFrame) -> None:
+    df['Marital status'] = marital_status_rename(df, 'Marital status')
+
+    df["Escolaridade mae"] = escolaridade_pais(df["Mother's qualification"])
+    df["Escolaridade pai"] = escolaridade_pais(df["Father's qualification"])
+
+    df["Renda pai"] = renda_pais(df["Father's occupation"])
+    df["Renda mae"] = renda_pais(df["Mother's occupation"])
+
+    df["Renda total"] = df["Renda pai"] + df["Renda mae"]
+
+    df['Course'] = rename_courses(df, 'Course')
+
+    df['age_range'] = age_range_calc(df, 'Age at enrollment')
+
+    df['Gender'] = rename_gender(df, 'Gender')

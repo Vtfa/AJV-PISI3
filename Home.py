@@ -34,39 +34,11 @@ def main():
     with st.container() as dataset:
         dropout_data = pd.read_csv('data/dropout.csv')
 
-        if 'dropout_data_state' not in st.session_state:
-            print('dropout_data_state recorded')
-            st.session_state['dropout_data_state'] = dropout_data
+        st.session_state['dropout_data_state'] = dropout_data
 
-
-        def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Series:
-            # não solteiros foram agrupados por serem poucos
-            return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
-
-        dropout_data['Marital status'] = marital_status_rename(dropout_data, 'Marital status')
-
-        dropout_data["Escolaridade mae"] = escolaridade_pais(dropout_data["Mother's qualification"])
-        dropout_data["Escolaridade pai"] = escolaridade_pais(dropout_data["Father's qualification"])
-
-        dropout_data["Renda pai"] = renda_pais(dropout_data["Father's occupation"])
-        dropout_data["Renda mae"] = renda_pais(dropout_data["Mother's occupation"])
-
-        dropout_data["Renda total"] = dropout_data["Renda pai"] + dropout_data["Renda mae"]
-
-        # esse bloco de texto pode ser usado pra printar na tela DFs com a soma de cada nível de escolaridade individual e a soma dos tipos de escolaridade agrupados
-        # df_teste_mae = dropout_data.groupby(["Mother's qualification"])["Mother's qualification"].count().reset_index(name='soma_mae')
-        # df_teste_mae_novo = dropout_data.groupby(["Escolaridade mae"])["Escolaridade mae"].count().reset_index(name='soma_mae')
-        # st.write(df_teste_mae)
-        # st.write(df_teste_mae_novo)
-
-
-        dropout_data['Course'] = rename_courses(dropout_data, 'Course')
+        treat_data(dropout_data)
 
         st.subheader('Age of students')
-
-        dropout_data['age_range'] = age_range_calc(dropout_data, 'Age at enrollment')
-
-        dropout_data['Gender'] = rename_gender(dropout_data, 'Gender')
 
         gender_data = (
             dropout_data[['age_range', 'Gender', 'Course']]
@@ -205,14 +177,6 @@ def main():
         st.plotly_chart(course_gender_age, use_container_width=True)
 
 
-
-        #st.title("Testando plotly e manipulação de valores de colunas no pandas!")
-        #st.subheader("Aqui trocamos valores '1' e '0' da coluna 'Gender' por valores 'Male' e 'Female' usando o método pandas.DataFrame.loc")
-
-        # dropout_data.loc[dropout_data['Gender'] == 1, "Gender"] = 'Male'
-        # dropout_data.loc[dropout_data['Gender'] == 0, "Gender"] = 'Female'
-
-
         df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
         st.title('Gender of students')
         fig = px.pie(df, values='count', names='Gender')
@@ -249,11 +213,6 @@ def main():
         st.plotly_chart(pie_graduate_gender, use_container_width=True)
 
         st.title("Histograma de dropout por curso")
-        #st.subheader(
-        # 'Fica mais fácil visualizar tendências em um Histograma,' +
-        #  ' aqui procuro tendências do dropout relacionados aos cursos dos alunos.' +
-        # ' Trocamos os valores numéricos dos  cursos por valores correspondentes do dicionário.'
-    # )
 
         histograma_drop = px.histogram(
             dropout_data,
