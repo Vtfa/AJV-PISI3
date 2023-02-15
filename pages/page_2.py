@@ -108,12 +108,26 @@ with dataset:
     with col_marital1:
         dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='Total students')
         donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.3)
+
+        donut_target_total.update_layout(
+            title="All students",
+            title_x = 0.5
+        )
+
         st.write(donut_target_total)
+
+
 
     with col_marital2: 
         df_single = dropout_data[dropout_data['Marital status'] == 'Solteiro']
         dfaux_single = df_single.groupby(['Target'])['Target'].count().reset_index(name='Total single students')
         donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.3)
+        
+        donut_target_single.update_layout(
+            title="Single students",
+            title_x = 0.5
+        )
+
         st.write(donut_target_single)
 
     with col_marital3:
@@ -121,8 +135,17 @@ with dataset:
 
         df_non_single = dropout_data[dropout_data['Marital status'] == 'Outros']
         dfaux_non_single = df_non_single.groupby(['Target'])['Target'].count().reset_index(name='Total non single students')
-        donut_target_non_single = px.pie(dfaux_non_single, values='Total non single students', names='Target', hole=0.3, color_discrete_sequence=colors_marital)
-        st.write(donut_target_non_single)
+        donut_target_non_single = px.pie(
+        dfaux_non_single, 
+        values='Total non single students', 
+        names='Target', 
+        hole=0.3, 
+        color_discrete_sequence=colors_marital, 
+        )
 
-   
-   
+        donut_target_non_single.update_layout(
+            title="Non single students",
+            title_x = 0.5
+        )
+
+        st.write(donut_target_non_single)
