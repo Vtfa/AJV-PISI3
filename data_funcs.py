@@ -150,3 +150,26 @@ def treat_data(df: pd.DataFrame) -> None:
     df['age_range'] = age_range_calc(df, 'Age at enrollment')
 
     df['Gender'] = rename_gender(df, 'Gender')
+
+
+def get_gender_data(df: pd.DataFrame) -> pd.DataFrame:
+    gender_data = (
+        df[['age_range', 'Gender', 'Course']]
+        .groupby(['age_range', 'Gender'])
+        .count()
+    )
+    gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
+    return gender_data
+
+
+def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
+    course_data = (
+        df[['age_range', 'Gender', 'Course', 'Displaced']]
+        .groupby(['Course', 'Gender', 'age_range'])
+        .count()
+        .reset_index()
+    )
+
+    course_data.rename(columns={'Displaced': 'count'}, inplace=True)
+
+    return course_data
