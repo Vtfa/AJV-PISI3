@@ -7,24 +7,11 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from data_funcs import *
 from plot_funcs import *
+from aux_funcs import *
 
 
 title = "Predict Dropout or Academic Success"
-
-st.set_page_config(
-    page_title=title,
-    layout='wide',
-    page_icon=u"\U0001F393",
-    menu_items={
-        'About': '''
-        #### **Equipe**
-        Aldemar S R Filho\n
-        Arthur de Barros Botelho dos Santos\n
-        Douglas Rafael Miranda de Souza\n
-        João Vitor da Silva Pires\n
-        Vinicius Thalles Ferreira Araujo''',
-    }
-)
+config_page(title)
 
 
 def main():
@@ -33,149 +20,19 @@ def main():
 
     with st.container() as dataset:
         dropout_data = pd.read_csv('data/dropout.csv')
-
         st.session_state['dropout_data_state'] = dropout_data
 
         treat_data(dropout_data)
 
         st.subheader('Age of students')
 
-        gender_data = (
-            dropout_data[['age_range', 'Gender', 'Course']]
-            .groupby(['age_range', 'Gender'])
-            .count()
-        )
-        gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
-
+        gender_data = get_gender_data(dropout_data)
         if 'gender_data' not in st.session_state:
             st.session_state['gender_data'] = gender_data
 
-        demographic_pyramid(gender_data)
-
-        bar_age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
-        st.bar_chart(bar_age)
-
-
-        course_data = (
-            dropout_data[['age_range', 'Gender', 'Course', 'Displaced']]
-            .groupby(['Course', 'Gender', 'age_range'])
-            .count()
-            .reset_index()
-        )
-        course_data.rename(columns={'Displaced': 'count'}, inplace=True)
-
-        gender_tree = px.treemap(
-                course_data,
-                title='Gender distribution by course',
-                path=[ 'Course', 'Gender'],
-                color_continuous_scale='RdBu',
-                color='count',
-                values='count',
-                height=1000,
-        )
-
-        gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-        gender_tree.update_layout(
-            title_font_size=26,
-            font_size=16,
-        )
-
-        st.plotly_chart(gender_tree, use_container_width=True)
-
-        female_tree = px.treemap(
-                course_data.query('Gender == "Female"'),
-                title='Course and age distribution for female students',
-                path=['Gender', 'Course', 'age_range'],
-                values='count',
-                height=1000,
-        )
-
-        female_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-        female_tree.update_layout(
-            title_font_size=26,
-            font_size=16,
-        )
-
-        st.plotly_chart(female_tree, use_container_width=True)
-
-        male_tree = px.treemap(
-                course_data.query('Gender == "Male"'),
-                title='Course and age distribution for male students',
-                path=['Gender', 'Course', 'age_range'],
-                values='count',
-                height=1000,
-        )
-
-        male_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-        male_tree.update_layout(
-            title_font_size=26,
-            font_size=16,
-        )
-
-        st.plotly_chart(male_tree, use_container_width=True)
-
-        course_gender_age = go.Figure()
-        course_gender_age_index = (
-            course_data['Course'].str.replace('(', ' ', regex=False)
-            .str.replace(' ', '<br>')
-            .str.replace(')', '', regex=False)
-            .unique()
-        )
-        course_gender_age_range = [0, 650]
-
-        course_gender_data = course_data.groupby(['Course', 'Gender'])[['count']].sum()
-        course_gender_data = course_gender_data.unstack().droplevel(0, 1)
-
-        course_gender_age.add_trace(
-            go.Bar(
-                name="Female",
-                x=course_gender_age_index,
-                y=course_gender_data["Female"],
-                orientation='v',
-                marker={
-                    'color': 'rgba(99, 110, 250, 0.5)'
-                },
-            ),
-        )
-
-        course_gender_age.add_trace(
-            go.Bar(
-                name="Male",
-                x=course_gender_age_index,
-                y=course_gender_data["Male"],
-                orientation='v',
-                marker={
-                    'color': 'rgba(0, 204, 150, 0.5)'
-                },
-            ),
-        )
-
-        course_gender_age.update_xaxes(
-            title_text='Course',
-            title_standoff=35,
-            tickangle=-90,
-        )
-
-        course_gender_age.update_yaxes(
-            title_text='Students',
-            title_standoff=25,
-        )
-
-        course_gender_age.update_layout(
-            height=900,
-            font_size=14,
-            title='Gender distribution by course',
-            barmode='stack',
-            hovermode='x unified',
-            margin={'b': 190},
-            margin_pad=10,
-        )
-
-        st.plotly_chart(course_gender_age, use_container_width=True)
-
+        course_data = get_course_data(dropout_data)
+        if 'course_data' not in st.session_state:
+            st.session_state['course_data'] = course_data
 
         df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
         st.title('Gender of students')
