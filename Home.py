@@ -12,6 +12,7 @@ from aux_funcs import *
 
 title = "Predict Dropout or Academic Success"
 config_page(title)
+page_style()
 
 
 def main():
@@ -24,7 +25,27 @@ def main():
 
         treat_data(dropout_data)
 
-        st.subheader('Age of students')
+        st.subheader('Resumo')
+
+        abstract =('<div class="content-size justified-text">' \
+            "   A evasão do ensino superior ainda é um desafio a ser superado em diversos países, em 2008, a média de evasão de 19 países da OCDE com dados disponível "\
+            "era de 31%. Esse trabalho busca analisar dados socioeconômicos de alunos de universidades portuguesas que estão no primeiro ano dos seus estudos, com o"\
+            "objetivo de identificar fatores que possam contribuir negativamente ou positivamente para seu desempenho acadêmica e para o abandono escolar, também serão"\
+            "analisados fatores econômicos em nível nacional, buscando verificar se também podem  influenciar os resultados dos alunos"\
+            '</div><br><br>'
+        )
+        st.markdown(abstract, unsafe_allow_html=True)
+
+        st.subheader('Objetivos')
+
+        objectives =('<ul>' \
+            '<li class="content-size">Descobrir quais são os principais fatores socioeconômicos que influenciam o desempenho acadêmico dos estudantes no ensino superior e suas chances de  evasão.</li>'\
+            '<li class="content-size">Usar métodos de Machine Learning para prever quais estudantes estão em maior risco de evasão</li>'\
+            '<li class="content-size">Verificar como fatores macroeconômicos do país interagem com os fatores socioeconômicos dos estudantes </li>'\
+            '<li class="content-size">Estudar a literatura e comparar os resultados encontrados para avançar o entendimento sobre o problema</li>'\
+            '</ul>'
+        )
+        st.markdown(objectives, unsafe_allow_html=True)
 
         gender_data = get_gender_data(dropout_data)
         if 'gender_data' not in st.session_state:

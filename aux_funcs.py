@@ -24,3 +24,18 @@ def config_page(title: str) -> None:
             Vinicius Thalles Ferreira Araujo''',
         }
     )
+
+
+def page_style():
+    st.markdown("""
+        <style>
+        .justified-text {
+            text-align: justify;
+        }
+        .content-size {
+            font-size:1.05em !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
