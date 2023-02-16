@@ -96,8 +96,8 @@ with dataset:
     fig = px.pie(df_marital_status, values='count', names='Marital status')
     st.plotly_chart(fig, use_container_width=True)
 
-    
-    box_marital_status = px.box(dropout_data, x='Marital status', y='Age at enrollment', points="outliers")
+    box_marital_sample = dropout_data.sample(n=300, random_state=66)
+    box_marital_status = px.box(box_marital_sample, x='Marital status', y='Age at enrollment', points="all")
     st.write(box_marital_status)
 
 
@@ -107,7 +107,7 @@ with dataset:
 
     with col_marital1:
         dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.3)
+        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.5)
 
         donut_target_total.update_layout(
             title="All students",
@@ -121,7 +121,7 @@ with dataset:
     with col_marital2: 
         df_single = dropout_data[dropout_data['Marital status'] == 'Solteiro']
         dfaux_single = df_single.groupby(['Target'])['Target'].count().reset_index(name='Total single students')
-        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.3)
+        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5)
         
         donut_target_single.update_layout(
             title="Single students",
@@ -139,7 +139,7 @@ with dataset:
         dfaux_non_single, 
         values='Total non single students', 
         names='Target', 
-        hole=0.3, 
+        hole=0.5, 
         color_discrete_sequence=colors_marital, 
         )
 
@@ -159,3 +159,25 @@ with dataset:
     df_country = dropout_data.groupby(['Nacionality'])['Nacionality'].count().reset_index(name='count')
     pie_country = px.bar(df_country)
     st.plotly_chart(pie_country, use_container_width=True)
+
+
+    
+    
+    st.title('Situação dos estudantes por estado civil')
+    option_marital = st.selectbox(
+        'Mudar o grupo visualizado',
+        ('Estudantes solteiros', 'Estudantes não solteiros', 'Mostrar todos')
+    )
+    col_test1, col_test2, col_test3 = st.columns(3)
+    with col_test1:
+       st.write(donut_target_total)
+    with col_test2:
+        if option_marital == 'Estudantes solteiros':
+            st.write(donut_target_single)
+        elif option_marital == 'Estudantes não solteiros':
+            st.write(donut_target_non_single)
+        else:
+            with col_test2:
+                st.write(donut_target_single)
+            with col_test3:
+                st.write(donut_target_non_single)
