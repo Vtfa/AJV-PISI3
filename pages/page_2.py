@@ -181,3 +181,54 @@ with dataset:
                 st.write(donut_target_single)
             with col_test3:
                 st.write(donut_target_non_single)
+
+
+   
+    dropout_data.loc[dropout_data['International'] == 0, "International"] = 'Nativo'
+    dropout_data.loc[dropout_data['International'] == 1, "International"] = 'Internacional'
+    
+    df_native = dropout_data[dropout_data['International'] == 'Nativo']
+    dfaux_native = df_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
+    donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5)
+
+    donut_native.update_layout(
+        title="Estudantes nativos",
+        title_x = 0.5
+    )
+
+    df_non_native = dropout_data[dropout_data['International'] == 'Internacional']
+    dfaux_non_native = df_non_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
+    donut_non_native = px.pie(dfaux_non_native, values="Nacionalidade", names='Target', hole=0.5)
+
+    donut_non_native.update_layout(
+        title="Estudantes internacionais",
+        title_x = 0.5
+    )
+    
+
+    st.title('Situação dos estudantes nativos e internacionais')
+    option_international = st.radio(
+        'Mudar o grupo visualizado',
+        ('Estudantes nativos', 'Estudantes internacionais', 'Mostrar todos')
+    )
+
+    col_international1, col_international2, col_international3 = st.columns(3)
+
+    with col_international1:
+       st.write(donut_target_total)
+    with col_international2:
+        if option_international == 'Estudantes nativos':
+            st.write(donut_native)
+        elif option_international == 'Estudantes internacionais':
+            st.write(donut_non_native)
+        else:
+            with col_international2:
+                st.write(donut_native)
+            with col_international3:
+                st.write(donut_non_native)
+
+
+
+
+
+
