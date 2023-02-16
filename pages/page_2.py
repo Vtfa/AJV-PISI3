@@ -164,7 +164,7 @@ with dataset:
     
     
     st.title('Situação dos estudantes por estado civil')
-    option_marital = st.selectbox(
+    option_marital = st.radio(
         'Mudar o grupo visualizado',
         ('Estudantes solteiros', 'Estudantes não solteiros', 'Mostrar todos')
     )
