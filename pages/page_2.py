@@ -227,8 +227,35 @@ with dataset:
             with col_international3:
                 st.write(donut_non_native)
 
+    #df inicial com totais por faixa de inflação
+    inflation_totals = dropout_data.groupby(['Inflation rate', 'Target'])['Target'].count().reset_index(name='num_students')
+
+    # inicia df que terá totais e porcentagens de graduate, dropout e enrolled por taxa de inflação
+    inflation_totals_pct = inflation_totals.pivot(index='Inflation rate', columns='Target', values='num_students').reset_index()
+    inflation_totals_pct.columns = ['Inflation rate', 'dropout', 'enrolled', 'graduate']
+  
+    inflation_totals_pct['total_students'] = inflation_totals_pct['enrolled'] + inflation_totals_pct['dropout'] + inflation_totals_pct['graduate']
+
+    # 🍝
+    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['enrolled'] / inflation_totals_pct['total_students'] * 100 
+    inflation_totals_pct['Dropout percentage'] = inflation_totals_pct['dropout'] / inflation_totals_pct['total_students'] * 100
+    inflation_totals_pct['Graduate percentage'] = inflation_totals_pct['graduate'] / inflation_totals_pct['total_students'] * 100
+    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
+    inflation_totals_pct['Dropout percentage'] = inflation_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
+    inflation_totals_pct['Graduate percentage'] = inflation_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
 
 
+    st.title('Relação da inflação com taxas de graduação')
+    option_inflation = st.checkbox('Adicionar linha aos pontos')
 
+    scatter_inflation_graduate = px.scatter(inflation_totals_pct, x='Graduate percentage', y='Inflation rate')
+    scatter_inflation_graduate.update_xaxes(categoryorder='category ascending')
 
-
+    inflation_totals_pct_sort = inflation_totals_pct.sort_values(by='Graduate percentage')
+    scatter_inflation_graduate_dots = px.line(inflation_totals_pct_sort, x='Graduate percentage', y='Inflation rate', markers=True)
+    scatter_inflation_graduate_dots.update_xaxes(categoryorder='category ascending',)
+    
+    if option_inflation:
+        st.write(scatter_inflation_graduate_dots)
+    else:
+        st.write(scatter_inflation_graduate)
