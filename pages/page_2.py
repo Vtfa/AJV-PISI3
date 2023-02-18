@@ -259,3 +259,72 @@ with dataset:
         st.write(scatter_inflation_graduate_dots)
     else:
         st.write(scatter_inflation_graduate)
+
+    st.title('Relação do PIB com taxas de graduação')
+    option_gdp = st.checkbox('Adicionar linha aos pontos', key='1')
+
+    gdp_totals = dropout_data.groupby(['GDP', 'Target'])['Target'].count().reset_index(name='num_students')
+
+    gdp_totals_pct = gdp_totals.pivot(index='GDP', columns='Target', values='num_students').reset_index()
+    gdp_totals_pct.columns = ['GDP', 'dropout', 'enrolled', 'graduate']
+  
+    gdp_totals_pct['total_students'] = gdp_totals_pct['enrolled'] + gdp_totals_pct['dropout'] + gdp_totals_pct['graduate']
+   
+    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['enrolled'] / gdp_totals_pct['total_students'] * 100 
+    gdp_totals_pct['Dropout percentage'] = gdp_totals_pct['dropout'] / gdp_totals_pct['total_students'] * 100
+    gdp_totals_pct['Graduate percentage'] = gdp_totals_pct['graduate'] / gdp_totals_pct['total_students'] * 100
+    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
+    gdp_totals_pct['Dropout percentage'] = gdp_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
+    gdp_totals_pct['Graduate percentage'] = gdp_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
+
+
+
+    scatter_gdp_graduate = px.scatter(gdp_totals_pct, x='Graduate percentage', y='GDP')
+    scatter_gdp_graduate.update_xaxes(categoryorder='category ascending')
+
+    gdp_totals_pct_sort = gdp_totals_pct.sort_values(by='Graduate percentage')
+    scatter_gdp_graduate_dots = px.line(gdp_totals_pct_sort, x='Graduate percentage', y='GDP', markers=True)
+    scatter_gdp_graduate_dots.update_xaxes(categoryorder='category ascending',)
+    
+    if option_gdp:
+        st.write(scatter_gdp_graduate_dots)
+    else:
+        st.write(scatter_gdp_graduate)
+
+
+
+    st.title('Relação da taxa de desemprego com taxas de graduação')
+    option_unemployment = st.checkbox('Adicionar linha aos pontos', key='2')
+
+    unemployment_totals = dropout_data.groupby(['Unemployment rate', 'Target'])['Target'].count().reset_index(name='num_students')
+
+    unemployment_totals_pct = unemployment_totals.pivot(index='Unemployment rate', columns='Target', values='num_students').reset_index()
+    unemployment_totals_pct.columns = ['Unemployment rate', 'dropout', 'enrolled', 'graduate']
+  
+    unemployment_totals_pct['total_students'] = unemployment_totals_pct['enrolled'] + unemployment_totals_pct['dropout'] + gdp_totals_pct['graduate']
+   
+    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['enrolled'] / unemployment_totals_pct['total_students'] * 100 
+    unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['dropout'] / unemployment_totals_pct['total_students'] * 100
+    unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['graduate'] / unemployment_totals_pct['total_students'] * 100
+    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
+    unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
+    unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
+
+
+
+    scatter_unemployment_graduate = px.scatter(unemployment_totals_pct, x='Graduate percentage', y='Unemployment rate')
+    scatter_unemployment_graduate.update_xaxes(categoryorder='category ascending')
+
+    unemployment_totals_pct_sort = unemployment_totals_pct.sort_values(by='Graduate percentage')
+    scatter_unemployment_graduate_dots = px.line(unemployment_totals_pct_sort, x='Graduate percentage', y='Unemployment rate', markers=True)
+    scatter_unemployment_graduate_dots.update_xaxes(categoryorder='category ascending',)
+    
+    if option_unemployment:
+        st.write(scatter_unemployment_graduate_dots)
+    else:
+        st.write(scatter_unemployment_graduate)
+
+
+
+
+
