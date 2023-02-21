@@ -186,6 +186,9 @@ with dataset:
    
     dropout_data.loc[dropout_data['International'] == 0, "International"] = 'Nativo'
     dropout_data.loc[dropout_data['International'] == 1, "International"] = 'Internacional'
+
+    dropout_data.loc[dropout_data['Scholarship holder'] == 0, "Scholarship holder"] = 'Não bolsista'
+    dropout_data.loc[dropout_data['Scholarship holder'] == 1, "Scholarship holder"] = 'Bolsista'
     
     df_native = dropout_data[dropout_data['International'] == 'Nativo']
     dfaux_native = df_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
@@ -310,8 +313,6 @@ with dataset:
     unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
     unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
 
-
-
     scatter_unemployment_graduate = px.scatter(unemployment_totals_pct, x='Graduate percentage', y='Unemployment rate')
     scatter_unemployment_graduate.update_xaxes(categoryorder='category ascending')
 
@@ -324,7 +325,107 @@ with dataset:
     else:
         st.write(scatter_unemployment_graduate)
 
+    df_scholarship_grouped = dropout_data.groupby(['Scholarship holder', 'Target'])['Target'].count().reset_index(name='count')
+
+    # total de estudantes pra cada grupo
+    total_students = df_scholarship_grouped.groupby('Scholarship holder')['count'].transform('sum')
+
+    # calcula a porcentagem de cada groupo
+    df_scholarship_grouped['percentage'] = df_scholarship_grouped['count'] / total_students * 100
+
+    bar_scholarship = px.bar(df_scholarship_grouped, x='Scholarship holder', y='percentage', color='Target', barmode='stack')
+
+    bar_scholarship.update_traces(width=0.2)
+    bar_scholarship.update_layout(
+                    xaxis_title='Scholarship holder',
+                    yaxis_title='Percentage'
+                    )
+    st.title('Status de bolsistas e não bolsistas')
+    st.write(bar_scholarship)
 
 
 
+    df_classe_baixa= dropout_data[dropout_data['Renda total'] <= 1405]
+    classe_baixa_target_total = df_classe_baixa.groupby('Target').size()
+    classe_baixa_total = len(df_classe_baixa)
+
+    df_classe_media= dropout_data[(dropout_data['Renda total'] > 1405) & (dropout_data['Renda total'] < 3000)]
+    classe_media_target_total = df_classe_media.groupby('Target').size()
+    classe_media_total = len(df_classe_media)
+
+    df_classe_alta= dropout_data[dropout_data['Renda total'] >= 3000]
+    classe_alta_target_total = df_classe_alta.groupby('Target').size()
+    classe_alta_total = len(df_classe_alta)    
+
+
+
+    funnel_classe_baixa = go.Figure(go.Funnel(
+        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
+        x=[classe_baixa_total, classe_baixa_target_total["Graduate"], classe_baixa_target_total["Dropout"], classe_baixa_target_total["Enrolled"]],
+        textinfo="value+percent initial",
+        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+    ))
+
+    funnel_classe_baixa.update_layout(
+        title="Estudantes de classe baixa",
+        title_x = 0.5
+    )
+
+    funnel_classe_media = go.Figure(go.Funnel(
+        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
+        x=[classe_media_total, classe_media_target_total["Graduate"], classe_media_target_total["Dropout"], classe_media_target_total["Enrolled"]],
+        textinfo="value+percent initial",
+        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+    ))
+
+    funnel_classe_media.update_layout(
+        title="Estudantes de classe média",
+        title_x = 0.5
+    )
+
+    funnel_classe_alta = go.Figure(go.Funnel(
+        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
+        x=[classe_alta_total, classe_alta_target_total["Graduate"], classe_alta_target_total["Dropout"], classe_alta_target_total["Enrolled"]],
+        textinfo="value+percent initial",
+        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+    ))
+
+    funnel_classe_alta.update_layout(
+        title="Estudantes de classe alta",
+        title_x = 0.5
+    )
+
+
+    # Gambiarra pra diminuir o tamanho do select box. Como existem 4 colunas, o select box vai ocupar 1/4 do espaço que ocuparia sem colunas
+    col_funnel_renda_select, col_funnel_renda_select2, col_funnel_renda_select3, col_funnel_renda_select4 = st.columns(4)
+
+    with col_funnel_renda_select:
+        select_funnel_renda = st.selectbox('Escola uma classe econômica', ('Classe baixa', 'Classe média', 'Classe alta', 'Mostrar todos'))
+
+    col_funnel_renda1,  col_funnel_renda2 = st.columns(2)
+
+    if select_funnel_renda == 'Classe baixa':
+        with col_funnel_renda1:
+            st.write(funnel_total)
+        with col_funnel_renda2:
+            st.write(funnel_classe_baixa)
+    elif select_funnel_renda == 'Classe média':
+        with col_funnel_renda1:
+            st.write(funnel_total)
+        with col_funnel_renda2:
+            st.write(funnel_classe_media)
+    elif select_funnel_renda == 'Classe alta':
+        with col_funnel_renda1:
+            st.write(funnel_total)
+        with col_funnel_renda2:
+            st.write(funnel_classe_alta)
+    else:
+        st.write(funnel_total)
+        col_funnel_renda1,  col_funnel_renda2, col_funnel_renda3 = st.columns(3)
+        with col_funnel_renda1:
+            st.write(funnel_classe_baixa)
+        with col_funnel_renda2:
+            st.write(funnel_classe_media)
+        with col_funnel_renda3:
+            st.write(funnel_classe_alta)
 
