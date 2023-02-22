@@ -1,10 +1,21 @@
 import streamlit as st
 
-def valid_session_data(vars: list[str], msg: str) -> bool:
-    for var in vars:
-        if var not in st.session_state:
-            st.markdown(msg)
-            return False
+def valid_session_data(dataframes: list[str], msg: str) -> bool:
+    df_exists = {}
+    for df in dataframes:
+        if df not in st.session_state:
+            df_exists[df] = False
+            continue
+
+        df_exists[df] = True
+
+    if not all(df_exists.values()):
+        st.markdown(msg)
+        with st.expander('Errors'):
+            for df, exists in df_exists.items():
+                if not exists:
+                    st.error(f'⚠️ Could not find {df} data ⚠️')
+        return False
 
     return True
 
