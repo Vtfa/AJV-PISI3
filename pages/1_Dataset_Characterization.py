@@ -15,13 +15,12 @@ config_page(title)
 
 def page_1():
 
-    data_states = ['dropout_data_state', 'gender_data', 'course_data']
+    dataframes = ['dropout_data', 'gender_data', 'course_data', 'debt_data']
 
-    if not valid_session_data(data_states, '## :construction: Please go to Home page before :construction:'):
+    if not valid_session_data(dataframes, '## :construction: Please go to Home page before :construction:'):
         return
 
-    gender_data = st.session_state['gender_data']
-    course_data = st.session_state['course_data']
+    datasets = {data: st.session_state[data] for data in dataframes}
 
     with st.container():
         st.title(title)
@@ -30,14 +29,18 @@ def page_1():
 
         st.subheader('Students')
 
-        demographic_pyramid(gender_data)
+        demographic_pyramid(datasets['gender_data'])
 
-        gender_tree(course_data)
+        gender_tree(datasets['course_data'])
 
-        specific_gender_tree(course_data, 'Female')
+        specific_gender_tree(datasets['course_data'], 'Female')
 
-        specific_gender_tree(course_data, 'Male')
+        specific_gender_tree(datasets['course_data'], 'Male')
 
-        gender_by_course(course_data)
+        gender_by_course(datasets['course_data'])
+
+        dropout_by_gender(datasets['debt_data'])
+
+        dropout_by_age_debt(datasets['debt_data'])
 
 page_1()
