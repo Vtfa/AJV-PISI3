@@ -156,3 +156,41 @@ def gender_by_course(data: pd.DataFrame) -> None:
     )
 
     st.plotly_chart(course_gender_age, use_container_width=True)
+
+
+def dropout_by_gender(df: pd.DataFrame) -> None:
+    debt_gender_tree = px.treemap(
+                df,
+                title='Target distribution by gender',
+                path=['Gender', 'Target', 'debt'],
+                values='count',
+                height=1000,
+        )
+
+    debt_gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
+
+    debt_gender_tree.update_layout(
+        title_font_size=26,
+        font_size=16,
+    )
+
+    st.plotly_chart(debt_gender_tree, use_container_width=True)
+
+
+def dropout_by_age_debt(df: pd.DataFrame) -> None:
+    debt_tree = px.treemap(
+                df,
+                title='Target distribution by age and debt',
+                path=['age_range', 'Target', 'debt'],
+                values='count',
+                height=1000,
+        )
+
+    debt_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
+
+    debt_tree.update_layout(
+        title_font_size=26,
+        font_size=16,
+    )
+
+    st.plotly_chart(debt_tree, use_container_width=True)

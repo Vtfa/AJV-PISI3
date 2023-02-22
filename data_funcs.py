@@ -173,3 +173,20 @@ def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
     course_data.rename(columns={'Displaced': 'count'}, inplace=True)
 
     return course_data
+
+
+def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
+    debt_data = df.copy()
+    debt_data['debt'] = np.where(
+        (debt_data['Debtor'] == 1) | (debt_data['Tuition fees up to date'] == 0), 'has debt', 'up to date'
+    )
+
+    debt_data = (
+        debt_data[['age_range', 'Gender', 'Course', 'debt', 'Displaced', 'Target']]
+        .groupby(['Gender', 'Target', 'Course', 'age_range', 'debt'])
+        .count()
+        .reset_index()
+    )
+    # debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
+    debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
+    return debt_data
