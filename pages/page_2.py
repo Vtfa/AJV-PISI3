@@ -326,6 +326,7 @@ with dataset:
         st.write(scatter_unemployment_graduate)
 
     df_scholarship_grouped = dropout_data.groupby(['Scholarship holder', 'Target'])['Target'].count().reset_index(name='count')
+    st.write(df_scholarship_grouped)
 
     # total de estudantes pra cada grupo
     total_students = df_scholarship_grouped.groupby('Scholarship holder')['count'].transform('sum')
@@ -358,6 +359,7 @@ with dataset:
     classe_alta_total = len(df_classe_alta)    
 
 
+    st.title('Situação dos estudantes por classe econômica')
 
     funnel_classe_baixa = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
@@ -429,3 +431,52 @@ with dataset:
         with col_funnel_renda3:
             st.write(funnel_classe_alta)
 
+    st.title('Situação dos estudantes por educação dos pais')
+
+    df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
+    dfaux_both_higher = df_both_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
+    donut_both_higher = px.pie(dfaux_both_higher, values='Total students', names='Target', hole=0.5)
+
+    donut_both_higher.update_layout(
+        title="ambos superior",
+        title_x = 0.5
+    )
+
+    df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
+    dfaux_one_higher = df_one_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
+    donut_one_higher = px.pie(dfaux_one_higher, values='Total students', names='Target', hole=0.5)
+
+    donut_one_higher.update_layout(
+        title="1 ensino superior",
+        title_x = 0.5
+    )
+
+    df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
+    dfaux_both_secondary = df_both_secondary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
+    donut_both_secondary = px.pie(dfaux_both_secondary, values='Total students', names='Target', hole=0.5)
+
+    donut_both_secondary.update_layout(
+        title="Ambos ensino médio",
+        title_x = 0.5
+    )
+
+    df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
+    dfaux_both_primary = df_both_primary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
+    donut_both_primary = px.pie(dfaux_both_primary, values='Total students', names='Target', hole=0.5)
+
+    donut_both_primary.update_layout(
+        title="Ambos ensino fundamental",
+        title_x = 0.5
+    )
+    
+    col_parents_education1, col_parents_education2, col_parents_education3, col_parents_education4 = st.columns(4)
+    
+
+    with col_parents_education1:
+        st.write(donut_both_higher)
+    with col_parents_education2:
+        st.write(donut_one_higher)
+    with col_parents_education3:
+        st.write(donut_both_secondary)        
+    with col_parents_education4:
+        st.write(donut_both_primary)
