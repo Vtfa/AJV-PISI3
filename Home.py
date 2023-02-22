@@ -20,10 +20,13 @@ def main():
         st.title(title)
 
     with st.container() as dataset:
-        dropout_data = pd.read_csv('data/dropout.csv')
-        st.session_state['dropout_data_state'] = dropout_data
+        if 'dropout_data_raw' not in st.session_state:
+            dropout_data = pd.read_csv('data/dropout.csv')
+            st.session_state['dropout_data_state'] = dropout_data
 
-        treat_data(dropout_data)
+        if 'dropout_data' not in st.session_state:
+            treat_data(dropout_data)
+            st.session_state['dropout_data'] = dropout_data
 
         st.subheader('Resumo')
 
@@ -47,12 +50,12 @@ def main():
         )
         st.markdown(objectives, unsafe_allow_html=True)
 
-        gender_data = get_gender_data(dropout_data)
         if 'gender_data' not in st.session_state:
+            gender_data = get_gender_data(dropout_data)
             st.session_state['gender_data'] = gender_data
 
-        course_data = get_course_data(dropout_data)
         if 'course_data' not in st.session_state:
+            course_data = get_course_data(dropout_data)
             st.session_state['course_data'] = course_data
 
         df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
@@ -230,51 +233,7 @@ def main():
         st.plotly_chart(pie_scholarship, use_container_width=True)
 
 
-    dropout_data['debt'] = np.where(
-        (dropout_data['Debtor'] == 1) | (dropout_data['Tuition fees up to date'] == 0), 'has debt', 'up to date'
-    )
-
-    debt_data = (
-        dropout_data[['age_range', 'Gender', 'Course', 'debt', 'Displaced', 'Target']]
-        .groupby(['Gender', 'Target', 'Course', 'age_range', 'debt'])
-        .count()
-        .reset_index()
-    )
-    # debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
-    debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
-
-    debt_gender_tree = px.treemap(
-                debt_data,
-                title='Target distribution by gender',
-                path=['Gender', 'Target', 'debt'],
-                values='count',
-                height=1000,
-        )
-
-    debt_gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-    debt_gender_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
-    )
-
-    st.plotly_chart(debt_gender_tree, use_container_width=True)
-
-    debt_tree = px.treemap(
-                debt_data,
-                title='Target distribution by age and debt',
-                path=['age_range', 'Target', 'debt'],
-                values='count',
-                height=1000,
-        )
-
-    debt_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-    debt_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
-    )
-
-    st.plotly_chart(debt_tree, use_container_width=True)
+    if 'debt_data' not in st.session_state:
+        st.session_state['debt_data'] = get_debt_data(dropout_data)
 
 main()
