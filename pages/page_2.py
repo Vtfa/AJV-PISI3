@@ -480,3 +480,26 @@ with dataset:
         st.write(donut_both_secondary)        
     with col_parents_education4:
         st.write(donut_both_primary)
+
+
+
+    df_age_target = dropout_data[['Age at enrollment', 'Target']]
+    df_age_target['Age group'] = pd.cut(df_age_target['Age at enrollment'], bins=[16, 29, 150], labels=['Entre 17 e 29 anos', 'Mais de 30 anos'])
+
+    df_age_target_count = df_age_target.groupby(['Age group', 'Target']).size().reset_index(name='Count')
+
+    df_age_target_count['Percentage'] = df_age_target_count.groupby('Age group')['Count'].apply(lambda x: 100 * x / float(x.sum()))
+    colors = ['#98FB98', '#87CEEB', '#FF6961']
+
+    bar_age_target = px.bar(df_age_target_count, x='Age group', y='Percentage', color='Target', barmode='stack', color_discrete_sequence=colors,
+                category_orders={'Age group': ['17-29', '30+'], 'Target': ['Graduate', 'Enrolled', 'Dropout']}, 
+                text=df_age_target_count['Percentage'].round(2)
+                )
+
+    st.title('Situação dos estudentes por faixa etária')
+    bar_age_target.update_traces(textposition='auto', texttemplate='%{text}%', width=0.2)
+    bar_age_target.update_layout(
+                    xaxis_title='Faixas etárias no ano de matrícula',
+                    yaxis_title='Porcentagem'
+                    )
+    st.write(bar_age_target)
