@@ -10,9 +10,26 @@ from plot_funcs import *
 from aux_funcs import *
 
 
-title = "Predict Dropout or Academic Success"
+title = "Predição de evasão acadêmica"
 config_page(title)
 page_style()
+
+if 'dropout_data_raw' not in st.session_state:
+    dropout_data_raw = pd.read_csv('data/dropout.csv')
+    st.session_state['dropout_data_state'] = dropout_data_raw
+
+if 'dropout_data' not in st.session_state:
+    dropout_data = treat_data(dropout_data_raw)
+    st.session_state['dropout_data'] = dropout_data
+
+if 'gender_data' not in st.session_state:
+    st.session_state['gender_data'] = get_gender_data(dropout_data)
+
+if 'course_data' not in st.session_state:
+    st.session_state['course_data'] = get_course_data(dropout_data)
+
+if 'debt_data' not in st.session_state:
+    st.session_state['debt_data'] = get_debt_data(dropout_data)
 
 
 def main():
@@ -20,15 +37,8 @@ def main():
         st.title(title)
 
     with st.container() as dataset:
-        if 'dropout_data_raw' not in st.session_state:
-            dropout_data = pd.read_csv('data/dropout.csv')
-            st.session_state['dropout_data_state'] = dropout_data
 
-        if 'dropout_data' not in st.session_state:
-            treat_data(dropout_data)
-            st.session_state['dropout_data'] = dropout_data
-
-        st.subheader('Resumo')
+        st.header('Resumo')
 
         abstract =('<div class="content-size justified-text">' \
             "   A evasão do ensino superior ainda é um desafio a ser superado em diversos países, em 2008, a média de evasão de 19 países da OCDE com dados disponível "\
@@ -39,7 +49,7 @@ def main():
         )
         st.markdown(abstract, unsafe_allow_html=True)
 
-        st.subheader('Objetivos')
+        st.header('Objetivos')
 
         objectives =('<ul>' \
             '<li class="content-size">Descobrir quais são os principais fatores socioeconômicos que influenciam o desempenho acadêmico dos estudantes no ensino superior e suas chances de  evasão.</li>'\
@@ -50,190 +60,25 @@ def main():
         )
         st.markdown(objectives, unsafe_allow_html=True)
 
-        if 'gender_data' not in st.session_state:
-            gender_data = get_gender_data(dropout_data)
-            st.session_state['gender_data'] = gender_data
+        st.header('Questionamentos')
 
-        if 'course_data' not in st.session_state:
-            course_data = get_course_data(dropout_data)
-            st.session_state['course_data'] = course_data
+        objectives =('<div class="content-size justified-text">' \
+            '<p>Quais são os principais fatores socioeconômicos que influenciam no desempenho e chances de evasão dos estudantes?<br>' \
+            'Como fatores socioeconômicos individuais afetam o desempenho acadêmico dos estudantes e suas chances de desistirem da universidade?<br>' \
+            'O nível educacional e ocupação dos pais influencia nisso?<br>' \
+            'Como as bolsas de estudo afetam os alunos?' \
+            '</p>' \
 
-        df = dropout_data.groupby(['Gender'])['Gender'].count().reset_index(name='count')
-        st.title('Gender of students')
-        fig = px.pie(df, values='count', names='Gender')
-        st.plotly_chart(fig, use_container_width=True)
+            '<p>Como os fatores macroeconômicos podem afetar no índice de evasão?<br>' \
+            'Levando em conta a situação econômica do país, é possível que fatores macroeconômicos, como inflação, taxa de desemprego e variação do PIB, ' \
+            'possam afetar o desempenho dos alunos e causar um aumento na evasão da universidade?' \
+            'Como esses fatores afetam alunos de diferentes grupos de alunos?</p>'\
 
-        st.title('Dropout rates by gender')
-
-        # novo dataframe apenas com registros em que target = dropout
-        df_droupout_gender = dropout_data[(dropout_data['Target'] == 'Dropout')]
-
-        # DF auxiliar com total de male e female para ser usado no gráfico abaixo
-        dfaux_dropout_gender = df_droupout_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_dropout_gender')
-        pie_dropout_gender = px.pie(
-            dfaux_dropout_gender,
-            values='soma_dropout_gender',
-            names='Gender'
+            '<p>Os cursos possuem algum grau de impacto nas taxas de evasão? Se sim, quais cursos?<br>' \
+            '</p></div>'
         )
 
-        st.plotly_chart(pie_dropout_gender, use_container_width=True)
+        st.markdown(objectives, unsafe_allow_html=True)
 
-        st.title('Graduation rates by gender')
-
-        # novo dataframe apenas com registros em que target = graduate
-        df_graduate_gender = dropout_data[(dropout_data['Target'] == 'Graduate')]
-
-        # DF auxiliar com total de male e female para ser usado no gráfico abaixo
-        dfaux_graduate_gender = df_graduate_gender.groupby(['Gender'])['Gender'].count().reset_index(name='soma_graduate_gender')
-        pie_graduate_gender = px.pie(
-            dfaux_graduate_gender,
-            values='soma_graduate_gender',
-            names='Gender'
-        )
-
-        st.plotly_chart(pie_graduate_gender, use_container_width=True)
-
-        st.title("Histograma de dropout por curso")
-
-        histograma_drop = px.histogram(
-            dropout_data,
-            x = "Course",
-        )
-
-        st.plotly_chart(histograma_drop, use_container_width=True)
-
-
-        #
-        #
-        # Aqui começa o codigo do grafico relacionando a coluna 'Debtor' com a evasao
-
-        dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='soma_target')
-
-        df_sem_divida = dropout_data[dropout_data.Debtor==0]
-        dfaux_sem_divida = df_sem_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_sem_divida')
-
-        df_com_divida = dropout_data[dropout_data.Debtor==1]
-        dfaux_com_divida = df_com_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_com_divida')
-
-        st.title('Situação dos estudantes por dívida')
-        option = st.selectbox(
-            'Mudar o grupo visualizado',
-            ('Todos estudantes', 'Endividados', 'Sem dívidas')
-        )
-
-        grafico_target_geral = px.pie(
-            dfaux_target, values='soma_target',
-            names='Target',
-            color='Target',
-            color_discrete_map={
-                'Dropout':'rgb(239, 85, 59)',
-                'Enrolled':'rgb(99, 110, 250)',
-                'Graduate':'rgb(0, 204, 150)',
-            },
-            title='Situação Acadêmica dos Estudantes '
-        )
-
-        grafico_target_endividados = px.pie(
-            dfaux_com_divida,
-            values='soma_com_divida',
-            names='Target',
-            color='Target',
-            color_discrete_map={
-                'Dropout':'rgb(239, 85, 59)',
-                'Enrolled':'rgb(99, 110, 250)',
-                'Graduate':'rgb(0, 204, 150)',
-            },
-            title='Situação Acadêmica dos Estudantes Endividados'
-        )
-
-        grafico_target_estudantes_sem_dividas = px.pie(
-            dfaux_sem_divida,
-            values='soma_sem_divida',
-            names='Target',
-            color='Target',
-            color_discrete_map={
-                'Dropout':'rgb(239, 85, 59)',
-                'Enrolled':'rgb(99, 110, 250)',
-                'Graduate':'rgb(0, 204, 150)',
-            },
-            title='Situação Acadêmica dos Estudantes Sem dívidas'
-        )
-
-        if option == 'Todos estudantes':
-            st.plotly_chart(grafico_target_geral, use_container_width=True)
-        elif option == 'Endividados':
-            st.plotly_chart(grafico_target_endividados, use_container_width=True)
-        else:
-            st.plotly_chart(grafico_target_estudantes_sem_dividas, use_container_width=True)
-
-    st.title('Situação dos estudantes internacionais')
-    option_internacioal = st.selectbox('Mudar o grupo visualizado', ('Todos estudantes', 'Estudantes Internacionais'))
-
-    df_internacional = dropout_data[dropout_data.Nacionality != 1]
-    dfaux_internacional = df_internacional.groupby(['Target'])['Target'].count().reset_index(name='soma_target_internacional')
-    pie_target_internacional = px.pie(
-        dfaux_internacional,
-        values='soma_target_internacional',
-        names='Target',
-        color='Target',
-        color_discrete_map={
-            'Dropout':'rgb(239, 85, 59)',
-            'Enrolled':'rgb(99, 110, 250)',
-            'Graduate':'rgb(0, 204, 150)'
-        },
-        title='Situação acadêmica dos estudantes'
-    )
-
-    if option_internacioal == 'Todos estudantes':
-        st.plotly_chart(grafico_target_geral, use_container_width=True)
-    else:
-        st.plotly_chart(pie_target_internacional, use_container_width=True)
-
-    st.title('Situação dos estudantes portadores de bolsas de estudo')
-    option_scholarship = st.selectbox(
-        'Mudar o grupo visualizado',
-        ('Estudantes não portadores de bolsas de estudo', 'Estudantes portadores de bolsas de estudo')
-    )
-
-    df_scholarship = dropout_data[(dropout_data['Scholarship holder'] == 1)]
-    dfaux_scholarship = df_scholarship.groupby(['Target'])['Target'].count().reset_index(name='soma_scholarship')
-
-    df_no_scholarship = dropout_data[(dropout_data['Scholarship holder'] == 0)]
-    dfaux_no_scholarship = df_no_scholarship.groupby(['Target'])['Target'].count().reset_index(name='soma_no_scholarship')
-
-    pie_scholarship = px.pie(
-        dfaux_scholarship,
-        values='soma_scholarship',
-        names='Target',
-        color='Target',
-        color_discrete_map={
-            'Dropout':'rgb(239, 85, 59)',
-            'Enrolled':'rgb(99, 110, 250)',
-            'Graduate':'rgb(0, 204, 150)',
-        },
-        title='Situação acadêmica dos estudantes sem bolsa de estudo',
-    )
-
-    pie_no_scholarship = px.pie(
-        dfaux_no_scholarship,
-        values='soma_no_scholarship',
-        names='Target',
-        color='Target',
-        color_discrete_map={
-            'Dropout':'rgb(239, 85, 59)',
-            'Enrolled':'rgb(99, 110, 250)',
-            'Graduate':'rgb(0, 204, 150)',
-        },
-        title='Situação acadêmica dos estudantes sem bolsa de estudos',
-    )
-
-    if option_scholarship == 'Estudantes não portadores de bolsas de estudo':
-        st.plotly_chart(pie_no_scholarship, use_container_width=True)
-    else:
-        st.plotly_chart(pie_scholarship, use_container_width=True)
-
-
-    if 'debt_data' not in st.session_state:
-        st.session_state['debt_data'] = get_debt_data(dropout_data)
 
 main()
