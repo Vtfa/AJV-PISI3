@@ -134,22 +134,25 @@ def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Serie
             return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
 
 
-def treat_data(df: pd.DataFrame) -> None:
-    df['Marital status'] = marital_status_rename(df, 'Marital status')
+def treat_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+    df_copy['Marital status'] = marital_status_rename(df_copy, 'Marital status')
 
-    df["Escolaridade mae"] = escolaridade_pais(df["Mother's qualification"])
-    df["Escolaridade pai"] = escolaridade_pais(df["Father's qualification"])
+    df_copy["Escolaridade mae"] = escolaridade_pais(df_copy["Mother's qualification"])
+    df_copy["Escolaridade pai"] = escolaridade_pais(df_copy["Father's qualification"])
 
-    df["Renda pai"] = renda_pais(df["Father's occupation"])
-    df["Renda mae"] = renda_pais(df["Mother's occupation"])
+    df_copy["Renda pai"] = renda_pais(df_copy["Father's occupation"])
+    df_copy["Renda mae"] = renda_pais(df_copy["Mother's occupation"])
 
-    df["Renda total"] = df["Renda pai"] + df["Renda mae"]
+    df_copy["Renda total"] = df_copy["Renda pai"] + df_copy["Renda mae"]
 
-    df['Course'] = rename_courses(df, 'Course')
+    df_copy['Course'] = rename_courses(df_copy, 'Course')
 
-    df['age_range'] = age_range_calc(df, 'Age at enrollment')
+    df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment')
 
-    df['Gender'] = rename_gender(df, 'Gender')
+    df_copy['Gender'] = rename_gender(df_copy, 'Gender')
+
+    return df_copy
 
 
 def get_gender_data(df: pd.DataFrame) -> pd.DataFrame:
