@@ -157,33 +157,40 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
-    fields_map = {
+    select_fields = {
         'marital_status': 'Marital status',
         'course': 'Course',
-        'gender': 'Gender',
-        'age_range': 'age_range',
         'escolaridade_mae': 'Escolaridade mae',
         'escolaridade_pai': 'Escolaridade pai',
     }
 
+    multiselect_fields = {
+        'gender': 'Gender',
+        'age_range': 'age_range',
+    }
+
+    for key in filters.keys():
+        if key in multiselect_fields and filters[key] != []:
+            selection = df_copy[multiselect_fields[key]].isin(filters[key])
+            df_copy = df_copy[selection]
+
     query = ''
     for key in filters.keys():
-        if key in fields_map and filters[key] != '':
+        if key in select_fields and filters[key] != '':
             if len(query) > 0:
                 query += ' and '
 
-            query += f'`{fields_map[key]}` == "{filters[key]}"'
+            query += f'`{select_fields[key]}` == "{filters[key]}"'
 
-    if query == '':
-        return df
+    if query != '':
+        df_copy = df_copy.query(query)
 
-    st.write(query)
-    return df_copy.query(query)
+    return df_copy
 
 def reset_filters():
     st.session_state['marital_status'] = ''
     st.session_state['course'] = ''
-    st.session_state['gender'] = ''
-    st.session_state['age_range'] = ''
+    st.session_state['gender'] = []
+    st.session_state['age_range'] = []
     st.session_state['escolaridade_mae'] = ''
     st.session_state['escolaridade_pai'] = ''
