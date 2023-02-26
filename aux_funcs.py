@@ -1,14 +1,15 @@
-import streamlit as st
 import time
+import streamlit as st
+import pandas as pd
 
 def valid_session_data(dataframes: list[str], msg: str, sleep_time: float = 0.35) -> bool:
     progress_text = "Loading data. Please wait..."
-    progress_bar = st.progress(0, text=progress_text)
+    progress_bar = st.progress(0)
     step = 1 / len(dataframes)
 
     df_exists = {}
     for i, df in enumerate(dataframes, start=1):
-        progress_bar.progress(step * i, text=progress_text)
+        progress_bar.progress(step * i)
         time.sleep(sleep_time)
 
         if df not in st.session_state:
@@ -77,10 +78,72 @@ def page_style(menu_title: str = '#AJV'):
         unsafe_allow_html=True,
     )
 
-def sidebar_01():
-    with st.sidebar:
-        st.header('Dataset configuration')
 
+def sidebar_01():
+    data: pd.DataFrame = st.session_state['dropout_data'][[
+        'Marital status',
+        'Course',
+        'Gender',
+        'age_range',
+        'Escolaridade mae',
+        'Escolaridade pai',
+    ]]
+
+    options = {column: data[column].dropna().unique().tolist()
+            for column in data}
+
+    for option in options.values():
+        option.append('')
+        option.sort()
+
+    with st.sidebar:
+        st.header('Dataset table configuration')
+        with st.form("dataset_form"):
+            marital_status =  st.selectbox(
+                'Estado Civil',
+                options['Marital status'],
+                help='Define the gender to be filtered at dataset',
+            )
+
+            course =  st.selectbox(
+                'Curso',
+                options['Course'],
+                help='Define the course to be filtered at dataset',
+            )
+
+            gender =  st.selectbox(
+                'Gender',
+                options['Gender'],
+                help='Define the gender to be filtered at dataset',
+            )
+
+            age_range =  st.selectbox(
+                'Faixa etária',
+                options['age_range'],
+                help='Define the age range to be filtered at dataset',
+            )
+
+            escolaridade_mae =  st.selectbox(
+                'Escolaridade da mãe',
+                options['Escolaridade mae'],
+                help='Define the mothers schooling to be filtered at dataset',
+            )
+
+            escolaridade_pai =  st.selectbox(
+                'Escolaridade do pai',
+                options['Escolaridade pai'],
+                help='Define the fathers schooling to be filtered at dataset',
+            )
+
+            submitted = st.form_submit_button('Enviar')
+
+            if submitted:
+                st.session_state['marital_status'] = marital_status
+                st.session_state['course'] = course
+                st.session_state['gender'] = gender
+                st.session_state['age_range'] = age_range
+                st.session_state['escolaridade_mae'] = escolaridade_mae
+                st.session_state['escolaridade_pai'] = escolaridade_pai
 
         st.header('Plots configuration')
         st.session_state['gender_select'] = st.selectbox(
@@ -92,4 +155,4 @@ def sidebar_01():
             'Age range interval',
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
-            )
+        )
