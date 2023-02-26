@@ -19,23 +19,25 @@ def page_1():
 
     datasets = {data: st.session_state[data] for data in dataframes}
 
+    reset_filters()
+
     sidebar_01()
 
     with st.container():
         st.title(title)
 
     with st.container():
+        st.header('Dropout Dataset')
         st.dataframe(
-            filter_dataset(datasets['dropout_data'],
-             marital_status='Solteiro',
-             course='Tourism',
-             gender='Female',
-             age_range='',
-             escolaridade='medio completo',
+            dataset_filter(datasets['dropout_data'],
+             marital_status=st.session_state['marital_status'],
+             course=st.session_state['course'],
+             gender=st.session_state['gender'],
+             age_range=st.session_state['age_range'],
+             escolaridade_mae=st.session_state['escolaridade_mae'],
+             escolaridade_pai=st.session_state['escolaridade_pai'],
             )
         )
-        st.header('Dropout Dataset')
-        st.dataframe(datasets['dropout_data'])
 
         st.header('Students')
         demographic_pyramid(datasets['gender_data'])

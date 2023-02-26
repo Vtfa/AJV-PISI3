@@ -31,50 +31,13 @@ def escolaridade_pais(data: pd.Series) -> pd.Series:
 
 
 def renda_pais(data: pd.Series) -> pd.Series:
-    var_1 = data == 1
-    var_2 = data == 2
-    var_4 = data == 4
-    var_5 = data == 5
-    var_6 = data == 6
-    var_7 = data == 7
-    var_8 = data == 8
-    var_9 = data == 9
-    var_10 = data == 10
-    var_122 = data == 122
-    var_123 = data == 123
-    var_125 = data == 125
-    var_131 = data == 131
-    var_132 = data == 132
-    var_134 = data == 134
-    var_141 = data == 141
-    var_143 = data == 143
-    var_144 = data == 144
-    var_151 = data == 151
-    var_152 = data == 152
-    var_153 = data == 153
-    var_171 = data == 171
-    var_173 = data == 173
-    var_175 = data == 175
-    var_191 = data == 191
-    var_192 = data == 192
-    var_193 = data == 193
-    var_194 = data == 194
-    var_101 = data == 101
-    var_102 = data == 102
-    var_103 = data == 103
-    var_112 = data == 112
-    var_114 = data == 114
-    var_121 = data == 121
-    var_135 = data == 135
-    var_154 = data == 154
-    var_161 = data == 161
-    var_163 = data == 163
-    var_172 = data == 172
-    var_174 = data == 174
-    var_181 = data == 181
-    var_182 = data == 182
-    var_183 = data == 183
-    var_195 = data == 195
+    vars = [
+        1, 2, 4, 5, 6, 7, 8, 9, 10, 122, 123, 125, 131, 132, 134, 141, 143, 144, 151, 152, 153,
+        171, 173, 175, 191, 192, 193, 194, 101, 102, 103, 112, 114, 121, 135, 154, 161, 163,
+        172, 174, 181, 182, 183, 195
+    ]
+
+    selecao = [data == value for value in vars]
 
     niveis = [
         3456, 2141, 930, 840, 875, 997, 940, 840, 1749, 2556, 2200, 3452, 1352, 1417, 930, 2248, 930,
@@ -82,15 +45,7 @@ def renda_pais(data: pd.Series) -> pd.Series:
         1609, 840, 875, 875, 1353, 1897, 1061, 889, 884, 794,
     ]
 
-    return pd.Series(np.select(
-        [var_1, var_2, var_4, var_5, var_6, var_7, var_8, var_9, var_10, var_122, var_123, var_125, var_131, var_132, var_134, var_141, var_143, var_144,
-        var_151, var_152, var_153, var_171, var_173, var_175, var_191, var_192, var_193, var_194, var_101, var_102, var_103, var_112, var_114,
-        var_121, var_135, var_154, var_161, var_163, var_172, var_174, var_181, var_182, var_183, var_195,
-        ],
-        niveis,
-        0
-    ))
-
+    return pd.Series(np.select(selecao, niveis, 0))
 
 # funcao para substituir o codido pelo nome dos cursos
 def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
@@ -135,8 +90,8 @@ def rename_gender(df: pd.DataFrame, gender_col: str) -> pd.Series:
 
 
 def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Series:
-            # não solteiros foram agrupados por serem poucos
-            return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
+    # não solteiros foram agrupados por serem poucos
+    return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
 
 
 def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
@@ -200,18 +155,16 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     return debt_data
 
 
-def filter_dataset(df: pd.DataFrame, **filters) -> pd.DataFrame:
+def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
     fields_map = {
         'marital_status': 'Marital status',
         'course': 'Course',
         'gender': 'Gender',
         'age_range': 'age_range',
-        'escolaridade': 'Escolaridade mae',
-        'escolaridade': 'Escolaridade pai',
+        'escolaridade_mae': 'Escolaridade mae',
+        'escolaridade_pai': 'Escolaridade pai',
     }
-
-    st.write(filters)
 
     query = ''
     for key in filters.keys():
@@ -220,5 +173,17 @@ def filter_dataset(df: pd.DataFrame, **filters) -> pd.DataFrame:
                 query += ' and '
 
             query += f'`{fields_map[key]}` == "{filters[key]}"'
+
+    if query == '':
+        return df
+
     st.write(query)
     return df_copy.query(query)
+
+def reset_filters():
+    st.session_state['marital_status'] = ''
+    st.session_state['course'] = ''
+    st.session_state['gender'] = ''
+    st.session_state['age_range'] = ''
+    st.session_state['escolaridade_mae'] = ''
+    st.session_state['escolaridade_pai'] = ''
