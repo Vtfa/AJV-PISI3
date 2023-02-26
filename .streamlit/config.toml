@@ -1,2 +1,29 @@
 [theme]
-base="light"
+#base="light"
+#primaryColor="IndianRed"
+#backgroundColor="White"
+#secondaryBackgroundColor="#EBEDEF"
+#textColor="#2c2f4a"
+#font="sans serif"
+
+
+[logger]
+#level = "debug"
+
+
+[server]
+#address = "localhost"
+#port = 8501
+
+#folderWatchBlacklist = ['.venv']
+
+# If false, will attempt to open a browser window on start.
+#headless = true
+
+# Automatically rerun script when the file is modified on disk.
+#runOnSave = true
+
+
+[browser]
+# Whether to send usage statistics to Streamlit.
+#gatherUsageStats = false

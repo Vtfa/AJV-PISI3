@@ -1,8 +1,4 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
 
 from plotly.subplots import make_subplots
 from data_funcs import *
@@ -15,7 +11,7 @@ config_page(title)
 page_style()
 
 if 'dropout_data_raw' not in st.session_state:
-    dropout_data_raw = pd.read_csv('data/dropout.csv')
+    dropout_data_raw = load_data('data/dropout.csv')
     st.session_state['dropout_data_state'] = dropout_data_raw
 
 if 'dropout_data' not in st.session_state:

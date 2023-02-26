@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 
-def valid_session_data(dataframes: list[str], msg: str) -> bool:
+def valid_session_data(dataframes: list[str], msg: str, sleep_time: float = 0.35) -> bool:
     progress_text = "Loading data. Please wait..."
     progress_bar = st.progress(0, text=progress_text)
     step = 1 / len(dataframes)
@@ -9,7 +9,7 @@ def valid_session_data(dataframes: list[str], msg: str) -> bool:
     df_exists = {}
     for i, df in enumerate(dataframes, start=1):
         progress_bar.progress(step * i, text=progress_text)
-        time.sleep(0.35)
+        time.sleep(sleep_time)
 
         if df not in st.session_state:
             df_exists[df] = False
@@ -17,6 +17,7 @@ def valid_session_data(dataframes: list[str], msg: str) -> bool:
 
         df_exists[df] = True
 
+    time.sleep(sleep_time)
     progress_bar.empty()
 
     if not all(df_exists.values()):
@@ -78,6 +79,9 @@ def page_style(menu_title: str = '#AJV'):
 
 def sidebar_01():
     with st.sidebar:
+        st.header('Dataset configuration')
+
+
         st.header('Plots configuration')
         st.session_state['gender_select'] = st.selectbox(
             'Gender',
