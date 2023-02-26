@@ -6,7 +6,7 @@ from data_funcs import *
 from aux_funcs import *
 
 
-title = "Characterization of the dropout data"
+title = "Caracterização dos dados de evasão acadêmica"
 config_page(title)
 page_style()
 
@@ -14,7 +14,7 @@ page_style()
 def page_1():
     dataframes = ['dropout_data', 'gender_data', 'course_data', 'debt_data']
 
-    if not valid_session_data(dataframes, '## :construction: Please go to Home page before :construction:', 0.15):
+    if not valid_session_data(dataframes, '## :construction: Please, go to _Home_ page before :construction:', 0.15):
         return
 
     datasets = {data: st.session_state[data] for data in dataframes}
@@ -27,7 +27,7 @@ def page_1():
         st.title(title)
 
     with st.container():
-        st.header('Dropout Dataset')
+        st.header('Conjunto de dados')
         st.dataframe(
             dataset_filter(datasets['dropout_data'],
              marital_status=st.session_state['marital_status'],
@@ -39,7 +39,7 @@ def page_1():
             )
         )
 
-        st.header('Students')
+        st.header('Sobre os estudantes')
         demographic_pyramid(datasets['gender_data'])
 
         gender_tree(datasets['course_data'])
