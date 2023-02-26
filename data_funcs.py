@@ -1,8 +1,15 @@
+import streamlit as st
 import pandas as pd
 import numpy as np
 
 
+@st.cache_data
+def load_data(path: str) -> pd.DataFrame:
+    return pd.read_csv(path, engine='pyarrow')
+
+
 # função para mapear os valores das profissões dos pais
+@st.cache_data
 def escolaridade_pais(data: pd.Series) -> pd.Series:
     fund_inc = np.isin(data, [11, 26, 35, 36, 37, 38, 29, 30])
     medio_inc = np.isin(data, [9, 10, 12, 13, 14, 19, 27, 13, 25])
@@ -25,6 +32,7 @@ def escolaridade_pais(data: pd.Series) -> pd.Series:
     ))
 
 
+@st.cache_data
 def renda_pais(data: pd.Series) -> pd.Series:
     var_1 = data == 1
     var_2 = data == 2
@@ -85,6 +93,7 @@ def renda_pais(data: pd.Series) -> pd.Series:
         niveis,
         0
     ))
+
 
 # funcao para substituir o codido pelo nome dos cursos
 def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
@@ -177,6 +186,7 @@ def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
     return course_data
 
 
+@st.cache_data
 def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     debt_data = df.copy()
     debt_data['debt'] = np.where(
@@ -192,3 +202,27 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     # debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
     debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
     return debt_data
+
+
+def filter_dataset(df: pd.DataFrame, **filters) -> pd.DataFrame:
+    df_copy = df.copy()
+    fields_map = {
+        'marital_status': 'Marital status',
+        'course': 'Course',
+        'gender': 'Gender',
+        'age_range': 'age_range',
+        'escolaridade': 'Escolaridade mae',
+        'escolaridade': 'Escolaridade pai',
+    }
+
+    st.write(filters)
+
+    query = ''
+    for key in filters.keys():
+        if key in fields_map and filters[key] != '':
+            if len(query) > 0:
+                query += ' and '
+
+            query += f'`{fields_map[key]}` == "{filters[key]}"'
+    st.write(query)
+    return df_copy.query(query)
