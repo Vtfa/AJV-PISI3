@@ -33,15 +33,15 @@ if 'debt_data' not in st.session_state:
 
 
 def main():
-    with st.container() as header:
+    with st.container():
         st.title(title)
 
-    with st.container() as dataset:
+    with st.container():
 
         st.header('Resumo')
 
-        abstract =('<div class="content-size justified-text">' \
-            "   A evasão do ensino superior ainda é um desafio a ser superado em diversos países, em 2008, a média de evasão de 19 países da OCDE com dados disponível "\
+        abstract =('<div class="content-size justified-text indent-text"">' \
+            "A evasão do ensino superior ainda é um desafio a ser superado em diversos países, em 2008, a média de evasão de 19 países da OCDE com dados disponível "\
             "era de 31%. Esse trabalho busca analisar dados socioeconômicos de alunos de universidades portuguesas que estão no primeiro ano dos seus estudos, com o"\
             "objetivo de identificar fatores que possam contribuir negativamente ou positivamente para seu desempenho acadêmica e para o abandono escolar, também serão"\
             "analisados fatores econômicos em nível nacional, buscando verificar se também podem  influenciar os resultados dos alunos"\
@@ -62,7 +62,7 @@ def main():
 
         st.header('Questionamentos')
 
-        objectives =('<div class="content-size justified-text">' \
+        objectives =('<div class="content-size justified-text italic">' \
             '<p>Quais são os principais fatores socioeconômicos que influenciam no desempenho e chances de evasão dos estudantes?<br>' \
             'Como fatores socioeconômicos individuais afetam o desempenho acadêmico dos estudantes e suas chances de desistirem da universidade?<br>' \
             'O nível educacional e ocupação dos pais influencia nisso?<br>' \

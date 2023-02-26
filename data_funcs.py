@@ -25,7 +25,6 @@ def escolaridade_pais(data: pd.Series) -> pd.Series:
     ))
 
 
-#perdão pela monstruosidade. -Vinicius
 def renda_pais(data: pd.Series) -> pd.Series:
     var_1 = data == 1
     var_2 = data == 2
@@ -112,8 +111,8 @@ def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
 
 
 # funcao para calcular as faixas etarias
-def age_range_calc(df: pd.DataFrame, age_col: str) -> pd.Series:
-    age_bins = list(range(17, np.max(df[age_col].values), 5))
+def age_range_calc(df: pd.DataFrame, age_col: str, interval: int = 5) -> pd.Series:
+    age_bins = list(range(17, np.max(df[age_col].values), interval))
     ages_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
 
     return pd.cut(
@@ -134,7 +133,7 @@ def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Serie
             return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
 
 
-def treat_data(df: pd.DataFrame) -> pd.DataFrame:
+def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
     df_copy = df.copy()
     df_copy['Marital status'] = marital_status_rename(df_copy, 'Marital status')
 
@@ -148,7 +147,7 @@ def treat_data(df: pd.DataFrame) -> pd.DataFrame:
 
     df_copy['Course'] = rename_courses(df_copy, 'Course')
 
-    df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment')
+    df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment', age_interval)
 
     df_copy['Gender'] = rename_gender(df_copy, 'Gender')
 
