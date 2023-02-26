@@ -13,7 +13,7 @@ with header:
     st.title('Página 2 teste')
 
 with dataset:
-    dropout_data = st.session_state['dropout_data_state']
+    dropout_data = st.session_state['dropout_data']
     st.write(dropout_data)
 
 

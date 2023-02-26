@@ -3,13 +3,11 @@ import pandas as pd
 import numpy as np
 
 
-@st.cache_data
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path, engine='pyarrow')
 
 
 # função para mapear os valores das profissões dos pais
-@st.cache_data
 def escolaridade_pais(data: pd.Series) -> pd.Series:
     fund_inc = np.isin(data, [11, 26, 35, 36, 37, 38, 29, 30])
     medio_inc = np.isin(data, [9, 10, 12, 13, 14, 19, 27, 13, 25])
@@ -32,7 +30,6 @@ def escolaridade_pais(data: pd.Series) -> pd.Series:
     ))
 
 
-@st.cache_data
 def renda_pais(data: pd.Series) -> pd.Series:
     var_1 = data == 1
     var_2 = data == 2
@@ -186,7 +183,6 @@ def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
     return course_data
 
 
-@st.cache_data
 def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     debt_data = df.copy()
     debt_data['debt'] = np.where(
