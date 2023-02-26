@@ -1,7 +1,7 @@
 numpy
 pandas
-plotly
+plotly==5.11
 scipy
-streamlit
+streamlit==1.14.1
 xlrd
 openpyxl
