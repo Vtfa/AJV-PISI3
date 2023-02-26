@@ -5,3 +5,4 @@ scipy
 streamlit
 xlrd
 openpyxl
+scikit-learn
