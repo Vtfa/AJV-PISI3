@@ -481,8 +481,6 @@ with dataset:
     with col_parents_education4:
         st.write(donut_both_primary)
 
-
-
     df_age_target = dropout_data[['Age at enrollment', 'Target']]
     df_age_target['Age group'] = pd.cut(df_age_target['Age at enrollment'], bins=[16, 29, 150], labels=['Entre 17 e 29 anos', 'Mais de 30 anos'])
 
@@ -503,3 +501,79 @@ with dataset:
                     yaxis_title='Porcentagem'
                     )
     st.write(bar_age_target)
+
+
+    st.title('Situação dos estudantes por dívida')
+
+    dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='Total')
+    df_sem_divida = dropout_data[dropout_data.Debtor==0]
+    dfaux_sem_divida = df_sem_divida.groupby(['Target'])['Target'].count().reset_index(name='Estudantes sem divida')
+
+    df_com_divida = dropout_data[dropout_data.Debtor==1]
+    dfaux_com_divida = df_com_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_com_divida')
+
+    
+    grafico_target_geral = px.pie(
+        dfaux_target, values='Total',
+        names='Target',
+        color='Target',
+        color_discrete_sequence=colors,
+        hole=0.5,
+        title='Todos estudantes'
+    )
+
+    grafico_target_geral.update_layout(
+        title_x = 0.48
+    )
+
+    grafico_target_endividados = px.pie(
+        dfaux_com_divida,
+        values='soma_com_divida',
+        names='Target',
+        color='Target',
+        color_discrete_sequence=colors,
+        hole=0.5,
+        title='Estudantes com dívida'
+    )
+
+    grafico_target_endividados.update_layout(
+        title_x = 0.48
+    )
+
+    grafico_target_estudantes_sem_dividas = px.pie(
+        dfaux_sem_divida,
+        values='Estudantes sem divida',
+        names='Target',
+        color='Target',
+        color_discrete_sequence=colors,
+        hole=0.5,
+        title='Estudantes sem dívida'   
+    )
+
+    grafico_target_estudantes_sem_dividas.update_layout(
+        title_x = 0.48
+    )
+
+    option_divida_tuition = st.multiselect(
+        'Mudar o grupo visualizado',
+        ('Todos estudantes', 'Endividados', 'Sem dívidas'),
+        default = ('Todos estudantes')
+    )
+
+    column_debt1, column_debt2, column_debt3 = st.columns(3)
+
+    if 'Todos estudantes' in option_divida_tuition:
+        with column_debt1:
+            st.plotly_chart(grafico_target_geral)
+        if ('Sem dívidas' in option_divida_tuition) & ('Endividados' not in option_divida_tuition):
+            with column_debt2:
+                st.plotly_chart(grafico_target_estudantes_sem_dividas)
+        elif ('Endividados' in option_divida_tuition) & ('Sem dívidas' not in option_divida_tuition):
+            with column_debt2:
+                st.plotly_chart(grafico_target_endividados)
+    if len(option_divida_tuition) == 3: 
+        with column_debt2:
+            st.plotly_chart(grafico_target_endividados)
+        with column_debt3:
+            st.plotly_chart(grafico_target_estudantes_sem_dividas)   
+
