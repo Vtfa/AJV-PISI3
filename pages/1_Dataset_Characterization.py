@@ -1,6 +1,3 @@
-import streamlit as st
-import time
-
 from plot_funcs import *
 from data_funcs import *
 from aux_funcs import *
@@ -42,15 +39,15 @@ def page_1():
         st.header('Sobre os estudantes')
         demographic_pyramid(datasets['gender_data'])
 
+        gender_by_course(datasets['course_data'])
+
         gender_tree(datasets['course_data'])
 
         specific_gender_tree(datasets['course_data'], st.session_state['gender_select'])
 
-        gender_by_course(datasets['course_data'])
-
         dropout_by_gender(datasets['debt_data'])
 
-        dropout_by_age_debt(datasets['debt_data'])
+        dropout_by_age_debt(datasets['debt_data'], st.session_state['tree_path'])
 
 
 page_1()

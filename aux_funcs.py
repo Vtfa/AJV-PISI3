@@ -85,31 +85,8 @@ def valid_session_data(dataframes: list[str], message: str, sleep_time: float = 
     return True
 
 
-def sidebar_01():
-    data: pd.DataFrame = st.session_state['dropout_data'][[
-        'Marital status',
-        'Course',
-        'Gender',
-        'age_range',
-        'Escolaridade mae',
-        'Escolaridade pai',
-    ]]
-
-    options = {column: data[column].dropna().unique().tolist()
-            for column in data}
-
-    multiselect_fields = ['Gender', 'age_range']
-
-    for field, option in options.items():
-        if field not in multiselect_fields:
-            option.append('')
-            option.sort()
-
-    with st.sidebar:
-        st.header('Dataset table configuration')
-
-        with st.expander('Filtros', True):
-            with st.form("dataset_form"):
+def dataset_table_filters(options: dict[str: any]):
+    with st.form("dataset_form"):
                 marital_status =  st.selectbox(
                     'Estado Civil',
                     options['Marital status'],
@@ -156,7 +133,35 @@ def sidebar_01():
                     st.session_state['escolaridade_mae'] = escolaridade_mae
                     st.session_state['escolaridade_pai'] = escolaridade_pai
 
-        st.header('Plots configuration')
+
+def sidebar_01():
+    data: pd.DataFrame = st.session_state['dropout_data'][[
+        'Marital status',
+        'Course',
+        'Gender',
+        'age_range',
+        'Escolaridade mae',
+        'Escolaridade pai',
+    ]]
+
+    options = {column: data[column].dropna().unique().tolist()
+            for column in data}
+
+    multiselect_fields = ['Gender', 'age_range']
+
+    for field, option in options.items():
+        if field not in multiselect_fields:
+            option.append('')
+            option.sort()
+
+    with st.sidebar:
+        st.header('Dataset table configuration')
+
+        with st.expander('Filtros', True):
+            dataset_table_filters(options)
+
+
+        st.header('Mapa de gêneros')
         st.session_state['gender_select'] = st.selectbox(
             'Gender',
             ['Female', 'Male'],
@@ -167,3 +172,25 @@ def sidebar_01():
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
         )
+
+        st.header('Mapa de relações')
+        path_options = {
+            'Faixa etária': 'age_range',
+            'Status': 'Target',
+            'Possui débito': 'debt',
+            'Gênero': 'Gender',
+        }
+
+        path =  st.multiselect(
+                    'Faixa etária',
+                    path_options,
+                    default=['Faixa etária', 'Possui débito'],
+                    help='Define the variables to be ploted at treemap',
+                )
+
+        path = {path_options[var] for var in path}
+        st.session_state['tree_path'] = path
+
+
+def translate(map: dict[str: str], word: str) -> str:
+    return map[word]

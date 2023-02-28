@@ -3,13 +3,15 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from plotly.subplots import make_subplots
+from consts import *
 
+
+TITLE_FONT_SIZE = 26
 
 def gender_tree(data: pd.DataFrame) -> None:
     gender_tree = px.treemap(
         data,
-        title="Gender distribution by course",
+        title="Mapa da distribuição de gêneros por curso",
         path=["Course", "Gender"],
         color_continuous_scale="RdBu",
         color="count",
@@ -19,8 +21,15 @@ def gender_tree(data: pd.DataFrame) -> None:
 
     gender_tree.data[0].textinfo = "label+value+percent parent+percent entry+percent root"
 
+    gender_tree.update_traces(
+        texttemplate="%{label}<br>" \
+            "Total: %{value}<br>" \
+            "%{percentParent} de %{parent}<br>" \
+            "%{percentRoot} do geral<br>" \
+    )
+
     gender_tree.update_layout(
-        title_font_size=26,
+        title_font_size=TITLE_FONT_SIZE,
         font_size=16,
     )
 
@@ -35,7 +44,7 @@ def demographic_pyramid(data: pd.DataFrame):
             y=data.index,
             orientation="h",
             name="Male",
-            marker={"color": "rgba(0, 204, 150, 0.5)"},
+            marker={"color": MALE_COLOR},
             hoverinfo="x",
         )
     )
@@ -48,14 +57,14 @@ def demographic_pyramid(data: pd.DataFrame):
             textfont_color="rgba(0, 0, 0, 0)",
             orientation="h",
             name="Female",
-            marker={"color": "rgba(99, 110, 250, 0.5)"},
+            marker={"color": FEMALE_COLOR},
             hoverinfo="text",
         )
     )
 
     dem_pyramid.update_layout(
-        title="Students' Population Pyramid",
-        title_font_size=22,
+        title="Pirâmide populacional",
+        title_font_size=TITLE_FONT_SIZE,
         font_size=16,
         barmode="relative",
         bargap=0.15,
@@ -83,7 +92,7 @@ def demographic_pyramid(data: pd.DataFrame):
 def specific_gender_tree(data: pd.DataFrame, gender: str) -> None:
     specific_gender_tree = px.treemap(
         data.query(f'Gender == "{gender}"'),
-        title=f"Course and age distribution for {gender} students",
+        title=f"Mapa de distruição de alunos por gênero, curso e faixa etária ({gender})",
         path=["Gender", "Course", "age_range"],
         values="count",
         height=1000,
@@ -91,9 +100,18 @@ def specific_gender_tree(data: pd.DataFrame, gender: str) -> None:
 
     specific_gender_tree.data[0].textinfo = "label+value+percent parent+percent entry+percent root"
 
+
     specific_gender_tree.update_layout(
-        title_font_size=26,
+        title_font_size=TITLE_FONT_SIZE,
         font_size=16,
+    )
+
+    specific_gender_tree.update_traces(
+        texttemplate="Faixa: %{label}<br>" \
+            "Total: %{value}<br>" \
+            "%{percentParent} de %{parent}<br>" \
+            "%{percentRoot} de %{root}<br>" \
+            "%{percentEntry} de %{entry}<br>"
     )
 
     st.plotly_chart(specific_gender_tree, use_container_width=True)
@@ -119,7 +137,7 @@ def gender_by_course(data: pd.DataFrame) -> None:
             x=course_gender_age_index,
             y=course_gender_data["Female"],
             orientation="v",
-            marker={"color": "rgba(99, 110, 250, 0.5)"},
+            marker={"color": FEMALE_COLOR},
         ),
     )
 
@@ -129,7 +147,7 @@ def gender_by_course(data: pd.DataFrame) -> None:
             x=course_gender_age_index,
             y=course_gender_data["Male"],
             orientation="v",
-            marker={"color": "rgba(0, 204, 150, 0.5)"},
+            marker={"color": MALE_COLOR},
         ),
     )
 
@@ -145,13 +163,17 @@ def gender_by_course(data: pd.DataFrame) -> None:
     )
 
     course_gender_age.update_layout(
-        height=900,
         font_size=14,
-        title="Gender distribution by course",
+        height=900,
+        title="Distribuição de gêneros por curso",
         barmode="stack",
         hovermode="x unified",
         margin={"b": 190},
         margin_pad=10,
+    )
+
+    course_gender_age.update_layout(
+        title_font_size=TITLE_FONT_SIZE,
     )
 
     st.plotly_chart(course_gender_age, use_container_width=True)
@@ -169,18 +191,18 @@ def dropout_by_gender(df: pd.DataFrame) -> None:
     debt_gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
     debt_gender_tree.update_layout(
-        title_font_size=26,
+        title_font_size=TITLE_FONT_SIZE,
         font_size=16,
     )
 
     st.plotly_chart(debt_gender_tree, use_container_width=True)
 
 
-def dropout_by_age_debt(df: pd.DataFrame) -> None:
+def dropout_by_age_debt(df: pd.DataFrame, path) -> None:
     debt_tree = px.treemap(
                 df,
                 title='Target distribution by age and debt',
-                path=['age_range', 'Target', 'debt'],
+                path=path,
                 values='count',
                 height=1000,
         )
@@ -188,7 +210,7 @@ def dropout_by_age_debt(df: pd.DataFrame) -> None:
     debt_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
 
     debt_tree.update_layout(
-        title_font_size=26,
+        title_font_size=TITLE_FONT_SIZE,
         font_size=16,
     )
 

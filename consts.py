@@ -1,0 +1,7 @@
+COR1 = "#FFA07A"
+COR2 = "#98FB98"
+COR3 = "#FF6961"
+COR4 = "#87CEEB"
+
+MALE_COLOR = "rgba(0, 204, 150, 0.5)"
+FEMALE_COLOR = "rgba(99, 110, 250, 0.5)"
