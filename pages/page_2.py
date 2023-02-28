@@ -577,3 +577,55 @@ with dataset:
         with column_debt3:
             st.plotly_chart(grafico_target_estudantes_sem_dividas)   
 
+
+
+    df_tuition_paid = dropout_data[dropout_data['Tuition fees up to date'] == 1]
+    dfaux_tuition_paid = df_tuition_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades em dia")
+    donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5)
+        
+    donut_target_tuition_paid.update_layout(
+        title="Estudantes com mensalidades em dia",
+        title_x = 0.5
+    )
+
+    df_tuition_not_paid = dropout_data[dropout_data['Tuition fees up to date'] == 0]
+    dfaux_tuition_not_paid = df_tuition_not_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades atrasadas")
+    donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5)
+        
+    donut_target_tuition_not_paid.update_layout(
+        title="Estudantes com mensalidades atrasadas",
+        title_x = 0.5
+    )
+
+    st.title('Situação dos estudantes por mensalidade')
+
+    column_tuition1, column_tuition2 = st.columns(2)
+
+
+    with column_tuition1:
+        st.write(donut_target_tuition_paid)
+    with column_tuition2:
+        st.write(donut_target_tuition_not_paid)
+
+    st.write('Situação dos estudantes que se mudaram para frequentar a universidade')
+
+    df_displaced_grouped = dropout_data.groupby(['Displaced', 'Target'])['Target'].count().reset_index(name='count')
+    total_students_displaced = df_displaced_grouped.groupby('Displaced')['count'].transform('sum')
+    df_displaced_grouped['percentage'] = df_displaced_grouped['count'] / total_students_displaced * 100
+    bar_displaced = px.bar(df_displaced_grouped, x='Displaced', y='percentage', color='Target', barmode='stack', text=df_displaced_grouped['percentage'].round(2))
+
+    bar_displaced.update_traces(width=0.2)
+    bar_displaced.update_layout(
+                    xaxis_title='Estudantes que se mudaram para entrar na universidade',
+                    yaxis_title='Porcentagem',
+                    xaxis=dict(
+                        tickmode='array',
+                        tickvals=[0, 1], 
+                        ticktext=['Não', 'Sim']  
+                    )
+                )
+
+    st.write(bar_displaced)
+
+
+    
