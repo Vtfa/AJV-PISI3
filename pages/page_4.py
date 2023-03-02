@@ -15,10 +15,8 @@ with header:
 with dataset:
     dropout_data = st.session_state['dropout_data']
 
-<<<<<<< HEAD
     dropout_data.loc[dropout_data['Admission grade'] <= 150, 'nota_do_vestibular'] = 'inferior ou igual a 150'
     dropout_data.loc[dropout_data['Admission grade'] > 150, 'nota_do_vestibular'] = 'superior ou igual a 150'
-=======
     st.subheader('Unidades Curriculares')
 
     st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
@@ -69,7 +67,6 @@ with dataset:
     dfpagina41 = dropout_data[['Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Target', 'Admission grade', 'Debtor']]
     dfpagina41.loc[dfpagina41['Admission grade'] <= 140, 'nota_do_vestibular'] = 'inferior ou igual a 140'
     dfpagina41.nota_do_vestibular = dfpagina41.nota_do_vestibular.fillna('superior a 140', inplace=False)
->>>>>>> e453a281cc53a6a70363d1b99b56eee9dd121ca9
 
     df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
     df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
@@ -123,7 +120,6 @@ with dataset:
     elif option == 'Desistentes':
         st.write(fig2)
     else:
-<<<<<<< HEAD
         st.write(fig3)
 
     st.title('Influência da renda dos pais nas notas')
@@ -161,6 +157,3 @@ with dataset:
         title='Comparação das notas dos 2 semestres com a classe social'
     )
     st.write(fig7)
-=======
-        st.write(fig3) 
->>>>>>> e453a281cc53a6a70363d1b99b56eee9dd121ca9
