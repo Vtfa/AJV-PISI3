@@ -39,7 +39,8 @@ with dataset:
     conta_2sem_cur = pd.DataFrame(dfpagina42['Curricular units 2nd sem (enrolled)'].value_counts())
     option3 = st.selectbox(
         'Mudar o grupo visualizado',
-        ('1º Semestre', '2º Semestre',)
+        ('1º Semestre', '2º Semestre',),
+        key = 'option3'
     )
 
     if option3 == '1º Semestre':
@@ -51,7 +52,8 @@ with dataset:
     conta_2sem_ava = pd.DataFrame(dfpagina42['Curricular units 2nd sem (enrolled)'].value_counts())
     option4 = st.selectbox(
         'Mudar o grupo visualizado',
-        ('1º Semestre', '2º Semestre',)
+        ('1º Semestre', '2º Semestre',),
+        key = 'option4'
     )
 
     if option4 == '1º Semestre':
