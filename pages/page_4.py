@@ -15,8 +15,8 @@ with header:
 with dataset:
     dropout_data = st.session_state['dropout_data']
 
-    dropout_data.loc[dropout_data['Admission grade'] <= 150, 'nota_do_vestibular'] = 'inferior ou igual a 150'
-    dropout_data.loc[dropout_data['Admission grade'] > 150, 'nota_do_vestibular'] = 'superior ou igual a 150'
+    dropout_data.loc[dropout_data['Admission grade'] <= 126, 'nota_do_vestibular'] = 'inferior ou igual a 126'
+    dropout_data.loc[dropout_data['Admission grade'] > 126, 'nota_do_vestibular'] = 'superior ou igual a 126'
     st.subheader('Unidades Curriculares')
 
     st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
@@ -120,6 +120,7 @@ with dataset:
 
     st.title('Influência da renda dos pais nas notas')
 
+    st.write(dropout_data)
 
     dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
     dropout_data.loc[dropout_data['Renda total'] > 1405, 'Classe social'] = 'Classe média'
@@ -127,8 +128,8 @@ with dataset:
 
     histograma_teste= px.histogram(
         dropout_data,
-        x='Admission grade', color='nota_do_vestibular', barnorm = "percent",
-        title='% Comparação da nota do vestibular com a classe social'
+        x='nota_do_vestibular',
+        title='Contagem das notas de Admissão'
     )
     st.write(histograma_teste)
 
