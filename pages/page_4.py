@@ -63,11 +63,6 @@ with dataset:
     elif option4 == '2º Semestre':
         st.bar_chart(conta_2sem_ava)
     
-    #??
-    dfpagina41 = dropout_data[['Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Target', 'Admission grade', 'Debtor']]
-    dfpagina41.loc[dfpagina41['Admission grade'] <= 140, 'nota_do_vestibular'] = 'inferior ou igual a 140'
-    dfpagina41.nota_do_vestibular = dfpagina41.nota_do_vestibular.fillna('superior a 140', inplace=False)
-    #??
 
     df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
     df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
@@ -130,6 +125,12 @@ with dataset:
     dropout_data.loc[dropout_data['Renda total'] > 1405, 'Classe social'] = 'Classe média'
     dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
 
+    histograma_teste= px.histogram(
+        dropout_data,
+        x='Admission grade', color='nota_do_vestibular', barnorm = "percent",
+        title='% Comparação da nota do vestibular com a classe social'
+    )
+    st.write(histograma_teste)
 
     histograma_admission1 = px.histogram(
         dropout_data,
