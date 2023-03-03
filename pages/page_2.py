@@ -16,16 +16,14 @@ with dataset:
     dropout_data = st.session_state['dropout_data']
     st.write(dropout_data)
 
-
-    bar_age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
-    st.bar_chart(bar_age)
-
     #box graph
-    box_sample = dropout_data.sample(n=50, random_state=66)
-    box_age = px.box(box_sample, y='Age at enrollment', points='all')
-    st.write(box_age)
+    #box_sample = dropout_data.sample(n=50, random_state=66)
+    #box_age = px.box(box_sample, y='Age at enrollment', points='all')
+    #st.write(box_age)
 
     #auxiliar df with students and target totals
+
+    st.title('Situação dos estudantes por sexo')
     status_totals = dropout_data.groupby('Target').size()
     total_students = len(dropout_data)
 
@@ -39,8 +37,6 @@ with dataset:
 
     result_df = pd.DataFrame({'total_students': [total_students]})
     result_df = pd.concat([result_df, status_totals.to_frame().T], axis=1)
-
-    st.write(result_df)
 
     funnel_total = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
@@ -92,13 +88,13 @@ with dataset:
 
 
     df_marital_status = dropout_data.groupby(['Marital status'])['Marital status'].count().reset_index(name='count')
-    st.title('Marital status of students')
+    #st.title('Marital status of students')
     fig = px.pie(df_marital_status, values='count', names='Marital status')
-    st.plotly_chart(fig, use_container_width=True)
+    #st.plotly_chart(fig, use_container_width=True)
 
     box_marital_sample = dropout_data.sample(n=300, random_state=66)
     box_marital_status = px.box(box_marital_sample, x='Marital status', y='Age at enrollment', points="all")
-    st.write(box_marital_status)
+    #st.write(box_marital_status)
 
 
 
@@ -153,12 +149,12 @@ with dataset:
 
 
     box_renda = px.box(dropout_data, y='Renda total', points='all')
-    st.write(box_renda)
+   # st.write(box_renda)
 
 
     df_country = dropout_data.groupby(['Nacionality'])['Nacionality'].count().reset_index(name='count')
     pie_country = px.bar(df_country)
-    st.plotly_chart(pie_country, use_container_width=True)
+   #st.plotly_chart(pie_country, use_container_width=True)
 
 
     
@@ -577,3 +573,56 @@ with dataset:
         with column_debt3:
             st.plotly_chart(grafico_target_estudantes_sem_dividas)   
 
+
+
+    df_tuition_paid = dropout_data[dropout_data['Tuition fees up to date'] == 1]
+    dfaux_tuition_paid = df_tuition_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades em dia")
+    donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5)
+        
+    donut_target_tuition_paid.update_layout(
+        title="Estudantes com mensalidades em dia",
+        title_x = 0.5
+    )
+
+    df_tuition_not_paid = dropout_data[dropout_data['Tuition fees up to date'] == 0]
+    dfaux_tuition_not_paid = df_tuition_not_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades atrasadas")
+    donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5)
+        
+    donut_target_tuition_not_paid.update_layout(
+        title="Estudantes com mensalidades atrasadas",
+        title_x = 0.5
+    )
+
+    st.title('Situação dos estudantes por mensalidade')
+
+    column_tuition1, column_tuition2 = st.columns(2)
+
+
+    with column_tuition1:
+        st.write(donut_target_tuition_paid)
+    with column_tuition2:
+        st.write(donut_target_tuition_not_paid)
+
+    st.title('Situação dos estudantes que se mudaram para frequentar a universidade')
+
+    df_displaced_grouped = dropout_data.groupby(['Displaced', 'Target'])['Target'].count().reset_index(name='count')
+    total_students_displaced = df_displaced_grouped.groupby('Displaced')['count'].transform('sum')
+    df_displaced_grouped['percentage'] = df_displaced_grouped['count'] / total_students_displaced * 100
+    bar_displaced = px.bar(df_displaced_grouped, x='Displaced', y='percentage', color='Target', barmode='stack', text=df_displaced_grouped['percentage'].round(2),)
+
+    bar_displaced.update_traces(width=0.2)
+    bar_displaced.update_layout(
+                    xaxis_title='Estudantes que se mudaram para entrar na universidade',
+                    yaxis_title='Porcentagem',
+                    xaxis=dict(
+                        tickmode='array',
+                        tickvals=[0, 1], 
+                        ticktext=['Não', 'Sim']  
+                    )
+                    
+                )
+
+    st.write(bar_displaced)
+
+
+    
