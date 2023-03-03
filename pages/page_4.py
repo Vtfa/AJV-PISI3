@@ -63,10 +63,11 @@ with dataset:
     elif option4 == '2º Semestre':
         st.bar_chart(conta_2sem_ava)
     
-
+    #??
     dfpagina41 = dropout_data[['Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Target', 'Admission grade', 'Debtor']]
     dfpagina41.loc[dfpagina41['Admission grade'] <= 140, 'nota_do_vestibular'] = 'inferior ou igual a 140'
     dfpagina41.nota_do_vestibular = dfpagina41.nota_do_vestibular.fillna('superior a 140', inplace=False)
+    #??
 
     df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
     df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
@@ -130,30 +131,53 @@ with dataset:
     dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
 
 
-    fig6 = px.histogram(
+    histograma_admission1 = px.histogram(
         dropout_data,
         x='Admission grade', color='Classe social',
         title='Comparação da nota do vestibular com a classe social'
     )
-    st.write(fig6)
+    st.write(histograma_admission1)
 
-    fig4 = px.histogram(
+    histograma_admission2 = px.histogram(
+        dropout_data,
+        x='Admission grade', color='Classe social', barnorm = "percent",
+        title='% Comparação da nota do vestibular com a classe social'
+    )
+    st.write(histograma_admission2)
+
+    histograma_sem1 = px.histogram(
         dropout_data,
         x='Curricular units 1st sem (grade)', color='Classe social',
         title='Comparação da nota do 1o semestre com a classe social'
     )
-    st.write(fig4)
+    st.write(histograma_sem1)
 
-    fig5 = px.histogram(
+    histograma_sem1_porcent = px.histogram(
+        dropout_data,
+        x='Classe social', color='Curricular units 1st sem (grade)', barnorm = "percent",
+        title='Comparação da nota do 1o semestre com a classe social'
+    )
+    st.write(histograma_sem1_porcent)
+
+
+
+    histograma_sem2 = px.histogram(
         dropout_data,
         x='Curricular units 2nd sem (grade)', color='Classe social',
         title='Comparação da nota do 2o semestre com a classe social'
     )
-    st.write(fig5)
+    st.write(histograma_sem2)
 
-    fig7 = px.scatter(
+    histograma_sem2_porcent = px.histogram(
+        dropout_data,
+        x='Curricular units 2nd sem (grade)', color='Classe social', barnorm = "percent", text_auto= True,
+        title='Comparação da nota do 2o semestre com a classe social'
+    )
+    st.write(histograma_sem2_porcent)
+
+    scatter_semestres = px.scatter(
         dropout_data,
         x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social',
         title='Comparação das notas dos 2 semestres com a classe social'
     )
-    st.write(fig7)
+    st.write(scatter_semestres)
