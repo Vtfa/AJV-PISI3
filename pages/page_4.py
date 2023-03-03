@@ -140,6 +140,24 @@ with dataset:
     )
     st.write(histograma_admission1)
 
+    def mudar_admission_chart(chart_type):
+        if chart_type == 'Classe Baixa':
+            df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] > 'Classe baixa']
+            histograma_admission_cbaixa = px.histogram(
+                df_admission_csocial,
+                x = 'Admission grade',
+                title = 'Histograma de notas dos alunos de classe baixa'
+            )
+            st.write(histograma_admission_cbaixa)
+        elif chart_type == 'Classe Média':
+            st.write('a')
+
+    chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
+    mudar_admission_chart(chart_type)
+
+
+
+
     histograma_admission2 = px.histogram(
         dropout_data,
         x='Admission grade', color='Classe social', barnorm = "percent",
@@ -180,6 +198,7 @@ with dataset:
     scatter_semestres = px.scatter(
         dropout_data,
         x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social',
-        title='Comparação das notas dos 2 semestres com a classe social'
+        title='Comparação das notas dos 2 semestres com a classe social',
     )
     st.write(scatter_semestres)
+
