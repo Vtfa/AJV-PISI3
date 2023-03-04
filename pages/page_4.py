@@ -64,6 +64,7 @@ with dataset:
         st.bar_chart(conta_2sem_ava)
     
 
+    # Início dos gráficos de comparação de nota com classe social
     df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
     df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
 
@@ -122,8 +123,8 @@ with dataset:
 
     st.write(dropout_data)
 
+    # Definição de Classes Sociais
     dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
-    #dropout_data.loc[dropout_data['Renda total'] > 1405, 'Classe social'] = 'Classe média'
     dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
     dropout_data['Classe social'].fillna('Classe média', inplace=True)
 
@@ -142,6 +143,7 @@ with dataset:
     )
     st.write(histograma_admission1)
 
+    # Gráficos de comparação Notas Admission x Classe Social
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
     if chart_type == 'Classe Baixa':
         df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
@@ -169,8 +171,7 @@ with dataset:
         st.write(histograma_admission_csocial)
 
 
-    #histo_admission = mudar_admission_chart(chart_type)
-    #st.write(histo_admission)
+
 
 
 
@@ -182,6 +183,7 @@ with dataset:
     )
     st.write(histograma_admission2)
 
+    # Gráficos de comparação Notas 1o sem x Classe Social
     histograma_sem1 = px.histogram(
         dropout_data,
         x='Curricular units 1st sem (grade)', color='Classe social',
@@ -197,7 +199,7 @@ with dataset:
     st.write(histograma_sem1_porcent)
 
 
-
+    # Gráficos de comparação Notas 2o sem x Classe Social
     histograma_sem2 = px.histogram(
         dropout_data,
         x='Curricular units 2nd sem (grade)', color='Classe social',
