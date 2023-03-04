@@ -16,7 +16,7 @@ with dataset:
     dropout_data = st.session_state['dropout_data']
 
     dropout_data.loc[dropout_data['Admission grade'] <= 133, 'nota_do_vestibular'] = '0 - 132'
-    dropout_data.loc[dropout_data['Admission grade'] > 166, 'nota_do_vestibular'] = '167 - 200'
+    dropout_data.loc[dropout_data['Admission grade'] > 166, 'nota_do_vestibular'] = '166 - 200'
     dropout_data['nota_do_vestibular'].fillna('133 - 166', inplace=True)
     
     st.subheader('Unidades Curriculares')
