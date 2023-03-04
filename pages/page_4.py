@@ -123,8 +123,10 @@ with dataset:
     st.write(dropout_data)
 
     dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
-    dropout_data.loc[dropout_data['Renda total'] > 1405, 'Classe social'] = 'Classe média'
+    #dropout_data.loc[dropout_data['Renda total'] > 1405, 'Classe social'] = 'Classe média'
     dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
+    dropout_data['Classe social'].fillna('Classe média', inplace=True)
+
 
     histograma_teste= px.histogram(
         dropout_data,
@@ -140,20 +142,35 @@ with dataset:
     )
     st.write(histograma_admission1)
 
-    def mudar_admission_chart(chart_type):
-        if chart_type == 'Classe Baixa':
-            df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] > 'Classe baixa']
-            histograma_admission_cbaixa = px.histogram(
-                df_admission_csocial,
-                x = 'Admission grade',
-                title = 'Histograma de notas dos alunos de classe baixa'
-            )
-            st.write(histograma_admission_cbaixa)
-        elif chart_type == 'Classe Média':
-            st.write('a')
-
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
-    mudar_admission_chart(chart_type)
+    if chart_type == 'Classe Baixa':
+        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
+        histograma_admission_csocial = px.histogram(
+            df_admission_csocial,
+            x = 'Admission grade',
+            title = 'Histograma de notas dos alunos da classe baixa'
+        )
+        st.write(histograma_admission_csocial)
+    elif chart_type == 'Classe Média':
+        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe média']
+        histograma_admission_csocial = px.histogram(
+            df_admission_csocial,
+            x = 'Admission grade',
+            title = 'Histograma de notas dos alunos da classe média'
+        )
+        st.write(histograma_admission_csocial)
+    elif chart_type == 'Classe Alta':
+        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe alta']
+        histograma_admission_csocial = px.histogram(
+            df_admission_csocial,
+            x = 'Admission grade',
+            title = 'Histograma de notas dos alunos de classe alta'
+        )
+        st.write(histograma_admission_csocial)
+
+
+    #histo_admission = mudar_admission_chart(chart_type)
+    #st.write(histo_admission)
 
 
 
