@@ -15,8 +15,10 @@ with header:
 with dataset:
     dropout_data = st.session_state['dropout_data']
 
-    dropout_data.loc[dropout_data['Admission grade'] <= 126, 'nota_do_vestibular'] = 'inferior ou igual a 126'
-    dropout_data.loc[dropout_data['Admission grade'] > 126, 'nota_do_vestibular'] = 'superior ou igual a 126'
+    dropout_data.loc[dropout_data['Admission grade'] <= 133, 'nota_do_vestibular'] = '0 - 132'
+    dropout_data.loc[dropout_data['Admission grade'] > 166, 'nota_do_vestibular'] = '167 - 200'
+    dropout_data['nota_do_vestibular'].fillna('133 - 166', inplace=True)
+    
     st.subheader('Unidades Curriculares')
 
     st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
@@ -182,6 +184,11 @@ with dataset:
         title='% Comparação da nota do vestibular com a classe social'
     )
     st.write(histograma_admission2)
+
+    histograma_admission3 = px.histogram(
+        dropout_data,
+        x='Classe social'
+    )
 
     # Gráficos de comparação Notas 1o sem x Classe Social
     histograma_sem1 = px.histogram(
