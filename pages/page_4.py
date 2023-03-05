@@ -201,7 +201,7 @@ with dataset:
         color='nota_do_vestibular',
         barnorm="percent",
         text_auto=True,
-        title='Porcentagem de notas por classe social'
+        title='Porcentagem de notas do vestibular por classe social'
     )
     st.write(histograma_admission3)
 
@@ -215,8 +215,11 @@ with dataset:
 
     histograma_sem1_porcent = px.histogram(
         dropout_data,
-        x='Classe social', color='Curricular units 1st sem (grade)', barnorm = "percent",
-        title='Comparação da nota do 1o semestre com a classe social'
+        x='nota_1o_sem',
+        color='Classe social',
+        barnorm = "percent",
+        text_auto=True,
+        title='Porcentagem de notas do 1o semestre por classe social'
     )
     st.write(histograma_sem1_porcent)
 
