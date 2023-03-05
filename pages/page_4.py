@@ -15,11 +15,16 @@ with header:
 with dataset:
     dropout_data = st.session_state['dropout_data']
 
-    # Divisão das notas de admissão em 3 tipos
+    # Divisão das notas de admissão em 2 tipos
     dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
     dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
 #    dropout_data['nota_do_vestibular'].fillna('67 - 132', inplace=True)
     
+    # Divisão das notas dos semestres em 3 tipos
+    dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
+    dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
+    dropout_data['nota_1o_sem'].fillna('10 - 15', inplace=True)
+
     st.subheader('Unidades Curriculares')
 
     st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
@@ -147,7 +152,7 @@ with dataset:
     st.write(histograma_admission1)
 
     # Gráficos de comparação Notas Admission x Classe Social
-    ordem_notas_do_vestibular = ['0', '95 - 145', '146 - 200']
+    ordem_notas_do_vestibular = ['95 - 145', '146 - 200']
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
     if chart_type == 'Classe Baixa':
         df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
