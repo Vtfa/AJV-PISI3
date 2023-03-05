@@ -16,9 +16,9 @@ with dataset:
     dropout_data = st.session_state['dropout_data']
 
     # Divisão das notas de admissão em 3 tipos
-    dropout_data.loc[dropout_data['Admission grade'] <= 133, 'nota_do_vestibular'] = '0 - 133'
-    dropout_data.loc[dropout_data['Admission grade'] > 166, 'nota_do_vestibular'] = '166 - 200'
-    dropout_data['nota_do_vestibular'].fillna('133 - 166', inplace=True)
+    dropout_data.loc[dropout_data['Admission grade'] <= 125, 'nota_do_vestibular'] = '0 - 125'
+    #dropout_data.loc[dropout_data['Admission grade'] > 133, 'nota_do_vestibular'] = '133 - 200'
+    dropout_data['nota_do_vestibular'].fillna('125 - 200', inplace=True)
     
     st.subheader('Unidades Curriculares')
 
@@ -147,7 +147,7 @@ with dataset:
     st.write(histograma_admission1)
 
     # Gráficos de comparação Notas Admission x Classe Social
-    ordem_notas_do_vestibular = ['0 - 133', '133 - 166', '166 - 200']
+    ordem_notas_do_vestibular = ['0 - 125', '125 - 200']
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
     if chart_type == 'Classe Baixa':
         df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
@@ -163,6 +163,7 @@ with dataset:
         histograma_admission_csocial = px.histogram(
             df_admission_csocial,
             x = 'nota_do_vestibular',
+            category_orders={'nota_do_vestibular': ordem_notas_do_vestibular},
             title = 'Histograma de notas dos alunos da classe média'
         )
         st.write(histograma_admission_csocial)
@@ -171,6 +172,7 @@ with dataset:
         histograma_admission_csocial = px.histogram(
             df_admission_csocial,
             x = 'nota_do_vestibular',
+            category_orders={'nota_do_vestibular': ordem_notas_do_vestibular},
             title = 'Histograma de notas dos alunos de classe alta'
         )
         st.write(histograma_admission_csocial)
