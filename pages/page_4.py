@@ -16,9 +16,9 @@ with dataset:
     dropout_data = st.session_state['dropout_data']
 
     # Divisão das notas de admissão em 3 tipos
-    dropout_data.loc[dropout_data['Admission grade'] <= 125, 'nota_do_vestibular'] = '0 - 125'
-    #dropout_data.loc[dropout_data['Admission grade'] > 133, 'nota_do_vestibular'] = '133 - 200'
-    dropout_data['nota_do_vestibular'].fillna('125 - 200', inplace=True)
+    dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
+    dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
+#    dropout_data['nota_do_vestibular'].fillna('67 - 132', inplace=True)
     
     st.subheader('Unidades Curriculares')
 
@@ -147,7 +147,7 @@ with dataset:
     st.write(histograma_admission1)
 
     # Gráficos de comparação Notas Admission x Classe Social
-    ordem_notas_do_vestibular = ['0 - 125', '125 - 200']
+    ordem_notas_do_vestibular = ['0', '95 - 145', '146 - 200']
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
     if chart_type == 'Classe Baixa':
         df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
@@ -192,9 +192,11 @@ with dataset:
 
     histograma_admission3 = px.histogram(
         dropout_data,
-        x='nota_do_vestibular',
-        color='Classe social',
-        barnorm="percent"
+        x='Classe social',
+        color='nota_do_vestibular',
+        barnorm="percent",
+        text_auto=True,
+        title='Porcentagem de notas por classe social'
     )
     st.write(histograma_admission3)
 
