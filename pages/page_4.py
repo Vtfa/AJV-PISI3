@@ -25,6 +25,10 @@ with dataset:
     dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
     dropout_data['nota_1o_sem'].fillna('10 - 15', inplace=True)
 
+    dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
+    dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
+    dropout_data['nota_2o_sem'].fillna('10 - 15', inplace=True)
+
     st.subheader('Unidades Curriculares')
 
     st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
@@ -215,8 +219,8 @@ with dataset:
 
     histograma_sem1_porcent = px.histogram(
         dropout_data,
-        x='nota_1o_sem',
-        color='Classe social',
+        x='Classe social',
+        color='nota_1o_sem',
         barnorm = "percent",
         text_auto=True,
         title='Porcentagem de notas do 1o semestre por classe social'
@@ -234,7 +238,10 @@ with dataset:
 
     histograma_sem2_porcent = px.histogram(
         dropout_data,
-        x='Curricular units 2nd sem (grade)', color='Classe social', barnorm = "percent", text_auto= True,
+        x='Classe social',
+        color='nota_2o_sem', 
+        barnorm = "percent", 
+        text_auto= True,
         title='Comparação da nota do 2o semestre com a classe social'
     )
     st.write(histograma_sem2_porcent)
