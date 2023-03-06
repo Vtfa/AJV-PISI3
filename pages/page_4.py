@@ -148,12 +148,7 @@ with dataset:
     )
     st.write(histograma_teste)
 
-    histograma_admission1 = px.histogram(
-        dropout_data,
-        x='Admission grade', color='Classe social',
-        title='Comparação da nota do vestibular com a classe social'
-    )
-    st.write(histograma_admission1)
+
 
     # Gráficos de comparação Notas Admission x Classe Social
     '''
@@ -191,24 +186,27 @@ with dataset:
 
 
 
+    chart_type_admission = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'))
+    if chart_type_admission == 'Distribuição':
+        histograma_admission1 = px.histogram(
+            dropout_data,
+            x='Admission grade', color='Classe social',
+            title='Comparação da nota do vestibular com a classe social'
+        )
+        st.write(histograma_admission1)
+    elif chart_type_admission == 'Porcentagem':
+        histograma_admission3 = px.histogram(
+            dropout_data,
+            x='Classe social',
+            color='nota_do_vestibular',
+            barnorm="percent",
+            text_auto=True,
+            title='Porcentagem de notas do vestibular por classe social'
+        )
+        st.write(histograma_admission3)
 
 
-    histograma_admission2 = px.histogram(
-        dropout_data,
-        x='Admission grade', color='Classe social', barnorm = "percent",
-        title='% Comparação da nota do vestibular com a classe social'
-    )
-    st.write(histograma_admission2)
 
-    histograma_admission3 = px.histogram(
-        dropout_data,
-        x='Classe social',
-        color='nota_do_vestibular',
-        barnorm="percent",
-        text_auto=True,
-        title='Porcentagem de notas do vestibular por classe social'
-    )
-    st.write(histograma_admission3)
 
     # Gráficos de comparação Notas 1o sem x Classe Social
     histograma_sem1 = px.histogram(
@@ -271,9 +269,8 @@ with dataset:
     st.write(dropout_data)
 
     # Plots de Escolaridade dos Pais X Classe Social
-
-    chart_type = st.radio('Selecione o tipo de gráfico:', ('Vestibular', '1o Semestre', '2o Semestre'))
-    if chart_type == 'Vestibular':
+    chart_type_escolaridade = st.radio('Selecione o tipo de gráfico:', ('Vestibular', '1o Semestre', '2o Semestre'))
+    if chart_type_escolaridade == 'Vestibular':
         histograma_escolaridade_vestibular = px.histogram(
             dropout_data,
             x='Escolaridade_Maes&Pais',
@@ -283,7 +280,7 @@ with dataset:
             title='Porcentagem de notas do vestibular por escolaridade dos pais'
         )
         st.write(histograma_escolaridade_vestibular)
-    elif chart_type == '1o Semestre':
+    elif chart_type_escolaridade == '1o Semestre':
         histograma_escolaridade_1o_sem = px.histogram(
             dropout_data,
             x='Escolaridade_Maes&Pais',
@@ -293,7 +290,7 @@ with dataset:
             title='Porcentagem de notas do 1o semestre por escolaridade dos pais'
         )
         st.write(histograma_escolaridade_1o_sem)
-    elif chart_type == '2o Semestre':
+    elif chart_type_escolaridade == '2o Semestre':
         histograma_escolaridade_2o_sem = px.histogram(
             dropout_data,
             x='Escolaridade_Maes&Pais',
