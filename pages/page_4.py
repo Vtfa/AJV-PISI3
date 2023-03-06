@@ -76,6 +76,12 @@ with dataset:
         st.bar_chart(conta_2sem_ava)
     
 
+    # definindo cores
+    cores_notas_vestibular = ["#FF6961", "#87CEEB"]
+    cores_classes = ["#87CEEB", "#FF6961", "#98FB98"]
+    cores_notas_semestres = ["#FF6961", "#87CEEB", "#98FB98"]
+
+
     # Início dos gráficos de comparação de nota com classe social
     df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
     df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
@@ -114,6 +120,7 @@ with dataset:
     fig3 = px.scatter(
         dropout_data,
         x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='nota_do_vestibular',
+        color_discrete_sequence=cores_notas_vestibular,
         labels={
             'Curricular units 1st sem (grade)' : 'Notas do 1º Semestre',
             'Curricular units 2nd sem (grade)' : 'Notas do 2º Semestre',
@@ -190,7 +197,7 @@ with dataset:
     if chart_type_admission == 'Distribuição':
         histograma_admission1 = px.histogram(
             dropout_data,
-            x='Admission grade', color='Classe social',
+            x='Admission grade', color='Classe social', color_discrete_sequence=cores_classes,
             title='Comparação da nota do vestibular com a classe social'
         )
         st.write(histograma_admission1)
@@ -199,6 +206,7 @@ with dataset:
             dropout_data,
             x='Classe social',
             color='nota_do_vestibular',
+            color_discrete_sequence=cores_notas_vestibular,
             barnorm="percent",
             text_auto=True,
             title='Porcentagem de notas do vestibular por classe social',
@@ -214,7 +222,7 @@ with dataset:
     if chart_type_1o_sem == 'Distribuição':
         histograma_sem1 = px.histogram(
             dropout_data,
-            x='Curricular units 1st sem (grade)', color='Classe social',
+            x='Curricular units 1st sem (grade)', color='Classe social', color_discrete_sequence=cores_classes,
             title='Comparação da nota do 1o semestre com a classe social'
         )
         st.write(histograma_sem1)
@@ -223,6 +231,7 @@ with dataset:
             dropout_data,
             x='Classe social',
             color='nota_1o_sem',
+            color_discrete_sequence=cores_notas_semestres,
             barnorm = "percent",
             text_auto=True,
             title='Porcentagem de notas do 1o semestre por classe social',
@@ -236,7 +245,7 @@ with dataset:
     if chart_type_2o_sem == 'Distribuição':
         histograma_sem2 = px.histogram(
             dropout_data,
-            x='Curricular units 2nd sem (grade)', color='Classe social',
+            x='Curricular units 2nd sem (grade)', color='Classe social', color_discrete_sequence=cores_classes,
             title='Comparação da nota do 2o semestre com a classe social'
         )
         st.write(histograma_sem2)
@@ -245,6 +254,7 @@ with dataset:
             dropout_data,
             x='Classe social',
             color='nota_2o_sem', 
+            color_discrete_sequence=cores_notas_semestres,
             barnorm = "percent", 
             text_auto= True,
             title='Comparação da nota do 2o semestre com a classe social',
@@ -256,7 +266,7 @@ with dataset:
 
     scatter_semestres = px.scatter(
         dropout_data,
-        x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social',
+        x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social', color_discrete_sequence=cores_classes,
         title='Comparação das notas dos 2 semestres com a classe social',
     )
     st.write(scatter_semestres)
@@ -285,6 +295,7 @@ with dataset:
             dropout_data,
             x='Escolaridade_Maes&Pais',
             color='nota_do_vestibular',
+            color_discrete_sequence=cores_notas_vestibular,
             barnorm="percent",
             text_auto=True,
             title='Porcentagem de notas do vestibular por escolaridade dos pais',
@@ -296,6 +307,7 @@ with dataset:
             dropout_data,
             x='Escolaridade_Maes&Pais',
             color='nota_1o_sem',
+            color_discrete_sequence=cores_notas_semestres,
             barnorm="percent",
             text_auto=True,
             title='Porcentagem de notas do 1o semestre por escolaridade dos pais',
@@ -307,6 +319,7 @@ with dataset:
             dropout_data,
             x='Escolaridade_Maes&Pais',
             color='nota_2o_sem',
+            color_discrete_sequence=cores_notas_semestres,
             barnorm="percent",
             text_auto=True,
             title='Porcentagem de notas do 2o semestre por escolaridade dos pais',
