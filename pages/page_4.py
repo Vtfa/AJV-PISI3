@@ -139,57 +139,12 @@ with dataset:
 
     st.title('Influência da renda dos pais nas notas')
 
-    st.write(dropout_data)
-
     # Definição de Classes Sociais
     dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
     dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
     dropout_data['Classe social'].fillna('Classe média', inplace=True)
 
-
-    histograma_teste= px.histogram(
-        dropout_data,
-        x='nota_do_vestibular',
-        title='Contagem das notas de Admissão'
-    )
-    st.write(histograma_teste)
-
-
-
     # Gráficos de comparação Notas Admission x Classe Social
-    '''
-    ordem_notas_do_vestibular = ['95 - 145', '146 - 200']
-    chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
-    if chart_type == 'Classe Baixa':
-        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe baixa']
-        histograma_admission_csocial = px.histogram(
-            df_admission_csocial,
-            x = 'nota_do_vestibular',
-            category_orders={'nota_do_vestibular': ordem_notas_do_vestibular},
-            title = 'Histograma de notas dos alunos da classe baixa'
-        )
-        st.write(histograma_admission_csocial)
-    elif chart_type == 'Classe Média':
-        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe média']
-        histograma_admission_csocial = px.histogram(
-            df_admission_csocial,
-            x = 'nota_do_vestibular',
-            category_orders={'nota_do_vestibular': ordem_notas_do_vestibular},
-            title = 'Histograma de notas dos alunos da classe média'
-        )
-        st.write(histograma_admission_csocial)
-    elif chart_type == 'Classe Alta':
-        df_admission_csocial = dropout_data.loc[dropout_data['Classe social'] == 'Classe alta']
-        histograma_admission_csocial = px.histogram(
-            df_admission_csocial,
-            x = 'nota_do_vestibular',
-            category_orders={'nota_do_vestibular': ordem_notas_do_vestibular},
-            title = 'Histograma de notas dos alunos de classe alta'
-        )
-        st.write(histograma_admission_csocial)
-    '''
-
-
     st.subheader('Relação entre Notas do Vestibular e Classe Social')
 
     ordem_classes_sociais = ['Classe baixa', 'Classe média', 'Classe alta']
@@ -214,8 +169,6 @@ with dataset:
             category_orders={'Classe social': ordem_classes_sociais}
         )
         st.write(histograma_admission3)
-
-
 
 
     # Gráficos de comparação Notas 1o sem x Classe Social
@@ -273,6 +226,7 @@ with dataset:
     )
     st.write(scatter_semestres)
 
+
     # Dataframes de Escolaridade dos Pais
     df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
 
@@ -282,12 +236,13 @@ with dataset:
 
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
 
+
     # add coluna de escolaridade dos pais no dropout_data
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
-    st.write(dropout_data)
+
 
     # Plots de Escolaridade dos Pais X Classe Social
     st.subheader('Relação entre Escolaridade dos Pais e Notas')
