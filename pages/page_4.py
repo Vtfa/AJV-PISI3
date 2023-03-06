@@ -253,7 +253,7 @@ with dataset:
     )
     st.write(scatter_semestres)
 
-
+    # Dataframes de Escolaridade dos Pais
     df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
 
     df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
@@ -261,3 +261,11 @@ with dataset:
     df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
 
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
+
+    # add coluna de escolaridade dos pais no dropout_data
+    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
+    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
+    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
+    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
+    st.write(dropout_data)
+    # Plots de Escolaridade dos Pais X Classe Social
