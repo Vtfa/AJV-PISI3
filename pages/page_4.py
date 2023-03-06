@@ -129,7 +129,6 @@ with dataset:
         title='Notas de todos alunos',
         width=800, height=400
         )
-
         
     if option == 'Formados':
         st.write(fig)
@@ -191,6 +190,8 @@ with dataset:
     '''
 
 
+    st.subheader('Relação entre Notas do Vestibular e Classe Social')
+
     ordem_classes_sociais = ['Classe baixa', 'Classe média', 'Classe alta']
     chart_type_admission = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'))
     
@@ -218,6 +219,7 @@ with dataset:
 
 
     # Gráficos de comparação Notas 1o sem x Classe Social
+    st.subheader('Relação entre Notas do 1o Semestre e Classe Social')
     chart_type_1o_sem = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'), key='chart_type_1o_sem')
     if chart_type_1o_sem == 'Distribuição':
         histograma_sem1 = px.histogram(
@@ -241,6 +243,7 @@ with dataset:
 
 
     # Gráficos de comparação Notas 2o sem x Classe Social
+    st.subheader('Relação entre Notas do 2o Semestre e Classe Social')
     chart_type_2o_sem = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'), key='chart_type_2o_sem')
     if chart_type_2o_sem == 'Distribuição':
         histograma_sem2 = px.histogram(
@@ -263,11 +266,10 @@ with dataset:
         st.write(histograma_sem2_porcent)
 
 
-
+    st.subheader('Comparação das notas dos 2 semestres com a classe social')
     scatter_semestres = px.scatter(
         dropout_data,
-        x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social', color_discrete_sequence=cores_classes,
-        title='Comparação das notas dos 2 semestres com a classe social',
+        x='Curricular units 1st sem (grade)', y='Curricular units 2nd sem (grade)', color='Classe social', color_discrete_sequence=cores_classes
     )
     st.write(scatter_semestres)
 
@@ -288,6 +290,7 @@ with dataset:
     st.write(dropout_data)
 
     # Plots de Escolaridade dos Pais X Classe Social
+    st.subheader('Relação entre Escolaridade dos Pais e Notas')
     ordem_escolaridade = ['ambos com fundamental incompleto', 'ambos com medio completo', 'um com ensino superior', 'ambos com ensino superior']
     chart_type_escolaridade = st.radio('Selecione o tipo de gráfico:', ('Vestibular', '1o Semestre', '2o Semestre'))
     if chart_type_escolaridade == 'Vestibular':
