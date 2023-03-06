@@ -230,22 +230,26 @@ with dataset:
 
 
     # Gráficos de comparação Notas 2o sem x Classe Social
-    histograma_sem2 = px.histogram(
-        dropout_data,
-        x='Curricular units 2nd sem (grade)', color='Classe social',
-        title='Comparação da nota do 2o semestre com a classe social'
-    )
-    st.write(histograma_sem2)
+    chart_type_2o_sem = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'), key='chart_type_2o_sem')
+    if chart_type_2o_sem == 'Distribuição':
+        histograma_sem2 = px.histogram(
+            dropout_data,
+            x='Curricular units 2nd sem (grade)', color='Classe social',
+            title='Comparação da nota do 2o semestre com a classe social'
+        )
+        st.write(histograma_sem2)
+    elif chart_type_2o_sem == 'Porcentagem':
+        histograma_sem2_porcent = px.histogram(
+            dropout_data,
+            x='Classe social',
+            color='nota_2o_sem', 
+            barnorm = "percent", 
+            text_auto= True,
+            title='Comparação da nota do 2o semestre com a classe social'
+        )
+        st.write(histograma_sem2_porcent)
 
-    histograma_sem2_porcent = px.histogram(
-        dropout_data,
-        x='Classe social',
-        color='nota_2o_sem', 
-        barnorm = "percent", 
-        text_auto= True,
-        title='Comparação da nota do 2o semestre com a classe social'
-    )
-    st.write(histograma_sem2_porcent)
+
 
     scatter_semestres = px.scatter(
         dropout_data,
