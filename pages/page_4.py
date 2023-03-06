@@ -256,7 +256,7 @@ with dataset:
     # Dataframes de Escolaridade dos Pais
     df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
 
-    df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
+    df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior')]
 
     df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
 
@@ -264,8 +264,38 @@ with dataset:
 
     # add coluna de escolaridade dos pais no dropout_data
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
-    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
+    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
     dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
     st.write(dropout_data)
+
     # Plots de Escolaridade dos Pais X Classe Social
+    histograma_escolaridade_vestibular = px.histogram(
+        dropout_data,
+        x='Escolaridade_Maes&Pais',
+        color='nota_do_vestibular',
+        barnorm="percent",
+        text_auto=True,
+        title='Porcentagem de notas do vestibular por escolaridade dos pais'
+    )
+    st.write(histograma_escolaridade_vestibular)
+
+    histograma_escolaridade_1o_sem = px.histogram(
+        dropout_data,
+        x='Escolaridade_Maes&Pais',
+        color='nota_1o_sem',
+        barnorm="percent",
+        text_auto=True,
+        title='Porcentagem de notas do 1o semestre por escolaridade dos pais'
+    )
+    st.write(histograma_escolaridade_1o_sem)
+
+    histograma_escolaridade_2o_sem = px.histogram(
+        dropout_data,
+        x='Escolaridade_Maes&Pais',
+        color='nota_2o_sem',
+        barnorm="percent",
+        text_auto=True,
+        title='Porcentagem de notas do 2o semestre por escolaridade dos pais'
+    )
+    st.write(histograma_escolaridade_2o_sem)
