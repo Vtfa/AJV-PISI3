@@ -253,3 +253,11 @@ with dataset:
     )
     st.write(scatter_semestres)
 
+
+    df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
+
+    df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
+
+    df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
+
+    df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
