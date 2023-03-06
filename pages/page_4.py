@@ -184,9 +184,9 @@ with dataset:
     '''
 
 
-
-
+    ordem_classes_sociais = ['Classe baixa', 'Classe média', 'Classe alta']
     chart_type_admission = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'))
+    
     if chart_type_admission == 'Distribuição':
         histograma_admission1 = px.histogram(
             dropout_data,
@@ -201,7 +201,8 @@ with dataset:
             color='nota_do_vestibular',
             barnorm="percent",
             text_auto=True,
-            title='Porcentagem de notas do vestibular por classe social'
+            title='Porcentagem de notas do vestibular por classe social',
+            category_orders={'Classe social': ordem_classes_sociais}
         )
         st.write(histograma_admission3)
 
@@ -224,7 +225,8 @@ with dataset:
             color='nota_1o_sem',
             barnorm = "percent",
             text_auto=True,
-            title='Porcentagem de notas do 1o semestre por classe social'
+            title='Porcentagem de notas do 1o semestre por classe social',
+            category_orders={'Classe social': ordem_classes_sociais}
         )
         st.write(histograma_sem1_porcent)
 
@@ -245,7 +247,8 @@ with dataset:
             color='nota_2o_sem', 
             barnorm = "percent", 
             text_auto= True,
-            title='Comparação da nota do 2o semestre com a classe social'
+            title='Comparação da nota do 2o semestre com a classe social',
+            category_orders={'Classe social': ordem_classes_sociais}
         )
         st.write(histograma_sem2_porcent)
 
@@ -275,6 +278,7 @@ with dataset:
     st.write(dropout_data)
 
     # Plots de Escolaridade dos Pais X Classe Social
+    ordem_escolaridade = ['ambos com fundamental incompleto', 'ambos com medio completo', 'um com ensino superior', 'ambos com ensino superior']
     chart_type_escolaridade = st.radio('Selecione o tipo de gráfico:', ('Vestibular', '1o Semestre', '2o Semestre'))
     if chart_type_escolaridade == 'Vestibular':
         histograma_escolaridade_vestibular = px.histogram(
@@ -283,7 +287,8 @@ with dataset:
             color='nota_do_vestibular',
             barnorm="percent",
             text_auto=True,
-            title='Porcentagem de notas do vestibular por escolaridade dos pais'
+            title='Porcentagem de notas do vestibular por escolaridade dos pais',
+            category_orders={'Escolaridade_Maes&Pais': ordem_escolaridade}
         )
         st.write(histograma_escolaridade_vestibular)
     elif chart_type_escolaridade == '1o Semestre':
@@ -293,7 +298,8 @@ with dataset:
             color='nota_1o_sem',
             barnorm="percent",
             text_auto=True,
-            title='Porcentagem de notas do 1o semestre por escolaridade dos pais'
+            title='Porcentagem de notas do 1o semestre por escolaridade dos pais',
+            category_orders={'Escolaridade_Maes&Pais': ordem_escolaridade}
         )
         st.write(histograma_escolaridade_1o_sem)
     elif chart_type_escolaridade == '2o Semestre':
@@ -303,7 +309,8 @@ with dataset:
             color='nota_2o_sem',
             barnorm="percent",
             text_auto=True,
-            title='Porcentagem de notas do 2o semestre por escolaridade dos pais'
+            title='Porcentagem de notas do 2o semestre por escolaridade dos pais',
+            category_orders={'Escolaridade_Maes&Pais': ordem_escolaridade}
         )
         st.write(histograma_escolaridade_2o_sem)
 
