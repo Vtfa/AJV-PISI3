@@ -156,6 +156,7 @@ with dataset:
     st.write(histograma_admission1)
 
     # Gráficos de comparação Notas Admission x Classe Social
+    '''
     ordem_notas_do_vestibular = ['95 - 145', '146 - 200']
     chart_type = st.radio('Selecione o tipo de gráfico:', ('Classe Baixa', 'Classe Média', 'Classe Alta'))
     if chart_type == 'Classe Baixa':
@@ -185,7 +186,7 @@ with dataset:
             title = 'Histograma de notas dos alunos de classe alta'
         )
         st.write(histograma_admission_csocial)
-
+    '''
 
 
 
@@ -270,32 +271,39 @@ with dataset:
     st.write(dropout_data)
 
     # Plots de Escolaridade dos Pais X Classe Social
-    histograma_escolaridade_vestibular = px.histogram(
-        dropout_data,
-        x='Escolaridade_Maes&Pais',
-        color='nota_do_vestibular',
-        barnorm="percent",
-        text_auto=True,
-        title='Porcentagem de notas do vestibular por escolaridade dos pais'
-    )
-    st.write(histograma_escolaridade_vestibular)
 
-    histograma_escolaridade_1o_sem = px.histogram(
-        dropout_data,
-        x='Escolaridade_Maes&Pais',
-        color='nota_1o_sem',
-        barnorm="percent",
-        text_auto=True,
-        title='Porcentagem de notas do 1o semestre por escolaridade dos pais'
-    )
-    st.write(histograma_escolaridade_1o_sem)
+    chart_type = st.radio('Selecione o tipo de gráfico:', ('Vestibular', '1o Semestre', '2o Semestre'))
+    if chart_type == 'Vestibular':
+        histograma_escolaridade_vestibular = px.histogram(
+            dropout_data,
+            x='Escolaridade_Maes&Pais',
+            color='nota_do_vestibular',
+            barnorm="percent",
+            text_auto=True,
+            title='Porcentagem de notas do vestibular por escolaridade dos pais'
+        )
+        st.write(histograma_escolaridade_vestibular)
+    elif chart_type == '1o Semestre':
+        histograma_escolaridade_1o_sem = px.histogram(
+            dropout_data,
+            x='Escolaridade_Maes&Pais',
+            color='nota_1o_sem',
+            barnorm="percent",
+            text_auto=True,
+            title='Porcentagem de notas do 1o semestre por escolaridade dos pais'
+        )
+        st.write(histograma_escolaridade_1o_sem)
+    elif chart_type == '2o Semestre':
+        histograma_escolaridade_2o_sem = px.histogram(
+            dropout_data,
+            x='Escolaridade_Maes&Pais',
+            color='nota_2o_sem',
+            barnorm="percent",
+            text_auto=True,
+            title='Porcentagem de notas do 2o semestre por escolaridade dos pais'
+        )
+        st.write(histograma_escolaridade_2o_sem)
 
-    histograma_escolaridade_2o_sem = px.histogram(
-        dropout_data,
-        x='Escolaridade_Maes&Pais',
-        color='nota_2o_sem',
-        barnorm="percent",
-        text_auto=True,
-        title='Porcentagem de notas do 2o semestre por escolaridade dos pais'
-    )
-    st.write(histograma_escolaridade_2o_sem)
+
+
+
