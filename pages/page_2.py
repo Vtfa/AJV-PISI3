@@ -3,6 +3,14 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import sklearn.metrics as metrics
+import matplotlib.pyplot as plt
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
+
 
 from plotly.subplots import make_subplots
 
@@ -624,4 +632,146 @@ with dataset:
  
     st.write(bar_displaced)
 
+    st.title('Random forest')
 
+    dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Gender'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Scholarship holder'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['International'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade mae'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
+
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a RandomForestClassifier object
+    rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    rfc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = rfc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+
+    st.text(report)
+        
+
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
+
+
+    # Split the data into features and target
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a GradientBoostingClassifier object
+    gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    gbc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = gbc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+    st.title('Report Gradient Boosting')
+
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    st.write(df)
+    st.text(report)
+
+
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a Support Vector Machine object
+    svm = SVC(kernel='rbf', C=1, gamma='scale')
+
+    # Fit the SVM to the training data
+    svm.fit(X_train, y_train)
+
+    # Use the SVM to predict dropout for the testing data
+    y_pred = svm.predict(X_test)
+
+    # Evaluate the performance of the SVM
+    report = (classification_report(y_test, y_pred))
+    st.title('report svm')
+    st.text(report)
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
+
+
+
+
+    importances = rfc.feature_importances_
+
+    # Get feature names
+    feature_names = list(X.columns)
+
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Rearrange feature names so they match the sorted feature importances
+    sorted_feature_names = [feature_names[i] for i in indices]
+
+    # Create bar chart
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(range(X.shape[1]), importances[indices])
+
+    # Add feature names as x-axis labels
+    ax.set_xticks(range(X.shape[1]))
+    ax.set_xticklabels(sorted_feature_names, rotation=90)
+    plt.tight_layout()
+
+    # Add chart title and axes labels
+    ax.set_title("Feature importances")
+    ax.set_xlabel("Features")
+    ax.set_ylabel("Importance")
+
+    # Show chart
+    st.pyplot(fig)
+
+ 
