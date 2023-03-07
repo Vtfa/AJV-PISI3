@@ -30,6 +30,8 @@ def page_3():
         st.header('Dados dos cursos')
         plots= ["Histograma de evasão", "Relação das notas com cursos", "Dados socioeconômicos"]
         selected_plot= st.selectbox("Selecione para visualizar",plots)
+        if selected_plot == "Histograma de vasão":
+          dropout_histogram()
 
         gender_tree(datasets['course_data'])
 
