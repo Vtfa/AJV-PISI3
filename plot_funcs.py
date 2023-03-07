@@ -200,7 +200,7 @@ def dropout_by_age_debt(df: pd.DataFrame) -> None:
 
 def dropout_histogram():
     st.subheader("Histograma de evasão por curso")   
-    histograma_drop= px.histogram(Dropout, x="Course", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["mediumvioletred", "lightblue", "pink"],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    histograma_drop= px.histogram(Dropout, x="Curso", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
     st.write(histograma_drop)
 
 
@@ -230,10 +230,10 @@ def gender_course():
     Gender_Map= {0:'Female', 1: 'Male'}
     Dropout['Gender'] = Dropout['Gender'].map(Gender_Map)
     st.subheader("Porcentagem de estado de estudante por gênero")   
-    Gender_PercentBar= px.histogram( Dropout.sort_values(by='Gender'), x="Gender", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["mediumvioletred", "lightblue", "pink"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    Gender_PercentBar= px.histogram( Dropout.sort_values(by='Gender'), x="Gender", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
     st.write(Gender_PercentBar)
 
-    Gender_Bar = px.bar(Dropout.sort_values(by='Gender'), x="Course", color= "Gender",barmode= "group" ,text_auto= True, color_discrete_sequence=["pink", "lightblue"],)
+    Gender_Bar = px.bar(Dropout.sort_values(by='Gender'), x="Course", color= "Gender",barmode= "group" ,text_auto= True, color_discrete_sequence=["rgba(99, 110, 250, 0.5)", "rgba(0, 204, 150, 0.5)"],)
     st.subheader("Distribuição de gênero de studantes por curso")     
     Gender_Bar.update_layout(title= "Numéro de estudantes por curso", xaxis_title="Cursos", yaxis_title="Número de estudantes")  
     st.write(Gender_Bar)
