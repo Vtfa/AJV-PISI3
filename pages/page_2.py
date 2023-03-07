@@ -3,6 +3,14 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import sklearn.metrics as metrics
+import matplotlib.pyplot as plt
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
+
 
 from plotly.subplots import make_subplots
 
@@ -10,22 +18,27 @@ header = st.container()
 dataset = st.container()
 
 with header:
-    st.title('Página 2 teste')
+    st.title('Página 2 - Dados Socioeconômicos dos estudantes')
+    colors = ["#98FB98", "#FF6961", "#87CEEB"]
+    colors_DGE = ["#FF6961", "#98FB98", "#87CEEB"]
+    colors_GDE = ["#98FB98", "#FF6961",  "#87CEEB"]
+    colors_DEG = ["#FF6961", "#87CEEB", "#98FB98"]
 
 with dataset:
     dropout_data = st.session_state['dropout_data']
-    st.write(dropout_data)
 
-
-    bar_age = pd.DataFrame(dropout_data['Age at enrollment'].value_counts())
-    st.bar_chart(bar_age)
+    select_dataframe = st.checkbox('Mostrar dataset')
+    if select_dataframe:
+        st.write(dropout_data)
 
     #box graph
-    box_sample = dropout_data.sample(n=50, random_state=66)
-    box_age = px.box(box_sample, y='Age at enrollment', points='all')
-    st.write(box_age)
+    #box_sample = dropout_data.sample(n=50, random_state=66)
+    #box_age = px.box(box_sample, y='Age at enrollment', points='all')
+    #st.write(box_age)
 
     #auxiliar df with students and target totals
+
+    st.title('Situação dos estudantes por sexo')
     status_totals = dropout_data.groupby('Target').size()
     total_students = len(dropout_data)
 
@@ -40,8 +53,6 @@ with dataset:
     result_df = pd.DataFrame({'total_students': [total_students]})
     result_df = pd.concat([result_df, status_totals.to_frame().T], axis=1)
 
-    st.write(result_df)
-
     funnel_total = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[total_students, status_totals["Graduate"], status_totals["Dropout"], status_totals["Enrolled"]],
@@ -51,7 +62,7 @@ with dataset:
     ))
 
     funnel_total.update_layout(
-        title="Total students",
+        title="Todos estudantes",
         title_x = 0.5
     )
 
@@ -65,11 +76,11 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[female_students_total, female_target_totals["Graduate"], female_target_totals["Dropout"], female_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": ["#FFA07A", "#98FB98", "#FF6961", "#87CEEB"]}
     ))
 
     funnel_female.update_layout(
-        title="Female students",
+        title="Estudantes do sexo feminimo",
         title_x = 0.5
     )
     with col1:
@@ -79,11 +90,11 @@ with dataset:
         y=["Total Students", "Dropout", "Graduate", "Enrolled"],
         x=[male_students_total, male_target_totals["Dropout"], male_target_totals["Graduate"], male_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": ["#FFA07A", "#FF6961", "#98FB98", "#87CEEB"]}
     ))
 
     funnel_male.update_layout(
-        title="Male students",
+        title="Estudantes do sexo masculino",
         title_x = 0.5
     )
 
@@ -92,22 +103,22 @@ with dataset:
 
 
     df_marital_status = dropout_data.groupby(['Marital status'])['Marital status'].count().reset_index(name='count')
-    st.title('Marital status of students')
+    #st.title('Marital status of students')
     fig = px.pie(df_marital_status, values='count', names='Marital status')
-    st.plotly_chart(fig, use_container_width=True)
+    #st.plotly_chart(fig, use_container_width=True)
 
     box_marital_sample = dropout_data.sample(n=300, random_state=66)
     box_marital_status = px.box(box_marital_sample, x='Marital status', y='Age at enrollment', points="all")
-    st.write(box_marital_status)
+    #st.write(box_marital_status)
 
 
 
-    st.title('Sudents by marital status')
+    st.title('Estudantes por estado cívil')
     col_marital1, col_marital2, col_marital3 = st.columns(3)
 
     with col_marital1:
         dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.5)
+        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
         donut_target_total.update_layout(
             title="All students",
@@ -121,7 +132,7 @@ with dataset:
     with col_marital2: 
         df_single = dropout_data[dropout_data['Marital status'] == 'Solteiro']
         dfaux_single = df_single.groupby(['Target'])['Target'].count().reset_index(name='Total single students')
-        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5)
+        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5, color_discrete_sequence=colors)
         
         donut_target_single.update_layout(
             title="Single students",
@@ -140,7 +151,7 @@ with dataset:
         values='Total non single students', 
         names='Target', 
         hole=0.5, 
-        color_discrete_sequence=colors_marital, 
+        color_discrete_sequence=colors_DGE, 
         )
 
         donut_target_non_single.update_layout(
@@ -153,12 +164,12 @@ with dataset:
 
 
     box_renda = px.box(dropout_data, y='Renda total', points='all')
-    st.write(box_renda)
+   # st.write(box_renda)
 
 
     df_country = dropout_data.groupby(['Nacionality'])['Nacionality'].count().reset_index(name='count')
     pie_country = px.bar(df_country)
-    st.plotly_chart(pie_country, use_container_width=True)
+   #st.plotly_chart(pie_country, use_container_width=True)
 
 
     
@@ -192,7 +203,7 @@ with dataset:
     
     df_native = dropout_data[dropout_data['International'] == 'Nativo']
     dfaux_native = df_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
-    donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5)
+    donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_native.update_layout(
         title="Estudantes nativos",
@@ -201,7 +212,7 @@ with dataset:
 
     df_non_native = dropout_data[dropout_data['International'] == 'Internacional']
     dfaux_non_native = df_non_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
-    donut_non_native = px.pie(dfaux_non_native, values="Nacionalidade", names='Target', hole=0.5)
+    donut_non_native = px.pie(dfaux_non_native, values="Nacionalidade", names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_non_native.update_layout(
         title="Estudantes internacionais",
@@ -334,7 +345,7 @@ with dataset:
     # calcula a porcentagem de cada groupo
     df_scholarship_grouped['percentage'] = df_scholarship_grouped['count'] / total_students * 100
 
-    bar_scholarship = px.bar(df_scholarship_grouped, x='Scholarship holder', y='percentage', color='Target', barmode='stack')
+    bar_scholarship = px.bar(df_scholarship_grouped, x='Scholarship holder', y='percentage', color='Target', barmode='stack', color_discrete_sequence=colors_DEG)
 
     bar_scholarship.update_traces(width=0.2)
     bar_scholarship.update_layout(
@@ -435,7 +446,7 @@ with dataset:
 
     df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
     dfaux_both_higher = df_both_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_higher = px.pie(dfaux_both_higher, values='Total students', names='Target', hole=0.5)
+    donut_both_higher = px.pie(dfaux_both_higher, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_higher.update_layout(
         title="ambos superior",
@@ -444,7 +455,7 @@ with dataset:
 
     df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
     dfaux_one_higher = df_one_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_one_higher = px.pie(dfaux_one_higher, values='Total students', names='Target', hole=0.5)
+    donut_one_higher = px.pie(dfaux_one_higher, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_one_higher.update_layout(
         title="1 ensino superior",
@@ -453,7 +464,7 @@ with dataset:
 
     df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
     dfaux_both_secondary = df_both_secondary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_secondary = px.pie(dfaux_both_secondary, values='Total students', names='Target', hole=0.5)
+    donut_both_secondary = px.pie(dfaux_both_secondary, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_secondary.update_layout(
         title="Ambos ensino médio",
@@ -462,7 +473,7 @@ with dataset:
 
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
     dfaux_both_primary = df_both_primary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_primary = px.pie(dfaux_both_primary, values='Total students', names='Target', hole=0.5)
+    donut_both_primary = px.pie(dfaux_both_primary, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_primary.update_layout(
         title="Ambos ensino fundamental",
@@ -577,3 +588,197 @@ with dataset:
         with column_debt3:
             st.plotly_chart(grafico_target_estudantes_sem_dividas)   
 
+
+
+    df_tuition_paid = dropout_data[dropout_data['Tuition fees up to date'] == 1]
+    dfaux_tuition_paid = df_tuition_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades em dia")
+    donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5, color_discrete_sequence=colors_GDE)
+        
+    donut_target_tuition_paid.update_layout(
+        title="Estudantes com mensalidades em dia",
+        title_x = 0.5
+    )
+
+    df_tuition_not_paid = dropout_data[dropout_data['Tuition fees up to date'] == 0]
+    dfaux_tuition_not_paid = df_tuition_not_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades atrasadas")
+    donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5, color_discrete_sequence=colors_DEG)
+        
+    donut_target_tuition_not_paid.update_layout(
+        title="Estudantes com mensalidades atrasadas",
+        title_x = 0.5
+    )
+
+    st.title('Situação dos estudantes por mensalidade')
+
+    column_tuition1, column_tuition2 = st.columns(2)
+
+
+    with column_tuition1:
+        st.write(donut_target_tuition_paid)
+    with column_tuition2:
+        st.write(donut_target_tuition_not_paid)
+
+    st.title('Situação dos estudantes que se mudaram para frequentar a universidade')
+
+    df_displaced_grouped = dropout_data.groupby(['Displaced', 'Target'])['Target'].count().reset_index(name='count')
+    total_students_displaced = df_displaced_grouped.groupby('Displaced')['count'].transform('sum')
+    df_displaced_grouped['percentage'] = df_displaced_grouped['count'] / total_students_displaced * 100
+    bar_displaced = px.bar(df_displaced_grouped, x='Displaced', y='percentage', color='Target', barmode='stack', text=df_displaced_grouped['percentage'].round(2), color_discrete_sequence=colors_DEG)
+
+    bar_displaced.update_traces(width=0.2)
+    bar_displaced.update_layout(
+                    xaxis_title='Estudantes que se mudaram para entrar na universidade',
+                    yaxis_title='Porcentagem',
+                    xaxis=dict(
+                        tickmode='array',
+                        tickvals=[0, 1], 
+                        ticktext=['Não', 'Sim']  
+                    )
+                    
+                )
+ 
+    st.write(bar_displaced)
+
+    st.title('Random forest')
+
+    dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Gender'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Scholarship holder'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['International'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade mae'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
+    dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
+
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a RandomForestClassifier object
+    rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    rfc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = rfc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+
+    st.text(report)
+        
+
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
+
+
+    # Split the data into features and target
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a GradientBoostingClassifier object
+    gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    gbc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = gbc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+    st.title('Report Gradient Boosting')
+
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    st.write(df)
+    st.text(report)
+
+
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    y = dropout_data['Target']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a Support Vector Machine object
+    svm = SVC(kernel='rbf', C=1, gamma='scale')
+
+    # Fit the SVM to the training data
+    svm.fit(X_train, y_train)
+
+    # Use the SVM to predict dropout for the testing data
+    y_pred = svm.predict(X_test)
+
+    # Evaluate the performance of the SVM
+    report = (classification_report(y_test, y_pred))
+    st.title('report svm')
+    st.text(report)
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
+
+
+
+
+    importances = rfc.feature_importances_
+
+    # Get feature names
+    feature_names = list(X.columns)
+
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Rearrange feature names so they match the sorted feature importances
+    sorted_feature_names = [feature_names[i] for i in indices]
+
+    # Create bar chart
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(range(X.shape[1]), importances[indices])
+
+    # Add feature names as x-axis labels
+    ax.set_xticks(range(X.shape[1]))
+    ax.set_xticklabels(sorted_feature_names, rotation=90)
+    plt.tight_layout()
+
+    # Add chart title and axes labels
+    ax.set_title("Feature importances")
+    ax.set_xlabel("Features")
+    ax.set_ylabel("Importance")
+
+    # Show chart
+    st.pyplot(fig)
+
+ 

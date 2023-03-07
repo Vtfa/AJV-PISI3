@@ -167,3 +167,39 @@ def sidebar_01():
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
         )
+
+
+
+def sidebar_page3():
+    data: pd.DataFrame = st.session_state['dropout_data'][[
+        'Marital status',
+        'Course',
+        'Gender',
+        'age_range',
+        'Escolaridade mae',
+        'Escolaridade pai',
+    ]]
+
+    options = {column: data[column].dropna().unique().tolist()
+            for column in data}
+
+    multiselect_fields = ['Gender', 'age_range']
+
+    for field, option in options.items():
+        if field not in multiselect_fields:
+            option.append('')
+            option.sort()
+
+    with st.sidebar:
+
+        st.header('Plots configuration')
+        st.session_state['gender_select'] = st.selectbox(
+            'Gender',
+            ['Female', 'Male'],
+            help='Define the gender to be used at gender related plots',
+        )
+        st.session_state['age_interval'] = st.number_input(
+            'Age range interval',
+            step=1,
+            help='Define the interval (in years) to be used at demographic plots',
+        )
