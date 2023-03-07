@@ -1,250 +1,180 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from data_funcs import *
-
-from plotly.subplots import make_subplots
-Dropout = pd.read_csv('data/dropout.csv')
-Dropout = treat_data(Dropout)
+import numpy as np
 
 
-def gender_tree(data: pd.DataFrame) -> None:
-    gender_tree = px.treemap(
-        data,
-        title="Gender distribution by course",
-        path=["Course", "Gender"],
-        color_continuous_scale="RdBu",
-        color="count",
-        values="count",
-        height=1000,
+def load_data(path: str) -> pd.DataFrame:
+    return pd.read_csv(path, engine='pyarrow')
+
+
+# função para mapear os valores das profissões dos pais
+def escolaridade_pais(data: pd.Series) -> pd.Series:
+    fund_inc = np.isin(data, [11, 26, 35, 36, 37, 38, 29, 30])
+    medio_inc = np.isin(data, [9, 10, 12, 13, 14, 19, 27, 13, 25])
+    medio = data == 1
+    tecnico = np.isin(data, [18, 22, 39, 31, 33])
+    superior = np.isin(data, [2, 3, 4, 5, 6, 40, 41, 42, 43, 44])
+
+    niveis = [
+        'fundamental incompleto',
+        'medio incompleto',
+        'medio completo',
+        'ensino tecnico',
+        'ensino superior',
+    ]
+
+    return pd.Series(np.select(
+        [fund_inc, medio_inc, medio, tecnico, superior],
+        niveis,
+        'no info'
+    ))
+
+
+def renda_pais(data: pd.Series) -> pd.Series:
+    vars = [
+        1, 2, 4, 5, 6, 7, 8, 9, 10, 122, 123, 125, 131, 132, 134, 141, 143, 144, 151, 152, 153,
+        171, 173, 175, 191, 192, 193, 194, 101, 102, 103, 112, 114, 121, 135, 154, 161, 163,
+        172, 174, 181, 182, 183, 195
+    ]
+
+    selecao = [data == value for value in vars]
+
+    niveis = [
+        3456, 2141, 930, 840, 875, 997, 940, 840, 1749, 2556, 2200, 3452, 1352, 1417, 930, 2248, 930,
+        805, 1073, 740, 1042, 827, 915, 873, 799, 824, 710, 1865, 1489, 1124, 3456, 3456, 2141, 3063,
+        1609, 840, 875, 875, 1353, 1897, 1061, 889, 884, 794,
+    ]
+
+    return pd.Series(np.select(selecao, niveis, 0))
+
+# funcao para substituir o codido pelo nome dos cursos
+def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
+    courses_map = {
+        33: 'Biofuel Production Technologies',
+        171: 'Animation and Multimedia Design',
+        8014: 'Social Service',
+        9003: 'Agronomy',
+        9070: 'Communication Design',
+        9085: 'Veterinary Nursing',
+        9119: 'Informatics Engineering',
+        9130: 'Equinculture',
+        9147: 'Management',
+        9238: 'Social Service',
+        9254: 'Tourism',
+        9500: 'Nursing',
+        9556: 'Oral Hygiene',
+        9670: 'Advertising and Marketing Management',
+        9773: 'Journalism and Communication',
+        9853: 'Basic Education',
+        9991: 'Management(Evening)'
+    }
+    return df[course_col].map(courses_map)
+
+
+# funcao para calcular as faixas etarias
+def age_range_calc(df: pd.DataFrame, age_col: str, interval: int = 5) -> pd.Series:
+    age_bins = list(range(17, np.max(df[age_col].values), interval))
+    ages_labels = [f'{age_bins[i-1]} - {age_bins[i]-1}' for i in range(1, len(age_bins))]
+
+    return pd.cut(
+        df[age_col],
+        age_bins,
+        labels=ages_labels,
+        right=False,
+        ordered=False,
     )
 
-    gender_tree.data[0].textinfo = "label+value+percent parent+percent entry+percent root"
 
-    gender_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
+def rename_gender(df: pd.DataFrame, gender_col: str) -> pd.Series:
+    return np.where(df['Gender'], 'Male', 'Female')
+
+
+def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Series:
+    # não solteiros foram agrupados por serem poucos
+    return np.where(df[marital_status_col] == 1, 'Solteiro', 'Outros')
+
+
+def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
+    df_copy = df.copy()
+    df_copy['Marital status'] = marital_status_rename(df_copy, 'Marital status')
+
+    df_copy["Escolaridade mae"] = escolaridade_pais(df_copy["Mother's qualification"])
+    df_copy["Escolaridade pai"] = escolaridade_pais(df_copy["Father's qualification"])
+
+    df_copy["Renda pai"] = renda_pais(df_copy["Father's occupation"])
+    df_copy["Renda mae"] = renda_pais(df_copy["Mother's occupation"])
+
+    df_copy["Renda total"] = df_copy["Renda pai"] + df_copy["Renda mae"]
+
+    df_copy['Course'] = rename_courses(df_copy, 'Course')
+
+    df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment', age_interval)
+
+    df_copy['Gender'] = rename_gender(df_copy, 'Gender')
+
+    return df_copy
+
+
+def get_gender_data(df: pd.DataFrame) -> pd.DataFrame:
+    gender_data = (
+        df[['age_range', 'Gender', 'Course']]
+        .groupby(['age_range', 'Gender'])
+        .count()
+    )
+    gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
+    return gender_data
+
+
+def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
+    course_data = (
+        df[['age_range', 'Gender', 'Course', 'Displaced']]
+        .groupby(['Course', 'Gender', 'age_range'])
+        .count()
+        .reset_index()
     )
 
-    st.plotly_chart(gender_tree, use_container_width=True)
+    course_data.rename(columns={'Displaced': 'count'}, inplace=True)
+
+    return course_data
 
 
-def demographic_pyramid(data: pd.DataFrame):
-    dem_pyramid = go.Figure()
-    dem_pyramid.add_trace(
-        go.Bar(
-            x=data["Male"],
-            y=data.index,
-            orientation="h",
-            name="Male",
-            marker={"color": "rgba(0, 204, 150, 0.5)"},
-            hoverinfo="x",
-        )
+def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
+    debt_data = df.copy()
+    debt_data['debt'] = np.where(
+        (debt_data['Debtor'] == 1) | (debt_data['Tuition fees up to date'] == 0), 'has debt', 'up to date'
     )
 
-    dem_pyramid.add_trace(
-        go.Bar(
-            x=data["Female"] * -1,
-            y=data.index,
-            text=data["Female"],
-            textfont_color="rgba(0, 0, 0, 0)",
-            orientation="h",
-            name="Female",
-            marker={"color": "rgba(99, 110, 250, 0.5)"},
-            hoverinfo="text",
-        )
+    debt_data = (
+        debt_data[['age_range', 'Gender', 'Course', 'debt', 'Displaced', 'Target']]
+        .groupby(['Gender', 'Target', 'Course', 'age_range', 'debt'])
+        .count()
+        .reset_index()
     )
-
-    dem_pyramid.update_layout(
-        title="Students' Population Pyramid",
-        title_font_size=22,
-        font_size=16,
-        barmode="relative",
-        bargap=0.15,
-        xaxis={
-            "tickvals": [-1500, -1000, -500, 0, 500, 1000, 1500],
-            "ticktext": ["1.500", "1.000", "500", "0", "500", "1.000", "1.500"],
-        },
-        xaxis_title="# of students",
-        yaxis_title="Age range",
-        height=700,
-        margin_pad=5,
-        margin={"l": 90},
-        hovermode="y",
-        plot_bgcolor="rgba(0,0,0,0)",
-    )
-
-    dem_pyramid.update_yaxes(
-        gridcolor="rgba(0, 0, 0, 0.10)",
-        title_standoff=20,
-    )
-
-    st.plotly_chart(dem_pyramid, use_container_width=True)
+    # debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
+    debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
+    return debt_data
 
 
-def specific_gender_tree(data: pd.DataFrame, gender: str) -> None:
-    specific_gender_tree = px.treemap(
-        data.query(f'Gender == "{gender}"'),
-        title=f"Course and age distribution for {gender} students",
-        path=["Gender", "Course", "age_range"],
-        values="count",
-        height=1000,
-    )
+def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
+    df_copy = df.copy()
+    select_fields = {
+        'marital_status': 'Marital status',
+        'course': 'Course',
+        'escolaridade_mae': 'Escolaridade mae',
+        'escolaridade_pai': 'Escolaridade pai',
+    }
 
-    specific_gender_tree.data[0].textinfo = "label+value+percent parent+percent entry+percent root"
+    multiselect_fields = {
+        'gender': 'Gender',
+        'age_range': 'age_range',
+    }
 
-    specific_gender_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
-    )
+    for key in filters.keys():
+        if key in multiselect_fields and filters[key] != []:
+            selection = df_copy[multiselect_fields[key]].isin(filters[key])
+            df_copy = df_copy[selection]
 
-    st.plotly_chart(specific_gender_tree, use_container_width=True)
-
-
-def gender_by_course(data: pd.DataFrame) -> None:
-    course_gender_age = go.Figure()
-    course_gender_age_index = (
-        data["Course"]
-        .str.replace("(", " ", regex=False)
-        .str.replace(" ", "<br>")
-        .str.replace(")", "", regex=False)
-        .unique()
-    )
-    course_gender_age_range = [0, 650]
-
-    course_gender_data = data.groupby(["Course", "Gender"])[["count"]].sum()
-    course_gender_data = course_gender_data.unstack().droplevel(0, 1)
-
-    course_gender_age.add_trace(
-        go.Bar(
-            name="Female",
-            x=course_gender_age_index,
-            y=course_gender_data["Female"],
-            orientation="v",
-            marker={"color": "rgba(99, 110, 250, 0.5)"},
-        ),
-    )
-
-    course_gender_age.add_trace(
-        go.Bar(
-            name="Male",
-            x=course_gender_age_index,
-            y=course_gender_data["Male"],
-            orientation="v",
-            marker={"color": "rgba(0, 204, 150, 0.5)"},
-        ),
-    )
-
-    course_gender_age.update_xaxes(
-        title_text="Course",
-        title_standoff=35,
-        tickangle=-90,
-    )
-
-    course_gender_age.update_yaxes(
-        title_text="Students",
-        title_standoff=25,
-    )
-
-    course_gender_age.update_layout(
-        height=900,
-        font_size=14,
-        title="Gender distribution by course",
-        barmode="stack",
-        hovermode="x unified",
-        margin={"b": 190},
-        margin_pad=10,
-    )
-
-    st.plotly_chart(course_gender_age, use_container_width=True)
-
-
-def dropout_by_gender(df: pd.DataFrame) -> None:
-    debt_gender_tree = px.treemap(
-                df,
-                title='Target distribution by gender',
-                path=['Gender', 'Target', 'debt'],
-                values='count',
-                height=1000,
-        )
-
-    debt_gender_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-    debt_gender_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
-    )
-
-    st.plotly_chart(debt_gender_tree, use_container_width=True)
-
-
-def dropout_by_age_debt(df: pd.DataFrame) -> None:
-    debt_tree = px.treemap(
-                df,
-                title='Target distribution by age and debt',
-                path=['age_range', 'Target', 'debt'],
-                values='count',
-                height=1000,
-        )
-
-    debt_tree.data[0].textinfo = 'label+value+percent parent+percent entry+percent root'
-
-    debt_tree.update_layout(
-        title_font_size=26,
-        font_size=16,
-    )
-
-    st.plotly_chart(debt_tree, use_container_width=True)
-
-
-
-def dropout_histogram():
-    st.subheader("Histograma de evasão por curso")   
-    histograma_drop= px.histogram(Dropout, x="Course", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
-    st.write(histograma_drop)
-
-
-def grade_semesters():
-    st.subheader("Distribuição de notas por curso ") 
-    box_1stSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 1st sem (grade)", color= "Course")
-    box_2ndSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 2nd sem (grade)", color= "Course")
-    st.subheader("Primeiro semestre")
-    st.write(box_1stSemester)
-    st.subheader("Segundo semestre")
-    st.write(box_2ndSemester)
-
-    st.subheader("Primeiro Semestre")
-    bar_1stSemester= px.bar(Dropout.sort_values(by='Course'), x="Course", y="Curricular units 1st sem (grade)")
-    st.write(bar_1stSemester)
-    st.subheader("Segundo Semestre")
-    bar_2ndSemester= px.bar(Dropout.sort_values(by='Course'), x="Course", y="Curricular units 2nd sem (grade)")
-    st.write(bar_2ndSemester)
-
-    scatter= px.scatter(Dropout, x= "Course", y="Curricular units 1st sem (grade)" , color= "Target" )
-    st.write(scatter) 
-    scatter= px.scatter(Dropout, x= "Course", y="Curricular units 2nd sem (grade)" , color= "Target" )
-    st.write(scatter) 
-
-
-def gender_course():
-    Gender_Map= {0:'Female', 1: 'Male'}
-    Dropout['Gender'] = Dropout['Gender'].map(Gender_Map)
-    st.subheader("Porcentagem de estado de estudante por gênero")   
-    Gender_PercentBar= px.histogram( Dropout.sort_values(by='Gender'), x="Gender", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
-    st.write(Gender_PercentBar)
-
-    Gender_Bar = px.bar(Dropout.sort_values(by='Gender'), x="Course", color= "Gender",barmode= "group" ,text_auto= True, color_discrete_sequence=["rgba(99, 110, 250, 0.5)", "rgba(0, 204, 150, 0.5)"],)
-    st.subheader("Distribuição de gênero de studantes por curso")     
-    Gender_Bar.update_layout(title= "Numéro de estudantes por curso", xaxis_title="Cursos", yaxis_title="Número de estudantes")  
-    st.write(Gender_Bar)
-        
-
-    Financial_Status= px.histogram(Dropout.sort_values(by='Course'), x= "Course", y= "Renda total", color="Course", barnorm= "percent")
-    st.subheader("Índice de formação por renda total")
-    Financial_Status.update_layout(xaxis_title="Cursos", yaxis_title= "Renda total")
-    st.write(Financial_Status)
-    
+    query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
             if len(query) > 0:
