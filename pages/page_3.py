@@ -33,6 +33,13 @@ def page_3():
         if selected_plot == "Histograma de vasão":
           dropout_histogram()
 
+        elif selected_plot == "Relação das notas com cursos":
+          grade_semesters()
+
+        elif selected_plot=="Dados socioeconômicos":
+          gender_course()
+
+
         gender_tree(datasets['course_data'])
 
         specific_gender_tree(datasets['course_data'], st.session_state['gender_select'])
@@ -41,6 +48,7 @@ def page_3():
 
         dropout_by_gender(datasets['debt_data'])
 
+       
         
 
 
