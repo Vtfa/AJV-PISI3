@@ -28,8 +28,17 @@ def page_3():
 
     with st.container():
         st.header('Dados dos cursos')
-        plots= ["Histograma de evasão", "Relação das notas com cursos", "Dados socioeconômicos"]
+        plots= ["Selecione um plot","Histograma de evasão", "Relação das notas com cursos", "Dados socioeconômicos"]
         selected_plot= st.selectbox("Selecione para visualizar",plots)
+        if selected_plot == "Histograma de evasão":
+          dropout_histogram()
+
+        elif selected_plot == "Relação das notas com cursos":
+          grade_semesters()
+
+        elif selected_plot=="Dados socioeconômicos":
+          gender_course()
+
 
         gender_tree(datasets['course_data'])
 
@@ -39,7 +48,9 @@ def page_3():
 
         dropout_by_gender(datasets['debt_data'])
 
+       
         
 
 
 page_3()
+
