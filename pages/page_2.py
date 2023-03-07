@@ -18,11 +18,18 @@ header = st.container()
 dataset = st.container()
 
 with header:
-    st.title('Página 2 teste')
+    st.title('Página 2 - Dados Socioeconômicos dos estudantes')
+    colors = ["#98FB98", "#FF6961", "#87CEEB"]
+    colors_DGE = ["#FF6961", "#98FB98", "#87CEEB"]
+    colors_GDE = ["#98FB98", "#FF6961",  "#87CEEB"]
+    colors_DEG = ["#FF6961", "#87CEEB", "#98FB98"]
 
 with dataset:
     dropout_data = st.session_state['dropout_data']
-    st.write(dropout_data)
+
+    select_dataframe = st.checkbox('Mostrar dataset')
+    if select_dataframe:
+        st.write(dropout_data)
 
     #box graph
     #box_sample = dropout_data.sample(n=50, random_state=66)
@@ -55,7 +62,7 @@ with dataset:
     ))
 
     funnel_total.update_layout(
-        title="Total students",
+        title="Todos estudantes",
         title_x = 0.5
     )
 
@@ -69,11 +76,11 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[female_students_total, female_target_totals["Graduate"], female_target_totals["Dropout"], female_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": ["#FFA07A", "#98FB98", "#FF6961", "#87CEEB"]}
     ))
 
     funnel_female.update_layout(
-        title="Female students",
+        title="Estudantes do sexo feminimo",
         title_x = 0.5
     )
     with col1:
@@ -83,11 +90,11 @@ with dataset:
         y=["Total Students", "Dropout", "Graduate", "Enrolled"],
         x=[male_students_total, male_target_totals["Dropout"], male_target_totals["Graduate"], male_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": ["#FFA07A", "#FF6961", "#98FB98", "#87CEEB"]}
     ))
 
     funnel_male.update_layout(
-        title="Male students",
+        title="Estudantes do sexo masculino",
         title_x = 0.5
     )
 
@@ -106,12 +113,12 @@ with dataset:
 
 
 
-    st.title('Sudents by marital status')
+    st.title('Estudantes por estado cívil')
     col_marital1, col_marital2, col_marital3 = st.columns(3)
 
     with col_marital1:
         dfaux_target = dropout_data.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.5)
+        donut_target_total = px.pie(dfaux_target, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
         donut_target_total.update_layout(
             title="All students",
@@ -125,7 +132,7 @@ with dataset:
     with col_marital2: 
         df_single = dropout_data[dropout_data['Marital status'] == 'Solteiro']
         dfaux_single = df_single.groupby(['Target'])['Target'].count().reset_index(name='Total single students')
-        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5)
+        donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5, color_discrete_sequence=colors)
         
         donut_target_single.update_layout(
             title="Single students",
@@ -144,7 +151,7 @@ with dataset:
         values='Total non single students', 
         names='Target', 
         hole=0.5, 
-        color_discrete_sequence=colors_marital, 
+        color_discrete_sequence=colors_DGE, 
         )
 
         donut_target_non_single.update_layout(
@@ -196,7 +203,7 @@ with dataset:
     
     df_native = dropout_data[dropout_data['International'] == 'Nativo']
     dfaux_native = df_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
-    donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5)
+    donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_native.update_layout(
         title="Estudantes nativos",
@@ -205,7 +212,7 @@ with dataset:
 
     df_non_native = dropout_data[dropout_data['International'] == 'Internacional']
     dfaux_non_native = df_non_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
-    donut_non_native = px.pie(dfaux_non_native, values="Nacionalidade", names='Target', hole=0.5)
+    donut_non_native = px.pie(dfaux_non_native, values="Nacionalidade", names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_non_native.update_layout(
         title="Estudantes internacionais",
@@ -338,7 +345,7 @@ with dataset:
     # calcula a porcentagem de cada groupo
     df_scholarship_grouped['percentage'] = df_scholarship_grouped['count'] / total_students * 100
 
-    bar_scholarship = px.bar(df_scholarship_grouped, x='Scholarship holder', y='percentage', color='Target', barmode='stack')
+    bar_scholarship = px.bar(df_scholarship_grouped, x='Scholarship holder', y='percentage', color='Target', barmode='stack', color_discrete_sequence=colors_DEG)
 
     bar_scholarship.update_traces(width=0.2)
     bar_scholarship.update_layout(
@@ -439,7 +446,7 @@ with dataset:
 
     df_both_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior')]
     dfaux_both_higher = df_both_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_higher = px.pie(dfaux_both_higher, values='Total students', names='Target', hole=0.5)
+    donut_both_higher = px.pie(dfaux_both_higher, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_higher.update_layout(
         title="ambos superior",
@@ -448,7 +455,7 @@ with dataset:
 
     df_one_higher = dropout_data[(dropout_data['Escolaridade mae'] == 'ensino superior') | (dropout_data['Escolaridade pai'] == 'ensino superior')]
     dfaux_one_higher = df_one_higher.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_one_higher = px.pie(dfaux_one_higher, values='Total students', names='Target', hole=0.5)
+    donut_one_higher = px.pie(dfaux_one_higher, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_one_higher.update_layout(
         title="1 ensino superior",
@@ -457,7 +464,7 @@ with dataset:
 
     df_both_secondary = dropout_data[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo')]
     dfaux_both_secondary = df_both_secondary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_secondary = px.pie(dfaux_both_secondary, values='Total students', names='Target', hole=0.5)
+    donut_both_secondary = px.pie(dfaux_both_secondary, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_secondary.update_layout(
         title="Ambos ensino médio",
@@ -466,7 +473,7 @@ with dataset:
 
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
     dfaux_both_primary = df_both_primary.groupby(['Target'])['Target'].count().reset_index(name='Total students')
-    donut_both_primary = px.pie(dfaux_both_primary, values='Total students', names='Target', hole=0.5)
+    donut_both_primary = px.pie(dfaux_both_primary, values='Total students', names='Target', hole=0.5, color_discrete_sequence=colors)
 
     donut_both_primary.update_layout(
         title="Ambos ensino fundamental",
@@ -585,7 +592,7 @@ with dataset:
 
     df_tuition_paid = dropout_data[dropout_data['Tuition fees up to date'] == 1]
     dfaux_tuition_paid = df_tuition_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades em dia")
-    donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5)
+    donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5, color_discrete_sequence=colors_GDE)
         
     donut_target_tuition_paid.update_layout(
         title="Estudantes com mensalidades em dia",
@@ -594,7 +601,7 @@ with dataset:
 
     df_tuition_not_paid = dropout_data[dropout_data['Tuition fees up to date'] == 0]
     dfaux_tuition_not_paid = df_tuition_not_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades atrasadas")
-    donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5)
+    donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5, color_discrete_sequence=colors_DEG)
         
     donut_target_tuition_not_paid.update_layout(
         title="Estudantes com mensalidades atrasadas",
@@ -616,7 +623,7 @@ with dataset:
     df_displaced_grouped = dropout_data.groupby(['Displaced', 'Target'])['Target'].count().reset_index(name='count')
     total_students_displaced = df_displaced_grouped.groupby('Displaced')['count'].transform('sum')
     df_displaced_grouped['percentage'] = df_displaced_grouped['count'] / total_students_displaced * 100
-    bar_displaced = px.bar(df_displaced_grouped, x='Displaced', y='percentage', color='Target', barmode='stack', text=df_displaced_grouped['percentage'].round(2),)
+    bar_displaced = px.bar(df_displaced_grouped, x='Displaced', y='percentage', color='Target', barmode='stack', text=df_displaced_grouped['percentage'].round(2), color_discrete_sequence=colors_DEG)
 
     bar_displaced.update_traces(width=0.2)
     bar_displaced.update_layout(
