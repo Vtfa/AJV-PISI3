@@ -40,14 +40,6 @@ def page_3():
           gender_course()
 
 
-        gender_tree(datasets['course_data'])
-
-        specific_gender_tree(datasets['course_data'], st.session_state['gender_select'])
-
-        gender_by_course(datasets['course_data'])
-
-        dropout_by_gender(datasets['debt_data'])
-
        
         
 
