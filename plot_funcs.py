@@ -203,3 +203,13 @@ def sidebar_page3():
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
         )
+        
+        
+      
+def dropout_histogram():
+    Dropout = pd.read_csv('data/dropout.csv')
+    mapping= {33: 'Biofuel Production Technologies', 171: 'Animation and Multimedia Design', 8014: 'Social Service', 9003:'Agronomy', 9070:'Communication Design', 9085:'Veterinary Nursing', 9119:'Informatics Engineering',9130: 'Equinculture', 9147: 'Management', 9238: 'Social Service', 9254:'Tourism', 9500:'Nursing', 9556:'Oral Hygiene', 9670:'Advertising and Marketing Management', 9773: 'Journalism and Communication', 9853: 'Basic Education', 9991: 'Management(Evening)'}
+    Dropout['Course'] = Dropout['Course'].map(mapping)
+    st.subheader("Histograma de evasão por curso")   
+    histograma_drop= px.histogram(Dropout, x="Course", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["mediumvioletred", "lightblue", "pink"],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    st.write(histograma_drop)
