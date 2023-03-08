@@ -21,7 +21,6 @@ def page_3():
 
     reset_filters()
 
-    sidebar_page3()
 
     with st.container():
         st.title(title)
@@ -37,8 +36,12 @@ def page_3():
           grade_semesters()
 
         elif selected_plot=="Dados socioeconômicos":
-          gender_course()
+          st.subheader = "Plots sobre gênero dos estudantes"
+          gender = st.radio("Select a gender", ["Male", "Female"])
+          gender_course(gender)
 
+          st.subheadder= "Plots genéricos"
+          financial_status()
 
        
         
