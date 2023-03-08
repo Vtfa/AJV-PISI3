@@ -337,7 +337,6 @@ with dataset:
         st.write(scatter_unemployment_graduate)
 
     df_scholarship_grouped = dropout_data.groupby(['Scholarship holder', 'Target'])['Target'].count().reset_index(name='count')
-    st.write(df_scholarship_grouped)
 
     # total de estudantes pra cada grupo
     total_students = df_scholarship_grouped.groupby('Scholarship holder')['count'].transform('sum')
