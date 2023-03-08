@@ -18,7 +18,6 @@ with dataset:
     # Divisão das notas de admissão em 2 tipos
     dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
     dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
-#    dropout_data['nota_do_vestibular'].fillna('67 - 132', inplace=True)
     
     # Divisão das notas dos semestres em 3 tipos
     dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
@@ -28,52 +27,6 @@ with dataset:
     dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
     dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
     dropout_data['nota_2o_sem'].fillna('10 - 15', inplace=True)
-
-    st.subheader('Unidades Curriculares')
-
-    st.text("Em relação as Unidades curricular a Europa possui um sistema bem diferente ao brasileiro, em temporada de aplicação cerca de 40 disciplinas")
-    st.text(" podem ser aplicadas para avaliação, abaixo segue a relação da quantidade de diciplinas escolhidas e aprovadas pelos alunos.")
-    dfpagina42 = dropout_data[['Curricular units 1st sem (approved)','Curricular units 2nd sem (approved)',
-                               'Curricular units 1st sem (enrolled)','Curricular units 2nd sem (enrolled)',
-                               'Curricular units 1st sem (evaluations)','Curricular units 2nd sem (evaluations)','Target']]
-
-    conta_1sem_apv = pd.DataFrame(dfpagina42['Curricular units 1st sem (approved)'].value_counts())
-    conta_2sem_apv = pd.DataFrame(dfpagina42['Curricular units 2nd sem (approved)'].value_counts())
-    option2 = st.selectbox(
-        'Mudar o grupo visualizado',
-        ('1º Semestre', '2º Semestre',)
-    )
-
-    if option2 == '1º Semestre':
-        st.bar_chart(conta_1sem_apv)
-    elif option2 == '2º Semestre':
-        st.bar_chart(conta_2sem_apv)
-        
-    conta_1sem_cur = pd.DataFrame(dfpagina42['Curricular units 1st sem (enrolled)'].value_counts())
-    conta_2sem_cur = pd.DataFrame(dfpagina42['Curricular units 2nd sem (enrolled)'].value_counts())
-    option3 = st.selectbox(
-        'Mudar o grupo visualizado',
-        ('1º Semestre', '2º Semestre',),
-        key = 'option3'
-    )
-
-    if option3 == '1º Semestre':
-        st.bar_chart(conta_1sem_cur)
-    elif option3 == '2º Semestre':
-        st.bar_chart(conta_2sem_cur)
-
-    conta_1sem_ava = pd.DataFrame(dfpagina42['Curricular units 1st sem (enrolled)'].value_counts())
-    conta_2sem_ava = pd.DataFrame(dfpagina42['Curricular units 2nd sem (enrolled)'].value_counts())
-    option4 = st.selectbox(
-        'Mudar o grupo visualizado',
-        ('1º Semestre', '2º Semestre',),
-        key = 'option4'
-    )
-
-    if option4 == '1º Semestre':
-        st.bar_chart(conta_1sem_ava)
-    elif option4 == '2º Semestre':
-        st.bar_chart(conta_2sem_ava)
     
 
     # definindo cores
