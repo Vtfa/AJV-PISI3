@@ -650,7 +650,7 @@ with dataset:
     dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
 
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
     y = dropout_data['Target']
 
     # Split the dataset into training and testing sets
@@ -685,7 +685,7 @@ with dataset:
 
 
     # Split the data into features and target
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
     y = dropout_data['Target']
 
     # Split the dataset into training and testing sets
@@ -718,7 +718,7 @@ with dataset:
     st.text(report)
 
 
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular'], axis=1)
+    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular','nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
     y = dropout_data['Target']
 
     # Split the dataset into training and testing sets
