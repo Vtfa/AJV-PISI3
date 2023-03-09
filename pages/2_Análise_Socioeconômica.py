@@ -640,6 +640,9 @@ with dataset:
 
     st.title('Random forest')
 
+    dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
+    st.write(dropout_data)
+
     dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Gender'])
@@ -648,6 +651,8 @@ with dataset:
     dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade mae'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
+
+   
 
     X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
     y = dropout_data['Target']
@@ -750,8 +755,6 @@ with dataset:
     st.write(df)
 
 
-
-
     importances = rfc.feature_importances_
 
     # Get feature names
@@ -760,24 +763,27 @@ with dataset:
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]
 
-    # Rearrange feature names so they match the sorted feature importances
-    sorted_feature_names = [feature_names[i] for i in indices]
+    # Get the top n most important features
+    n = 25
+    top_indices = indices[:n]
 
-    # Create bar chart
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(range(X.shape[1]), importances[indices])
+    # Sort the features and importances by descending importance
+    sorted_feature_names = [feature_names[i] for i in top_indices][::-1]
+    sorted_importances = importances[top_indices][::-1]
 
-    # Add feature names as x-axis labels
-    ax.set_xticks(range(X.shape[1]))
-    ax.set_xticklabels(sorted_feature_names, rotation=90)
-    plt.tight_layout()
+    # Create horizontal bar chart
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.barh(range(n), sorted_importances, align='center', height=0.5)
+
+    # Add feature names as y-axis labels
+    ax.set_yticks(range(n))
+    ax.set_yticklabels(sorted_feature_names)
 
     # Add chart title and axes labels
-    ax.set_title("Feature importances")
-    ax.set_xlabel("Features")
-    ax.set_ylabel("Importance")
+    ax.set_title("Top 25 Feature Importances")
+    ax.set_xlabel("Importance")
+    ax.set_ylabel("Features")
 
     # Show chart
     st.pyplot(fig)
-
- 
+    
