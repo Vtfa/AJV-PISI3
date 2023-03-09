@@ -6,6 +6,8 @@ import plotly.graph_objects as go
 from sklearn.svm import SVR
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
+from sklearn.preprocessing import LabelEncoder
+
 
 from plotly.subplots import make_subplots
 
@@ -246,9 +248,25 @@ with dataset:
 
 
     # Definindo X e y para o SVM
-    X = dropout_data.drop(['Admission grade'],axis=1)
-    y = dropout_data['Admission grade']
 
+
+    df_notas_svm = dropout_data.copy()
+    
+    le = LabelEncoder()
+    df_notas_svm['Marital status'] = le.fit_transform(df_notas_svm['Marital status'])
+    df_notas_svm['Course'] = le.fit_transform(df_notas_svm['Course'])
+    df_notas_svm['Gender'] = le.fit_transform(df_notas_svm['Gender'])
+    df_notas_svm['Scholarship holder'] = le.fit_transform(df_notas_svm['Scholarship holder'])
+    df_notas_svm['International'] = le.fit_transform(df_notas_svm['International'])
+    df_notas_svm['Target'] = le.fit_transform(df_notas_svm['Target'])
+    df_notas_svm['Escolaridade mae'] = le.fit_transform(df_notas_svm['Escolaridade mae'])
+    df_notas_svm['Escolaridade pai'] = le.fit_transform(df_notas_svm['Escolaridade pai'])
+    df_notas_svm['Classe social'] = le.fit_transform(df_notas_svm['Classe social'])
+    df_notas_svm['Escolaridade_Maes&Pais'] = le.fit_transform(df_notas_svm['Escolaridade_Maes&Pais'])
+    st.write(df_notas_svm)
+
+    X = df_notas_svm.drop(['Admission grade', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'],axis=1)
+    y = df_notas_svm['Admission grade']
 
     svm = SVR(kernel='linear')
     svm.fit(X, y)
@@ -269,7 +287,7 @@ with dataset:
     feature_scores = feature_scores.sort_values(by='Score', ascending=False)
 
 
-    ih = px.bar(feature_scores, x='Score', y='Feature', orientation='h')
-    st.write(ih)
+    plot_svm = px.bar(feature_scores, x='Score', y='Feature', orientation='h')
+    st.write(plot_svm)
 
     
