@@ -244,3 +244,32 @@ with dataset:
 
 
 
+
+    # Definindo X e y para o SVM
+    X = dropout_data.drop(['Admission grade'],axis=1)
+    y = dropout_data['Admission grade']
+
+
+    svm = SVR(kernel='linear')
+    svm.fit(X, y)
+
+
+    best_features = SelectKBest(score_func=f_regression, k=10)
+    fit = best_features.fit(X,y)
+
+
+    df_scores = pd.DataFrame(fit.scores_)
+    df_columns = pd.DataFrame(X.columns)
+
+
+    feature_scores = pd.concat([df_columns, df_scores], axis=1)
+    feature_scores.columns = ['Feature', 'Score']
+
+
+    feature_scores = feature_scores.sort_values(by='Score', ascending=False)
+
+
+    ih = px.bar(feature_scores, x='Score', y='Feature', orientation='h')
+    st.write(ih)
+
+    
