@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.svm import SVR
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
 
 from plotly.subplots import make_subplots
 
