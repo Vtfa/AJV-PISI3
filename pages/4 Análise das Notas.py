@@ -8,6 +8,9 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 from sklearn.preprocessing import LabelEncoder
 
+from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
 
 from plotly.subplots import make_subplots
 
@@ -263,31 +266,38 @@ with dataset:
     df_notas_svm['Escolaridade pai'] = le.fit_transform(df_notas_svm['Escolaridade pai'])
     df_notas_svm['Classe social'] = le.fit_transform(df_notas_svm['Classe social'])
     df_notas_svm['Escolaridade_Maes&Pais'] = le.fit_transform(df_notas_svm['Escolaridade_Maes&Pais'])
+    df_notas_svm['média_dos_semestres'] = df_notas_svm.apply(lambda row: (row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)']) / 2, axis=1)
     st.write(df_notas_svm)
-
-    X = df_notas_svm.drop(['Admission grade', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'],axis=1)
-    y = df_notas_svm['Admission grade']
-
-    svm = SVR(kernel='linear')
-    svm.fit(X, y)
-
-
-    best_features = SelectKBest(score_func=f_regression, k=10)
-    fit = best_features.fit(X,y)
-
-
-    df_scores = pd.DataFrame(fit.scores_)
-    df_columns = pd.DataFrame(X.columns)
-
-
-    feature_scores = pd.concat([df_columns, df_scores], axis=1)
-    feature_scores.columns = ['Feature', 'Score']
-
-
-    feature_scores = feature_scores.sort_values(by='Score', ascending=False)
-
-
-    plot_svm = px.bar(feature_scores, x='Score', y='Feature', orientation='h')
-    st.write(plot_svm)
-
     
+
+    X = df_notas_svm.drop(['média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+    y = df_notas_svm['média_dos_semestres']
+
+
+
+    # Instanciando o modelo de regressão
+    rf = RandomForestRegressor()
+
+    # Treinando o modelo
+    rf.fit(X, y)
+
+    # Obtendo a importância das colunas
+    importances = rf.feature_importances_
+
+    # Criando um DataFrame com as importâncias das colunas
+    df_importances = pd.DataFrame({
+        "Feature": X.columns,
+        "Importance": importances
+    })
+
+    # Ordenando o DataFrame pela importância em ordem decrescente
+    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+
+    # Criando o gráfico de barras horizontais
+    fig, ax = plt.subplots()
+    ax.barh(df_importances["Feature"], df_importances["Importance"])
+    ax.set_xlabel("Importance")
+    ax.set_title("Importance of each feature")
+
+    # Exibindo o gráfico no streamlit
+    st.pyplot(fig)
