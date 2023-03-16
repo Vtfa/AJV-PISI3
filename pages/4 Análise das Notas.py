@@ -270,10 +270,43 @@ with dataset:
     st.write(df_notas_svm)
     
 
-    X = df_notas_svm.drop(['média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
-    y = df_notas_svm['média_dos_semestres']
+    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+    y = df_notas_svm['Curricular units 1st sem (grade)']
 
 
+    # Instanciando o modelo de regressão
+    rf = RandomForestRegressor()
+
+    # Treinando o modelo
+    rf.fit(X, y)
+
+    # Obtendo a importância das colunas
+    importances = rf.feature_importances_
+
+    # Criando um DataFrame com as importâncias das colunas
+    df_importances = pd.DataFrame({
+        "Feature": X.columns,
+        "Importance": importances
+    })
+
+    # Ordenando o DataFrame pela importância em ordem decrescente
+    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+
+    # Criando o gráfico de barras horizontais
+    fig, ax = plt.subplots()
+    ax.barh(df_importances["Feature"], df_importances["Importance"])
+    ax.set_xlabel("Importance")
+    ax.set_title("Importance of each feature")
+
+    # Exibindo o gráfico no streamlit
+    st.pyplot(fig)
+
+
+    
+
+    # Notas do 2o semestre
+    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+    y = df_notas_svm['Curricular units 2nd sem (grade)']
 
     # Instanciando o modelo de regressão
     rf = RandomForestRegressor()
