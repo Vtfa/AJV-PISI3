@@ -2,8 +2,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from data_funcs import *
 
 from consts import *
+from plotly.subplots import make_subplots
+Dropout = pd.read_csv('data/dropout.csv')
+Dropout = treat_data(Dropout)
 
 
 TITLE_FONT_SIZE = 26
@@ -215,3 +219,59 @@ def dropout_by_age_debt(df: pd.DataFrame, path) -> None:
     )
 
     st.plotly_chart(debt_tree, use_container_width=True)
+
+
+
+def dropout_histogram():
+    st.subheader("Histograma de evasão por curso")
+    histograma_drop= px.histogram(Dropout, x="Course", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    st.write(histograma_drop)
+
+
+def grade_semesters():
+    st.subheader("Distribuição de notas por curso ")
+    box_1stSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 1st sem (grade)", color= "Course")
+    box_2ndSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 2nd sem (grade)", color= "Course")
+    st.subheader("Primeiro semestre")
+    st.write(box_1stSemester)
+    st.subheader("Segundo semestre")
+    st.write(box_2ndSemester)
+
+    st.subheader("Primeiro Semestre")
+    bar_1stSemester= px.bar(Dropout.sort_values(by='Course'), x="Course", y="Curricular units 1st sem (grade)")
+    st.write(bar_1stSemester)
+    st.subheader("Segundo Semestre")
+    bar_2ndSemester= px.bar(Dropout.sort_values(by='Course'), x="Course", y="Curricular units 2nd sem (grade)")
+    st.write(bar_2ndSemester)
+
+    scatter= px.scatter(Dropout, x= "Course", y="Curricular units 1st sem (grade)" , color= "Target" )
+    st.write(scatter)
+    scatter= px.scatter(Dropout, x= "Course", y="Curricular units 2nd sem (grade)" , color= "Target" )
+    st.write(scatter)
+
+
+def gender_course(gender):
+    filtered_df = Dropout[Dropout['Gender'] == gender]
+    st.subheader="Estado de estudante por gênero"
+    Gender_PercentBar= px.histogram( filtered_df, x="Course",title=f' {gender} Students' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    st.write(Gender_PercentBar)
+    Gender_Bar = px.bar(filtered_df, x="Course", color= "Course",barmode= "group" ,text_auto= True, )
+    st.subheader="Distribuição de gênero de studantes por curso"
+    Gender_Bar.update_layout(title= "Numéro de estudantes por curso", xaxis_title="Cursos", yaxis_title="Número de estudantes")
+    st.write(Gender_Bar)
+
+
+
+
+
+
+def financial_status():
+    Financial_Status= px.scatter(Dropout.sort_values(by='Course'), x= "Course", y= "Renda total" )
+    st.subheader="Índice de renda por curso"
+    Financial_Status.update_layout(xaxis_title="Status do estudante", yaxis_title= "Renda total")
+    st.write(Financial_Status)
+
+    st.subheader= "Dropout por idade"
+    Dropout= Dropout.sort_values(by= "age_range")
+    Age_percent= px.histogram( Dropout.sort_values(by= "age_range"), x="age_range",title=f' Age of Students in course dropout' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    st.write(Age_percent)
