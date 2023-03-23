@@ -11,7 +11,7 @@ page_style()
 def page_1():
     dataframes = ['dropout_data', 'gender_data', 'course_data', 'debt_data']
 
-    if not valid_session_data(dataframes, '## :construction: Please, go to _Home_ page before :construction:', 0.15):
+    if not valid_session_data(dataframes, '## :construction: Por favor, vá para página _Home_ page antes :construction:', 0.15):
         return
 
     datasets = {data: st.session_state[data] for data in dataframes}
