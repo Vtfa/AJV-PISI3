@@ -155,6 +155,48 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     return debt_data
 
 
+def get_grade_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # Divisão das notas de admissão em 2 tipos
+    df_copy.loc[df_copy['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
+    df_copy.loc[df_copy['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
+
+    # Divisão das notas dos semestres em 3 tipos
+    df_copy.loc[df_copy['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
+    df_copy.loc[df_copy['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
+    df_copy['nota_1o_sem'].fillna('10 - 15', inplace=True)
+
+    df_copy.loc[df_copy['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
+    df_copy.loc[df_copy['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
+    df_copy['nota_2o_sem'].fillna('10 - 15', inplace=True)
+
+    return df_copy
+
+
+def get_social_classes_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # Definição de Classes Sociais
+    df_copy.loc[df_copy['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
+    df_copy.loc[df_copy['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
+    df_copy['Classe social'].fillna('Classe média', inplace=True)
+
+    return df_copy
+
+
+def get_schooling_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # add coluna de escolaridade dos pais no dropout_data
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'ensino superior') & (df_copy['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'ensino superior') ^ (df_copy['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'medio completo') & (df_copy['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'fundamental incompleto') & (df_copy['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
+
+    return df_copy
+
+
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
     select_fields = {
