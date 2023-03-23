@@ -87,37 +87,37 @@ def valid_session_data(dataframes: list[str], message: str, sleep_time: float = 
 
 def dataset_table_filters(options: dict[str: any]):
     with st.form("dataset_form"):
-                marital_status =  st.selectbox(
+                marital_status = st.selectbox(
                     'Estado Civil',
                     options['Marital status'],
                     help='Define the gender to be filtered at dataset',
                 )
 
-                course =  st.selectbox(
+                course = st.selectbox(
                     'Curso',
                     options['Course'],
                     help='Define the course to be filtered at dataset',
                 )
 
-                gender =  st.multiselect(
+                gender = st.multiselect(
                     'Gender',
                     options['Gender'],
                     help='Define the gender to be filtered at dataset',
                 )
 
-                age_range =  st.multiselect(
+                age_range = st.multiselect(
                     'Faixa etária',
                     options['age_range'],
                     help='Define the age range to be filtered at dataset',
                 )
 
-                escolaridade_mae =  st.selectbox(
+                escolaridade_mae = st.selectbox(
                     'Escolaridade da mãe',
                     options['Escolaridade mae'],
                     help='Define the mothers schooling to be filtered at dataset',
                 )
 
-                escolaridade_pai =  st.selectbox(
+                escolaridade_pai = st.selectbox(
                     'Escolaridade do pai',
                     options['Escolaridade pai'],
                     help='Define the fathers schooling to be filtered at dataset',

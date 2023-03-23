@@ -169,11 +169,6 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
         'age_range': 'age_range',
     }
 
-    for key in filters.keys():
-        if key in multiselect_fields and filters[key] != []:
-            selection = df_copy[multiselect_fields[key]].isin(filters[key])
-            df_copy = df_copy[selection]
-
     query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
@@ -181,6 +176,13 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
                 query += ' and '
 
             query += f'`{select_fields[key]}` == "{filters[key]}"'
+            continue
+
+        if key in multiselect_fields and filters[key] != []:
+            if len(query) > 0:
+                query += ' and '
+
+            query += f'`{multiselect_fields[key]}` in {filters[key]}'
 
     if query != '':
         df_copy = df_copy.query(query)
@@ -194,3 +196,10 @@ def reset_filters():
     st.session_state['age_range'] = []
     st.session_state['escolaridade_mae'] = ''
     st.session_state['escolaridade_pai'] = ''
+
+
+def format_percent(item):
+    if not isinstance(item, str):
+        return f'{item:.0%}'
+
+    return item
