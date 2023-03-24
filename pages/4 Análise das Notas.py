@@ -12,35 +12,41 @@ from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 
 
-from plotly.subplots import make_subplots
+from ml_funcs import *
+from aux_funcs import *
+from consts import *
+
+title = 'Análise das Notas'
+config_page(title)
+page_style()
 
 header = st.container()
 dataset = st.container()
 
 with header:
-    st.title('Análise das Notas')
+    st.title(title)
 
 with dataset:
     dropout_data = st.session_state['dropout_data']
 
-    # Divisão das notas de admissão em 2 tipos
-    dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
-    dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
-    
-    # Divisão das notas dos semestres em 3 tipos
-    dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
-    dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
-    dropout_data['nota_1o_sem'].fillna('10 - 15', inplace=True)
+    # # Divisão das notas de admissão em 2 tipos
+    # dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
+    # dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
 
-    dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
-    dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
-    dropout_data['nota_2o_sem'].fillna('10 - 15', inplace=True)
-    
+    # # Divisão das notas dos semestres em 3 tipos
+    # dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
+    # dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
+    # dropout_data['nota_1o_sem'].fillna('10 - 15', inplace=True)
+
+    # dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
+    # dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
+    # dropout_data['nota_2o_sem'].fillna('10 - 15', inplace=True)
+
 
     # definindo cores
-    cores_notas_vestibular = ["#FF6961", "#87CEEB"]
-    cores_classes = ["#87CEEB", "#FF6961", "#98FB98"]
-    cores_notas_semestres = ["#FF6961", "#87CEEB", "#98FB98"]
+    cores_notas_vestibular = [COR3, COR4]
+    cores_classes = [COR4, COR3, COR2]
+    cores_notas_semestres = [COR3, COR4, COR2]
 
 
     # Início dos gráficos de comparação de nota com classe social
@@ -90,7 +96,7 @@ with dataset:
         title='Notas de todos alunos',
         width=800, height=400
         )
-        
+
     if option == 'Formados':
         st.write(fig)
     elif option == 'Desistentes':
@@ -100,17 +106,17 @@ with dataset:
 
     st.title('Influência da renda dos pais nas notas')
 
-    # Definição de Classes Sociais
-    dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
-    dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
-    dropout_data['Classe social'].fillna('Classe média', inplace=True)
+    # # Definição de Classes Sociais
+    # dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
+    # dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
+    # dropout_data['Classe social'].fillna('Classe média', inplace=True)
 
     # Gráficos de comparação Notas Admission x Classe Social
     st.subheader('Relação entre Notas do Vestibular e Classe Social')
 
     ordem_classes_sociais = ['Classe baixa', 'Classe média', 'Classe alta']
     chart_type_admission = st.radio('Selecione o tipo de gráfico:', ('Distribuição', 'Porcentagem'))
-    
+
     if chart_type_admission == 'Distribuição':
         histograma_admission1 = px.histogram(
             dropout_data,
@@ -170,9 +176,9 @@ with dataset:
         histograma_sem2_porcent = px.histogram(
             dropout_data,
             x='Classe social',
-            color='nota_2o_sem', 
+            color='nota_2o_sem',
             color_discrete_sequence=cores_notas_semestres,
-            barnorm = "percent", 
+            barnorm = "percent",
             text_auto= True,
             title='Comparação da nota do 2o semestre com a classe social',
             category_orders={'Classe social': ordem_classes_sociais}
@@ -198,11 +204,11 @@ with dataset:
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
 
 
-    # add coluna de escolaridade dos pais no dropout_data
-    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
-    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
-    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
-    dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
+    # # add coluna de escolaridade dos pais no dropout_data
+    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
+    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
+    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
+    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
 
 
     # Plots de Escolaridade dos Pais X Classe Social
@@ -254,7 +260,7 @@ with dataset:
 
 
     df_notas_svm = dropout_data.copy()
-    
+
     le = LabelEncoder()
     df_notas_svm['Marital status'] = le.fit_transform(df_notas_svm['Marital status'])
     df_notas_svm['Course'] = le.fit_transform(df_notas_svm['Course'])
@@ -267,7 +273,7 @@ with dataset:
     df_notas_svm['Classe social'] = le.fit_transform(df_notas_svm['Classe social'])
     df_notas_svm['Escolaridade_Maes&Pais'] = le.fit_transform(df_notas_svm['Escolaridade_Maes&Pais'])
     df_notas_svm['média_dos_semestres'] = df_notas_svm.apply(lambda row: (row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)']) / 2, axis=1)
-    
+
     st.subheader('Random Forest Regression para notas do 1o semestre')
     X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
     y = df_notas_svm['Curricular units 1st sem (grade)']
@@ -276,11 +282,13 @@ with dataset:
     # Instanciando o modelo de regressão
     rf = RandomForestRegressor()
 
-    # Treinando o modelo
-    rf.fit(X, y)
+    # # Treinando o modelo
+    # rf.fit(X, y)
+
+    rf_model = train_model(rf, X, y, 'rf4_1', MODELS_DIR)
 
     # Obtendo a importância das colunas
-    importances = rf.feature_importances_
+    importances = rf_model.feature_importances_
 
     # Criando um DataFrame com as importâncias das colunas
     df_importances = pd.DataFrame({
@@ -301,7 +309,7 @@ with dataset:
     st.pyplot(fig)
 
 
-    
+
 
     # Notas do 2o semestre
     st.subheader('Random Forest Regression para notas do 2o semestre')
@@ -309,13 +317,15 @@ with dataset:
     y = df_notas_svm['Curricular units 2nd sem (grade)']
 
     # Instanciando o modelo de regressão
-    rf = RandomForestRegressor()
+    rf2 = RandomForestRegressor()
 
     # Treinando o modelo
-    rf.fit(X, y)
+    # rf.fit(X, y)
+
+    rf_model_2 = train_model(rf2, X, y, 'rf4_2', MODELS_DIR)
 
     # Obtendo a importância das colunas
-    importances = rf.feature_importances_
+    importances = rf_model_2.feature_importances_
 
     # Criando um DataFrame com as importâncias das colunas
     df_importances = pd.DataFrame({

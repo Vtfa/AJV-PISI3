@@ -97,20 +97,17 @@ def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Serie
 def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
     df_copy = df.copy()
     df_copy['Marital status'] = marital_status_rename(df_copy, 'Marital status')
-
     df_copy["Escolaridade mae"] = escolaridade_pais(df_copy["Mother's qualification"])
     df_copy["Escolaridade pai"] = escolaridade_pais(df_copy["Father's qualification"])
-
     df_copy["Renda pai"] = renda_pais(df_copy["Father's occupation"])
     df_copy["Renda mae"] = renda_pais(df_copy["Mother's occupation"])
-
     df_copy["Renda total"] = df_copy["Renda pai"] + df_copy["Renda mae"]
-
     df_copy['Course'] = rename_courses(df_copy, 'Course')
-
     df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment', age_interval)
-
     df_copy['Gender'] = rename_gender(df_copy, 'Gender')
+    df_copy = get_grade_data(df_copy)
+    df_copy = get_social_classes_data(df_copy)
+    df_copy = get_schooling_data(df_copy)
 
     return df_copy
 
