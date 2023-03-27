@@ -14,6 +14,11 @@ import matplotlib.pyplot as plt
 
 from plotly.subplots import make_subplots
 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import sklearn.metrics as metrics
+
 header = st.container()
 dataset = st.container()
 
@@ -334,3 +339,54 @@ with dataset:
 
     # Exibindo o gráfico no streamlit
     st.pyplot(fig)
+
+
+    # PREVISAO COM RANDOM FOREST CLASSIFIER
+    st.title('Random Forest Classifier')
+    dataset_nota_satisfatoria = dropout_data.copy()
+
+    dataset_nota_satisfatoria['nota_satisfatória_dos_semestres'] = dataset_nota_satisfatoria.apply(lambda row: 'sim' if row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)'] >= 10 else 'não', axis=1)
+
+
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Marital status'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Course'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Gender'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Scholarship holder'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['International'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Escolaridade mae'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Escolaridade pai'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Classe social'])
+
+   
+
+    X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+    y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a RandomForestClassifier object
+    rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    rfc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = rfc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+
+    st.text(report)
+
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
