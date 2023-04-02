@@ -7,17 +7,15 @@ from sklearn.svm import SVR
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 from sklearn.preprocessing import LabelEncoder
-
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
-
-
 from plotly.subplots import make_subplots
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import sklearn.metrics as metrics
+from sklearn.svm import SVC
+from sklearn.ensemble import GradientBoostingClassifier
 
 header = st.container()
 dataset = st.container()
@@ -389,4 +387,71 @@ with dataset:
 
     df = df.applymap(format_percent)
     
+    st.write(df)
+
+
+    # REPORT SVM
+    X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+    y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a Support Vector Machine object
+    svm = SVC(kernel='rbf', C=1, gamma='scale')
+
+    # Fit the SVM to the training data
+    svm.fit(X_train, y_train)
+
+    # Use the SVM to predict dropout for the testing data
+    y_pred = svm.predict(X_test)
+
+    # Evaluate the performance of the SVM
+    report = (classification_report(y_test, y_pred))
+    st.title('Report SVM')
+    st.text(report)
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+    
+    st.write(df)
+
+
+    # GRADIENT BOOSTING
+    X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+    y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Instantiate a GradientBoostingClassifier object
+    gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+    # Fit the classifier to the training data
+    gbc.fit(X_train, y_train)
+
+    # Use the classifier to predict dropout for the testing data
+    y_pred = gbc.predict(X_test)
+
+    # Evaluate the performance of the classifier
+    report = (classification_report(y_test, y_pred))
+    st.title('Report Gradient Boosting')
+
+
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report_dict).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.0%}".format(x)
+
+    df = df.applymap(format_percent)
+
+    st.text(report)
     st.write(df)
