@@ -640,6 +640,9 @@ with dataset:
 
     st.title('Random forest')
 
+    dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
+    st.write(dropout_data)
+
     dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Gender'])
@@ -649,11 +652,13 @@ with dataset:
     dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
 
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
-    y = dropout_data['Target']
+   
+
+    x_rf= dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
+    y_rf = dropout_data['Target']
 
     # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(x_rf, y_rf, test_size=0.3, random_state=42)
 
     # Instantiate a RandomForestClassifier object
     rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
@@ -668,6 +673,39 @@ with dataset:
     report = (classification_report(y_test, y_pred))
 
     st.text(report)
+
+    importances = rfc.feature_importances_
+
+    # Get feature names
+    feature_names = list(x_rf.columns)
+
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Get the top n most important features
+    n = 25
+    top_indices = indices[:n]
+
+    # Sort the features and importances by descending importance
+    sorted_feature_names = [feature_names[i] for i in top_indices][::-1]
+    sorted_importances = importances[top_indices][::-1]
+
+    # Create horizontal bar chart
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.barh(range(n), sorted_importances, align='center', height=0.5)
+
+    # Add feature names as y-axis labels
+    ax.set_yticks(range(n))
+    ax.set_yticklabels(sorted_feature_names)
+
+    # Add chart title and axes labels
+    ax.set_title("Top 25 Feature Importances")
+    ax.set_xlabel("Importance")
+    ax.set_ylabel("Features")
+
+    # Show chart
+    st.pyplot(fig)
+    
         
 
     report = metrics.classification_report(y_test, y_pred, output_dict=True)
@@ -676,7 +714,7 @@ with dataset:
         if isinstance(x, str):
             return x
         else:
-            return "{:.0%}".format(x)
+            return "{:.2f}".format(x)
 
     df = df.applymap(format_percent)
     
@@ -684,11 +722,11 @@ with dataset:
 
 
     # Split the data into features and target
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
-    y = dropout_data['Target']
+    X_gb = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
+    y_gb = dropout_data['Target']
 
     # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_gb, y_gb, test_size=0.3, random_state=42)
 
     # Instantiate a GradientBoostingClassifier object
     gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
@@ -710,18 +748,48 @@ with dataset:
         if isinstance(x, str):
             return x
         else:
-            return "{:.0%}".format(x)
+            return "{:.2f}".format(x)
 
     df = df.applymap(format_percent)
     st.write(df)
     st.text(report)
 
+    # Get feature names
+    feature_names = list(X_gb.columns)
 
-    X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular','nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
-    y = dropout_data['Target']
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Get the top n most important features
+    n = 25
+    top_indices = indices[:n]
+
+    # Sort the features and importances by descending importance
+    sorted_feature_names = [feature_names[i] for i in top_indices][::-1]
+    sorted_importances = importances[top_indices][::-1]
+
+    # Create horizontal bar chart
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.barh(range(n), sorted_importances, align='center', height=0.5)
+
+    # Add feature names as y-axis labels
+    ax.set_yticks(range(n))
+    ax.set_yticklabels(sorted_feature_names)
+
+    # Add chart title and axes labels
+    ax.set_title("Top 25 Feature Importances")
+    ax.set_xlabel("Importance")
+    ax.set_ylabel("Features")
+
+    # Show chart
+    st.pyplot(fig)
+
+
+    X_svm = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
+    y_svm = dropout_data['Target']
 
     # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_svm, y_svm, test_size=0.3, random_state=42)
 
     # Instantiate a Support Vector Machine object
     svm = SVC(kernel='rbf', C=1, gamma='scale')
@@ -736,48 +804,55 @@ with dataset:
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
     st.text(report)
+    importances = rfc.feature_importances_
+
+    
+    
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report_dict).transpose()
+    
     def format_percent(x):
         if isinstance(x, str):
             return x
         else:
-            return "{:.0%}".format(x)
+            return "{:.2f}".format(x)
 
     df = df.applymap(format_percent)
-    
+
     st.write(df)
 
 
-
-
-    importances = rfc.feature_importances_
+    importances_svm = rfc.feature_importances_
 
     # Get feature names
-    feature_names = list(X.columns)
+    feature_names = list(X_svm.columns)
 
     # Sort feature importances in descending order
-    indices = np.argsort(importances)[::-1]
+    indices = np.argsort(importances_svm)[::-1]
 
-    # Rearrange feature names so they match the sorted feature importances
-    sorted_feature_names = [feature_names[i] for i in indices]
+    # Get the top n most important features
+    n = 25
+    top_indices = indices[:n]
 
-    # Create bar chart
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(range(X.shape[1]), importances[indices])
+    # Sort the features and importances by descending importance
+    sorted_feature_names = [feature_names[i] for i in top_indices][::-1]
+    sorted_importances = importances_svm[top_indices][::-1]
 
-    # Add feature names as x-axis labels
-    ax.set_xticks(range(X.shape[1]))
-    ax.set_xticklabels(sorted_feature_names, rotation=90)
-    plt.tight_layout()
+    # Create horizontal bar chart
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.barh(range(n), sorted_importances, align='center', height=0.5)
+
+    # Add feature names as y-axis labels
+    ax.set_yticks(range(n))
+    ax.set_yticklabels(sorted_feature_names)
 
     # Add chart title and axes labels
-    ax.set_title("Feature importances")
-    ax.set_xlabel("Features")
-    ax.set_ylabel("Importance")
+    ax.set_title("Top 25 Feature Importances")
+    ax.set_xlabel("Importance")
+    ax.set_ylabel("Features")
 
     # Show chart
     st.pyplot(fig)
-
+    
  
