@@ -11,18 +11,24 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 
+from aux_funcs import *
+from data_funcs import *
+from ml_funcs import *
+from style_funcs import *
+from consts import *
 
-from plotly.subplots import make_subplots
+title = 'Página 2 - Dados Socioeconômicos dos estudantes'
+page_style()
 
 header = st.container()
 dataset = st.container()
 
 with header:
-    st.title('Página 2 - Dados Socioeconômicos dos estudantes')
-    colors = ["#98FB98", "#FF6961", "#87CEEB"]
-    colors_DGE = ["#FF6961", "#98FB98", "#87CEEB"]
-    colors_GDE = ["#98FB98", "#FF6961",  "#87CEEB"]
-    colors_DEG = ["#FF6961", "#87CEEB", "#98FB98"]
+    st.title(title)
+    colors = [COR2, COR3, COR4]
+    colors_DGE = [COR3, COR2, COR4]
+    colors_GDE = [COR2, COR3, COR4]
+    colors_DEG = [COR3, COR4, COR2]
 
 with dataset:
     dropout_data = st.session_state['dropout_data']
@@ -57,8 +63,8 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[total_students, status_totals["Graduate"], status_totals["Dropout"], status_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#98FB98", "#FF6961", "#87CEEB"]}
-        #marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": [COR1, COR2, COR3, COR4]}
+        #marker={"color": [COR1, COR4, COR2, COR5]}
     ))
 
     funnel_total.update_layout(
@@ -71,12 +77,12 @@ with dataset:
     col1, col2 = st.columns(2)
 
 
-    
+
     funnel_female = go.Figure(go.Funnel(
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[female_students_total, female_target_totals["Graduate"], female_target_totals["Dropout"], female_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#98FB98", "#FF6961", "#87CEEB"]}
+        marker={"color": [COR1, COR2, COR3, COR4]}
     ))
 
     funnel_female.update_layout(
@@ -90,7 +96,7 @@ with dataset:
         y=["Total Students", "Dropout", "Graduate", "Enrolled"],
         x=[male_students_total, male_target_totals["Dropout"], male_target_totals["Graduate"], male_target_totals["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#FF6961", "#98FB98", "#87CEEB"]}
+        marker={"color": [COR1, COR3, COR2, COR4]}
     ))
 
     funnel_male.update_layout(
@@ -129,11 +135,11 @@ with dataset:
 
 
 
-    with col_marital2: 
+    with col_marital2:
         df_single = dropout_data[dropout_data['Marital status'] == 'Solteiro']
         dfaux_single = df_single.groupby(['Target'])['Target'].count().reset_index(name='Total single students')
         donut_target_single = px.pie(dfaux_single, values='Total single students', names='Target', hole=0.5, color_discrete_sequence=colors)
-        
+
         donut_target_single.update_layout(
             title="Single students",
             title_x = 0.5
@@ -142,16 +148,16 @@ with dataset:
         st.write(donut_target_single)
 
     with col_marital3:
-        colors_marital = ['#ef553b', '#636efa', '#00cc96']
+        colors_marital = [COR6, COR7, COR8]
 
         df_non_single = dropout_data[dropout_data['Marital status'] == 'Outros']
         dfaux_non_single = df_non_single.groupby(['Target'])['Target'].count().reset_index(name='Total non single students')
         donut_target_non_single = px.pie(
-        dfaux_non_single, 
-        values='Total non single students', 
-        names='Target', 
-        hole=0.5, 
-        color_discrete_sequence=colors_DGE, 
+        dfaux_non_single,
+        values='Total non single students',
+        names='Target',
+        hole=0.5,
+        color_discrete_sequence=colors_DGE,
         )
 
         donut_target_non_single.update_layout(
@@ -172,8 +178,8 @@ with dataset:
    #st.plotly_chart(pie_country, use_container_width=True)
 
 
-    
-    
+
+
     st.title('Situação dos estudantes por estado civil')
     option_marital = st.radio(
         'Mudar o grupo visualizado',
@@ -194,13 +200,13 @@ with dataset:
                 st.write(donut_target_non_single)
 
 
-   
+
     dropout_data.loc[dropout_data['International'] == 0, "International"] = 'Nativo'
     dropout_data.loc[dropout_data['International'] == 1, "International"] = 'Internacional'
 
     dropout_data.loc[dropout_data['Scholarship holder'] == 0, "Scholarship holder"] = 'Não bolsista'
     dropout_data.loc[dropout_data['Scholarship holder'] == 1, "Scholarship holder"] = 'Bolsista'
-    
+
     df_native = dropout_data[dropout_data['International'] == 'Nativo']
     dfaux_native = df_native.groupby(['Target'])['Target'].count().reset_index(name='Nacionalidade')
     donut_native = px.pie(dfaux_native, values="Nacionalidade", names='Target', hole=0.5, color_discrete_sequence=colors)
@@ -218,7 +224,7 @@ with dataset:
         title="Estudantes internacionais",
         title_x = 0.5
     )
-    
+
 
     st.title('Situação dos estudantes nativos e internacionais')
     option_international = st.radio(
@@ -247,11 +253,11 @@ with dataset:
     # inicia df que terá totais e porcentagens de graduate, dropout e enrolled por taxa de inflação
     inflation_totals_pct = inflation_totals.pivot(index='Inflation rate', columns='Target', values='num_students').reset_index()
     inflation_totals_pct.columns = ['Inflation rate', 'dropout', 'enrolled', 'graduate']
-  
+
     inflation_totals_pct['total_students'] = inflation_totals_pct['enrolled'] + inflation_totals_pct['dropout'] + inflation_totals_pct['graduate']
 
     # 🍝
-    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['enrolled'] / inflation_totals_pct['total_students'] * 100 
+    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['enrolled'] / inflation_totals_pct['total_students'] * 100
     inflation_totals_pct['Dropout percentage'] = inflation_totals_pct['dropout'] / inflation_totals_pct['total_students'] * 100
     inflation_totals_pct['Graduate percentage'] = inflation_totals_pct['graduate'] / inflation_totals_pct['total_students'] * 100
     inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -268,7 +274,7 @@ with dataset:
     inflation_totals_pct_sort = inflation_totals_pct.sort_values(by='Graduate percentage')
     scatter_inflation_graduate_dots = px.line(inflation_totals_pct_sort, x='Graduate percentage', y='Inflation rate', markers=True)
     scatter_inflation_graduate_dots.update_xaxes(categoryorder='category ascending',)
-    
+
     if option_inflation:
         st.write(scatter_inflation_graduate_dots)
     else:
@@ -281,10 +287,10 @@ with dataset:
 
     gdp_totals_pct = gdp_totals.pivot(index='GDP', columns='Target', values='num_students').reset_index()
     gdp_totals_pct.columns = ['GDP', 'dropout', 'enrolled', 'graduate']
-  
+
     gdp_totals_pct['total_students'] = gdp_totals_pct['enrolled'] + gdp_totals_pct['dropout'] + gdp_totals_pct['graduate']
-   
-    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['enrolled'] / gdp_totals_pct['total_students'] * 100 
+
+    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['enrolled'] / gdp_totals_pct['total_students'] * 100
     gdp_totals_pct['Dropout percentage'] = gdp_totals_pct['dropout'] / gdp_totals_pct['total_students'] * 100
     gdp_totals_pct['Graduate percentage'] = gdp_totals_pct['graduate'] / gdp_totals_pct['total_students'] * 100
     gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -299,7 +305,7 @@ with dataset:
     gdp_totals_pct_sort = gdp_totals_pct.sort_values(by='Graduate percentage')
     scatter_gdp_graduate_dots = px.line(gdp_totals_pct_sort, x='Graduate percentage', y='GDP', markers=True)
     scatter_gdp_graduate_dots.update_xaxes(categoryorder='category ascending',)
-    
+
     if option_gdp:
         st.write(scatter_gdp_graduate_dots)
     else:
@@ -314,10 +320,10 @@ with dataset:
 
     unemployment_totals_pct = unemployment_totals.pivot(index='Unemployment rate', columns='Target', values='num_students').reset_index()
     unemployment_totals_pct.columns = ['Unemployment rate', 'dropout', 'enrolled', 'graduate']
-  
+
     unemployment_totals_pct['total_students'] = unemployment_totals_pct['enrolled'] + unemployment_totals_pct['dropout'] + gdp_totals_pct['graduate']
-   
-    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['enrolled'] / unemployment_totals_pct['total_students'] * 100 
+
+    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['enrolled'] / unemployment_totals_pct['total_students'] * 100
     unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['dropout'] / unemployment_totals_pct['total_students'] * 100
     unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['graduate'] / unemployment_totals_pct['total_students'] * 100
     unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -330,7 +336,7 @@ with dataset:
     unemployment_totals_pct_sort = unemployment_totals_pct.sort_values(by='Graduate percentage')
     scatter_unemployment_graduate_dots = px.line(unemployment_totals_pct_sort, x='Graduate percentage', y='Unemployment rate', markers=True)
     scatter_unemployment_graduate_dots.update_xaxes(categoryorder='category ascending',)
-    
+
     if option_unemployment:
         st.write(scatter_unemployment_graduate_dots)
     else:
@@ -366,7 +372,7 @@ with dataset:
 
     df_classe_alta= dropout_data[dropout_data['Renda total'] >= 3000]
     classe_alta_target_total = df_classe_alta.groupby('Target').size()
-    classe_alta_total = len(df_classe_alta)    
+    classe_alta_total = len(df_classe_alta)
 
 
     st.title('Situação dos estudantes por classe econômica')
@@ -375,7 +381,7 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[classe_baixa_total, classe_baixa_target_total["Graduate"], classe_baixa_target_total["Dropout"], classe_baixa_target_total["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": [COR1, COR4, COR2, COR5]}
     ))
 
     funnel_classe_baixa.update_layout(
@@ -387,7 +393,7 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[classe_media_total, classe_media_target_total["Graduate"], classe_media_target_total["Dropout"], classe_media_target_total["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": [COR1, COR4, COR2, COR5]}
     ))
 
     funnel_classe_media.update_layout(
@@ -399,7 +405,7 @@ with dataset:
         y=["Total Students", "Graduate", "Dropout", "Enrolled"],
         x=[classe_alta_total, classe_alta_target_total["Graduate"], classe_alta_target_total["Dropout"], classe_alta_target_total["Enrolled"]],
         textinfo="value+percent initial",
-        marker={"color": ["#FFA07A", "#87CEEB", "#98FB98", "#DDA0DD"]}
+        marker={"color": [COR1, COR4, COR2, COR5]}
     ))
 
     funnel_classe_alta.update_layout(
@@ -478,16 +484,16 @@ with dataset:
         title="Ambos ensino fundamental",
         title_x = 0.5
     )
-    
+
     col_parents_education1, col_parents_education2, col_parents_education3, col_parents_education4 = st.columns(4)
-    
+
 
     with col_parents_education1:
         st.write(donut_both_higher)
     with col_parents_education2:
         st.write(donut_one_higher)
     with col_parents_education3:
-        st.write(donut_both_secondary)        
+        st.write(donut_both_secondary)
     with col_parents_education4:
         st.write(donut_both_primary)
 
@@ -497,10 +503,10 @@ with dataset:
     df_age_target_count = df_age_target.groupby(['Age group', 'Target']).size().reset_index(name='Count')
 
     df_age_target_count['Percentage'] = df_age_target_count.groupby('Age group')['Count'].apply(lambda x: 100 * x / float(x.sum()))
-    colors = ['#98FB98', '#87CEEB', '#FF6961']
+    colors = [COR2, COR4, COR3]
 
     bar_age_target = px.bar(df_age_target_count, x='Age group', y='Percentage', color='Target', barmode='stack', color_discrete_sequence=colors,
-                category_orders={'Age group': ['17-29', '30+'], 'Target': ['Graduate', 'Enrolled', 'Dropout']}, 
+                category_orders={'Age group': ['17-29', '30+'], 'Target': ['Graduate', 'Enrolled', 'Dropout']},
                 text=df_age_target_count['Percentage'].round(2)
                 )
 
@@ -522,7 +528,6 @@ with dataset:
     df_com_divida = dropout_data[dropout_data.Debtor==1]
     dfaux_com_divida = df_com_divida.groupby(['Target'])['Target'].count().reset_index(name='soma_com_divida')
 
-    
     grafico_target_geral = px.pie(
         dfaux_target, values='Total',
         names='Target',
@@ -557,7 +562,7 @@ with dataset:
         color='Target',
         color_discrete_sequence=colors,
         hole=0.5,
-        title='Estudantes sem dívida'   
+        title='Estudantes sem dívida'
     )
 
     grafico_target_estudantes_sem_dividas.update_layout(
@@ -581,18 +586,18 @@ with dataset:
         elif ('Endividados' in option_divida_tuition) & ('Sem dívidas' not in option_divida_tuition):
             with column_debt2:
                 st.plotly_chart(grafico_target_endividados)
-    if len(option_divida_tuition) == 3: 
+    if len(option_divida_tuition) == 3:
         with column_debt2:
             st.plotly_chart(grafico_target_endividados)
         with column_debt3:
-            st.plotly_chart(grafico_target_estudantes_sem_dividas)   
+            st.plotly_chart(grafico_target_estudantes_sem_dividas)
 
 
 
     df_tuition_paid = dropout_data[dropout_data['Tuition fees up to date'] == 1]
     dfaux_tuition_paid = df_tuition_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades em dia")
     donut_target_tuition_paid = px.pie(dfaux_tuition_paid, values="Estudantes com mensalidades em dia", names='Target', hole=0.5, color_discrete_sequence=colors_GDE)
-        
+
     donut_target_tuition_paid.update_layout(
         title="Estudantes com mensalidades em dia",
         title_x = 0.5
@@ -601,7 +606,7 @@ with dataset:
     df_tuition_not_paid = dropout_data[dropout_data['Tuition fees up to date'] == 0]
     dfaux_tuition_not_paid = df_tuition_not_paid.groupby(['Target'])['Target'].count().reset_index(name="Estudantes com mensalidades atrasadas")
     donut_target_tuition_not_paid = px.pie(dfaux_tuition_not_paid, values="Estudantes com mensalidades atrasadas", names='Target', hole=0.5, color_discrete_sequence=colors_DEG)
-        
+
     donut_target_tuition_not_paid.update_layout(
         title="Estudantes com mensalidades atrasadas",
         title_x = 0.5
@@ -630,12 +635,12 @@ with dataset:
                     yaxis_title='Porcentagem',
                     xaxis=dict(
                         tickmode='array',
-                        tickvals=[0, 1], 
-                        ticktext=['Não', 'Sim']  
+                        tickvals=[0, 1],
+                        ticktext=['Não', 'Sim']
                     )
-                    
+
                 )
- 
+
     st.write(bar_displaced)
 
     st.title('Random forest')
@@ -652,7 +657,7 @@ with dataset:
     dropout_data = pd.get_dummies(dropout_data, columns=['Escolaridade pai'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Classe social'])
 
-   
+
 
     x_rf= dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
     y_rf = dropout_data['Target']
@@ -663,18 +668,17 @@ with dataset:
     # Instantiate a RandomForestClassifier object
     rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 
-    # Fit the classifier to the training data
-    rfc.fit(X_train, y_train)
+    rfc_model = train_model(rfc, X_train, y_train, 'rfc2', MODELS_DIR)
 
     # Use the classifier to predict dropout for the testing data
-    y_pred = rfc.predict(X_test)
+    y_pred = rfc_model.predict(X_test)
 
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
 
     st.text(report)
 
-    importances = rfc.feature_importances_
+    importances = rfc_model.feature_importances_
 
     # Get feature names
     feature_names = list(x_rf.columns)
@@ -705,8 +709,8 @@ with dataset:
 
     # Show chart
     st.pyplot(fig)
-    
-        
+
+
 
     report = metrics.classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report).transpose()
@@ -717,7 +721,7 @@ with dataset:
             return "{:.2f}".format(x)
 
     df = df.applymap(format_percent)
-    
+
     st.write(df)
 
 
@@ -731,11 +735,10 @@ with dataset:
     # Instantiate a GradientBoostingClassifier object
     gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
 
-    # Fit the classifier to the training data
-    gbc.fit(X_train, y_train)
+    gbc_model = train_model(gbc, X_train, y_train, 'gbc2', MODELS_DIR)
 
     # Use the classifier to predict dropout for the testing data
-    y_pred = gbc.predict(X_test)
+    y_pred = gbc_model.predict(X_test)
 
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
@@ -794,24 +797,24 @@ with dataset:
     # Instantiate a Support Vector Machine object
     svm = SVC(kernel='rbf', C=1, gamma='scale')
 
-    # Fit the SVM to the training data
-    svm.fit(X_train, y_train)
+
+    svm_model = train_model(svm, X_train, y_train, 'svm2', MODELS_DIR)
 
     # Use the SVM to predict dropout for the testing data
-    y_pred = svm.predict(X_test)
+    y_pred = svm_model.predict(X_test)
 
     # Evaluate the performance of the SVM
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
     st.text(report)
-    importances = rfc.feature_importances_
+    importances = rfc_model.feature_importances_
 
-    
-    
+
+
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report_dict).transpose()
-    
+
     def format_percent(x):
         if isinstance(x, str):
             return x
@@ -823,7 +826,7 @@ with dataset:
     st.write(df)
 
 
-    importances_svm = rfc.feature_importances_
+    importances_svm = rfc_model.feature_importances_
 
     # Get feature names
     feature_names = list(X_svm.columns)

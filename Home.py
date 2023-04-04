@@ -1,9 +1,9 @@
 import streamlit as st
 
-from plotly.subplots import make_subplots
 from data_funcs import *
 from plot_funcs import *
 from aux_funcs import *
+from style_funcs import *
 
 
 title = "Predição de evasão acadêmica"
@@ -26,6 +26,9 @@ if 'course_data' not in st.session_state:
 
 if 'debt_data' not in st.session_state:
     st.session_state['debt_data'] = get_debt_data(dropout_data)
+
+if 'pandas_profile' not in st.session_state:
+    st.session_state['pandas_profile'] = pandas_profile(dropout_data)
 
 
 def main():

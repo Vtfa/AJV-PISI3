@@ -1,7 +1,8 @@
+import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
-
+from pandas_profiling import ProfileReport
 
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path, engine='pyarrow')
@@ -97,20 +98,17 @@ def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Serie
 def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
     df_copy = df.copy()
     df_copy['Marital status'] = marital_status_rename(df_copy, 'Marital status')
-
     df_copy["Escolaridade mae"] = escolaridade_pais(df_copy["Mother's qualification"])
     df_copy["Escolaridade pai"] = escolaridade_pais(df_copy["Father's qualification"])
-
     df_copy["Renda pai"] = renda_pais(df_copy["Father's occupation"])
     df_copy["Renda mae"] = renda_pais(df_copy["Mother's occupation"])
-
     df_copy["Renda total"] = df_copy["Renda pai"] + df_copy["Renda mae"]
-
     df_copy['Course'] = rename_courses(df_copy, 'Course')
-
     df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment', age_interval)
-
     df_copy['Gender'] = rename_gender(df_copy, 'Gender')
+    df_copy = get_grade_data(df_copy)
+    df_copy = get_social_classes_data(df_copy)
+    df_copy = get_schooling_data(df_copy)
 
     return df_copy
 
@@ -155,8 +153,56 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
     return debt_data
 
 
+def get_grade_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # Divisão das notas de admissão em 2 tipos
+    df_copy.loc[df_copy['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
+    df_copy.loc[df_copy['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
+
+    # Divisão das notas dos semestres em 3 tipos
+    df_copy.loc[df_copy['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
+    df_copy.loc[df_copy['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
+    df_copy['nota_1o_sem'].fillna('10 - 15', inplace=True)
+
+    df_copy.loc[df_copy['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
+    df_copy.loc[df_copy['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
+    df_copy['nota_2o_sem'].fillna('10 - 15', inplace=True)
+
+    return df_copy
+
+
+def get_social_classes_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # Definição de Classes Sociais
+    df_copy.loc[df_copy['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
+    df_copy.loc[df_copy['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
+    df_copy['Classe social'].fillna('Classe média', inplace=True)
+
+    return df_copy
+
+
+def get_schooling_data(df: pd.DataFrame) -> pd.DataFrame:
+    df_copy = df.copy()
+
+    # add coluna de escolaridade dos pais no dropout_data
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'ensino superior') & (df_copy['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'ensino superior') ^ (df_copy['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'medio completo') & (df_copy['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
+    df_copy.loc[(df_copy['Escolaridade mae'] == 'fundamental incompleto') & (df_copy['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
+
+    return df_copy
+
+
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
+
+    if 'colunas' in filters.keys() and isinstance(filters['colunas'], list):
+        if len(filters['colunas']) > 0:
+            df_copy = df_copy[filters['colunas']]
+
+
     select_fields = {
         'marital_status': 'Marital status',
         'course': 'Course',
@@ -169,11 +215,6 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
         'age_range': 'age_range',
     }
 
-    for key in filters.keys():
-        if key in multiselect_fields and filters[key] != []:
-            selection = df_copy[multiselect_fields[key]].isin(filters[key])
-            df_copy = df_copy[selection]
-
     query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
@@ -181,6 +222,13 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
                 query += ' and '
 
             query += f'`{select_fields[key]}` == "{filters[key]}"'
+            continue
+
+        if key in multiselect_fields and filters[key] != []:
+            if len(query) > 0:
+                query += ' and '
+
+            query += f'`{multiselect_fields[key]}` in {filters[key]}'
 
     if query != '':
         df_copy = df_copy.query(query)
@@ -194,3 +242,21 @@ def reset_filters():
     st.session_state['age_range'] = []
     st.session_state['escolaridade_mae'] = ''
     st.session_state['escolaridade_pai'] = ''
+    st.session_state['dataframe_columns'] = []
+
+
+def format_percent(item):
+    if not isinstance(item, str):
+        return f'{item:.0%}'
+
+    return item
+
+def pandas_profile(df: pd.DataFrame) -> ProfileReport:
+    report = ProfileReport(
+        df,
+        title="Perfil do dataset de evasão acadêmica",
+        minimal=True,
+        lazy=False,
+    )
+
+    return report
