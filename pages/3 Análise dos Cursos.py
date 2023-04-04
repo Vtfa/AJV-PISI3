@@ -11,8 +11,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 
 title = "Análise dos cursos"
-config_page(title)
-page_style()
+
 
 
 def page_3():
