@@ -19,6 +19,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 from aux_funcs import *
 from style_funcs import *
+from data_funcs import *
 from ml_funcs import *
 from consts import *
 
@@ -27,7 +28,6 @@ dataset = st.container()
 
 title = 'Análise das Notas'
 
-# config_page(title)
 page_style()
 
 with header:
@@ -367,14 +367,8 @@ with dataset:
 
         report = metrics.classification_report(y_test, y_pred, output_dict=True)
         df = pd.DataFrame(report).transpose()
-        def format_percent(x):
-            if isinstance(x, str):
-                return x
-            else:
-                return "{:.2f}".format(x)
-
-        df = df.applymap(format_percent)
-
+        df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+        df.iloc[:, -1] = df.iloc[:, -1].astype(int)
         st.write(df)
 
     elif chart_type_previsao == 'Report SVM':
@@ -401,14 +395,8 @@ with dataset:
 
         report_dict = classification_report(y_test, y_pred, output_dict=True)
         df = pd.DataFrame(report_dict).transpose()
-        def format_percent(x):
-            if isinstance(x, str):
-                return x
-            else:
-                return "{:.2f}".format(x)
-
-        df = df.applymap(format_percent)
-
+        df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+        df.iloc[:, -1] = df.iloc[:, -1].astype(int)
         st.write(df)
 
     else:
@@ -435,13 +423,8 @@ with dataset:
 
         report_dict = classification_report(y_test, y_pred, output_dict=True)
         df = pd.DataFrame(report_dict).transpose()
-        def format_percent(x):
-            if isinstance(x, str):
-                return x
-            else:
-                return "{:.2f}".format(x)
-
-        df = df.applymap(format_percent)
+        df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+        df.iloc[:, -1] = df.iloc[:, -1].astype(int)
 
         st.text(report)
         st.write(df)

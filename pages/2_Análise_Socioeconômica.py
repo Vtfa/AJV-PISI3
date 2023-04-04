@@ -714,14 +714,8 @@ with dataset:
 
     report = metrics.classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
+    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
     st.write(df)
 
 
@@ -747,13 +741,8 @@ with dataset:
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report_dict).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
+    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
     st.write(df)
     st.text(report)
 
@@ -814,15 +803,8 @@ with dataset:
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
     df = pd.DataFrame(report_dict).transpose()
-
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
+    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
+    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
     st.write(df)
 
 
