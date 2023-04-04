@@ -3,6 +3,14 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.svm import SVR
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
+from sklearn.preprocessing import LabelEncoder
+
+from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
 
 from plotly.subplots import make_subplots
 
@@ -241,3 +249,88 @@ with dataset:
 
 
 
+
+    # Definindo X e y para o SVM
+
+
+    df_notas_svm = dropout_data.copy()
+    
+    le = LabelEncoder()
+    df_notas_svm['Marital status'] = le.fit_transform(df_notas_svm['Marital status'])
+    df_notas_svm['Course'] = le.fit_transform(df_notas_svm['Course'])
+    df_notas_svm['Gender'] = le.fit_transform(df_notas_svm['Gender'])
+    df_notas_svm['Scholarship holder'] = le.fit_transform(df_notas_svm['Scholarship holder'])
+    df_notas_svm['International'] = le.fit_transform(df_notas_svm['International'])
+    df_notas_svm['Target'] = le.fit_transform(df_notas_svm['Target'])
+    df_notas_svm['Escolaridade mae'] = le.fit_transform(df_notas_svm['Escolaridade mae'])
+    df_notas_svm['Escolaridade pai'] = le.fit_transform(df_notas_svm['Escolaridade pai'])
+    df_notas_svm['Classe social'] = le.fit_transform(df_notas_svm['Classe social'])
+    df_notas_svm['Escolaridade_Maes&Pais'] = le.fit_transform(df_notas_svm['Escolaridade_Maes&Pais'])
+    df_notas_svm['média_dos_semestres'] = df_notas_svm.apply(lambda row: (row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)']) / 2, axis=1)
+    
+    st.subheader('Random Forest Regression para notas do 1o semestre')
+    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+    y = df_notas_svm['Curricular units 1st sem (grade)']
+
+
+    # Instanciando o modelo de regressão
+    rf = RandomForestRegressor()
+
+    # Treinando o modelo
+    rf.fit(X, y)
+
+    # Obtendo a importância das colunas
+    importances = rf.feature_importances_
+
+    # Criando um DataFrame com as importâncias das colunas
+    df_importances = pd.DataFrame({
+        "Feature": X.columns,
+        "Importance": importances
+    })
+
+    # Ordenando o DataFrame pela importância em ordem decrescente
+    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+
+    # Criando o gráfico de barras horizontais
+    fig, ax = plt.subplots()
+    ax.barh(df_importances["Feature"], df_importances["Importance"])
+    ax.set_xlabel("Importance")
+    ax.set_title("Importance of each feature")
+
+    # Exibindo o gráfico no streamlit
+    st.pyplot(fig)
+
+
+    
+
+    # Notas do 2o semestre
+    st.subheader('Random Forest Regression para notas do 2o semestre')
+    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+    y = df_notas_svm['Curricular units 2nd sem (grade)']
+
+    # Instanciando o modelo de regressão
+    rf = RandomForestRegressor()
+
+    # Treinando o modelo
+    rf.fit(X, y)
+
+    # Obtendo a importância das colunas
+    importances = rf.feature_importances_
+
+    # Criando um DataFrame com as importâncias das colunas
+    df_importances = pd.DataFrame({
+        "Feature": X.columns,
+        "Importance": importances
+    })
+
+    # Ordenando o DataFrame pela importância em ordem decrescente
+    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+
+    # Criando o gráfico de barras horizontais
+    fig, ax = plt.subplots()
+    ax.barh(df_importances["Feature"], df_importances["Importance"])
+    ax.set_xlabel("Importance")
+    ax.set_title("Importance of each feature")
+
+    # Exibindo o gráfico no streamlit
+    st.pyplot(fig)

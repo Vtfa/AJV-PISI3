@@ -227,21 +227,28 @@ def grade_semesters():
     st.write(scatter) 
 
 
-def gender_course():
-    Gender_Map= {0:'Female', 1: 'Male'}
-    Dropout['Gender'] = Dropout['Gender'].map(Gender_Map)
-    st.subheader("Porcentagem de estado de estudante por gênero")   
-    Gender_PercentBar= px.histogram( Dropout.sort_values(by='Gender'), x="Gender", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+def gender_course(gender):
+    filtered_df = Dropout[Dropout['Gender'] == gender]
+    st.subheader="Estado de estudante por gênero" 
+    Gender_PercentBar= px.histogram( filtered_df, x="Course",title=f' {gender} Students' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
     st.write(Gender_PercentBar)
-
-    Gender_Bar = px.bar(Dropout.sort_values(by='Gender'), x="Course", color= "Gender",barmode= "group" ,text_auto= True, color_discrete_sequence=["rgba(99, 110, 250, 0.5)", "rgba(0, 204, 150, 0.5)"],)
-    st.subheader("Distribuição de gênero de studantes por curso")     
+    Gender_Bar = px.bar(filtered_df, x="Course", color= "Course",barmode= "group" ,text_auto= True, )
+    st.subheader="Distribuição de gênero de studantes por curso"    
     Gender_Bar.update_layout(title= "Numéro de estudantes por curso", xaxis_title="Cursos", yaxis_title="Número de estudantes")  
     st.write(Gender_Bar)
         
 
-    Financial_Status= px.histogram(Dropout.sort_values(by='Course'), x= "Course", y= "Renda total", color="Course", barnorm= "percent")
-    st.subheader("Índice de formação por renda total")
-    Financial_Status.update_layout(xaxis_title="Cursos", yaxis_title= "Renda total")
-    st.write(Financial_Status)
+   
     
+
+
+def financial_status():
+    Financial_Status= px.scatter(Dropout.sort_values(by='Course'), x= "Course", y= "Renda total" )
+    st.subheader="Índice de renda por curso"
+    Financial_Status.update_layout(xaxis_title="Status do estudante", yaxis_title= "Renda total")
+    st.write(Financial_Status)
+
+    st.subheader= "Dropout por idade"
+    Dropout= Dropout.sort_values(by= "age_range")
+    Age_percent= px.histogram( Dropout.sort_values(by= "age_range"), x="age_range",title=f' Age of Students in course dropout' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=["#FF6961", "#98FB98", "#87CEEB"],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
+    st.write(Age_percent)

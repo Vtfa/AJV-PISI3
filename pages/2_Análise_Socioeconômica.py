@@ -854,5 +854,3 @@ with dataset:
 
     # Show chart
     st.pyplot(fig)
-    
- 
