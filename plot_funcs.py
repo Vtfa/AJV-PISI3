@@ -6,6 +6,7 @@ from data_funcs import *
 
 from consts import *
 from plotly.subplots import make_subplots
+
 Dropout = pd.read_csv('data/dropout.csv')
 Dropout = treat_data(Dropout)
 

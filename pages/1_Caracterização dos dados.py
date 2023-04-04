@@ -17,9 +17,14 @@ plots_tab = 'plots_tab_active'
 profile_tab = 'profile_tab_active'
 
 tabs = ['dataset_tab_active', 'plots_tab_active', 'profile_tab_active']
+
 for tab in tabs:
+    if 'dataset_tab_active' not in st.session_state:
+        st.session_state['dataset_tab_active'] = True
+
     if tab not in st.session_state:
         st.session_state[tab] = False
+
 
 def page_1():
     dataframes = ['dropout_data', 'gender_data', 'course_data', 'debt_data', 'pandas_profile']
