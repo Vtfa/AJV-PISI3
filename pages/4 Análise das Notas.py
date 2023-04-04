@@ -7,19 +7,19 @@ from sklearn.svm import SVR
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 from sklearn.preprocessing import LabelEncoder
-
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import sklearn.metrics as metrics
+from sklearn.svm import SVC
+from sklearn.ensemble import GradientBoostingClassifier
 
-
-from ml_funcs import *
 from aux_funcs import *
 from style_funcs import *
-from consts import *
-
-title = 'Análise das Notas'
-config_page(title)
-page_style()
+from ml_funcs import *
 
 header = st.container()
 dataset = st.container()
@@ -28,7 +28,8 @@ with header:
     st.title(title)
 
 with dataset:
-    dropout_data = st.session_state['dropout_data']
+    dropout_data0 = st.session_state['dropout_data']
+    dropout_data = dropout_data0.drop(index=dropout_data0[dropout_data0['Target'] == 'Enrolled'].index)
 
     # # Divisão das notas de admissão em 2 tipos
     # dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
@@ -275,73 +276,189 @@ with dataset:
     df_notas_svm['Escolaridade_Maes&Pais'] = le.fit_transform(df_notas_svm['Escolaridade_Maes&Pais'])
     df_notas_svm['média_dos_semestres'] = df_notas_svm.apply(lambda row: (row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)']) / 2, axis=1)
 
-    st.subheader('Random Forest Regression para notas do 1o semestre')
-    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
-    y = df_notas_svm['Curricular units 1st sem (grade)']
+    st.title('Random Forest Regression')
+    chart_type_rf = st.radio('Selecione o tipo de gráfico:', ('1o Semestre', '2o Semestre'))
+    if chart_type_rf == '1o Semestre':
+        st.subheader('Random Forest Regression para notas do 1o semestre')
+        X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+        y = df_notas_svm['Curricular units 1st sem (grade)']
 
 
-    # Instanciando o modelo de regressão
-    rf = RandomForestRegressor()
+        # Instanciando o modelo de regressão
+        rf = RandomForestRegressor()
 
-    # # Treinando o modelo
-    # rf.fit(X, y)
+        # Treinando o modelo
+        rf.fit(X, y)
 
-    rf_model = train_model(rf, X, y, 'rf4_1', MODELS_DIR)
+        # Obtendo a importância das colunas
+        importances = rf.feature_importances_
 
-    # Obtendo a importância das colunas
-    importances = rf_model.feature_importances_
+        # Criando um DataFrame com as importâncias das colunas
+        df_importances = pd.DataFrame({
+            "Feature": X.columns,
+            "Importance": importances
+        })
 
-    # Criando um DataFrame com as importâncias das colunas
-    df_importances = pd.DataFrame({
-        "Feature": X.columns,
-        "Importance": importances
-    })
+        # Ordenando o DataFrame pela importância em ordem decrescente
+        df_importances = df_importances.sort_values(by="Importance", ascending=True)
 
-    # Ordenando o DataFrame pela importância em ordem decrescente
-    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+        # Criando o gráfico de barras horizontais
+        fig, ax = plt.subplots()
+        ax.barh(df_importances["Feature"], df_importances["Importance"])
+        ax.set_xlabel("Importance")
+        ax.set_title("Importance of each feature")
 
-    # Criando o gráfico de barras horizontais
-    fig, ax = plt.subplots()
-    ax.barh(df_importances["Feature"], df_importances["Importance"])
-    ax.set_xlabel("Importance")
-    ax.set_title("Importance of each feature")
+        # Exibindo o gráfico no streamlit
+        st.pyplot(fig)
+    else:
+        # Notas do 2o semestre
+        st.subheader('Random Forest Regression para notas do 2o semestre')
+        X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
+        y = df_notas_svm['Curricular units 2nd sem (grade)']
 
-    # Exibindo o gráfico no streamlit
-    st.pyplot(fig)
+        # Instanciando o modelo de regressão
+        rf = RandomForestRegressor()
+
+        # Treinando o modelo
+        rf.fit(X, y)
+
+        # Obtendo a importância das colunas
+        importances = rf.feature_importances_
+
+        # Criando um DataFrame com as importâncias das colunas
+        df_importances = pd.DataFrame({
+            "Feature": X.columns,
+            "Importance": importances
+        })
+
+        # Ordenando o DataFrame pela importância em ordem decrescente
+        df_importances = df_importances.sort_values(by="Importance", ascending=True)
+
+        # Criando o gráfico de barras horizontais
+        fig, ax = plt.subplots()
+        ax.barh(df_importances["Feature"], df_importances["Importance"])
+        ax.set_xlabel("Importance")
+        ax.set_title("Importance of each feature")
+
+        # Exibindo o gráfico no streamlit
+        st.pyplot(fig)
 
 
 
+    dataset_nota_satisfatoria = dropout_data.copy()
 
-    # Notas do 2o semestre
-    st.subheader('Random Forest Regression para notas do 2o semestre')
-    X = df_notas_svm.drop(['Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'média_dos_semestres', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1, inplace=False)
-    y = df_notas_svm['Curricular units 2nd sem (grade)']
+    dataset_nota_satisfatoria['nota_satisfatória_dos_semestres'] = dataset_nota_satisfatoria.apply(lambda row: '10 até 20' if row['Curricular units 1st sem (grade)'] + row['Curricular units 2nd sem (grade)'] >= 10 else '0 até 9,9', axis=1)
 
-    # Instanciando o modelo de regressão
-    rf2 = RandomForestRegressor()
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Marital status'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Course'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Gender'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Scholarship holder'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['International'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Escolaridade mae'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Escolaridade pai'])
+    dataset_nota_satisfatoria = pd.get_dummies(dataset_nota_satisfatoria, columns=['Classe social'])
 
-    # Treinando o modelo
-    # rf.fit(X, y)
+    chart_type_previsao = st.radio('Selecione o tipo de gráfico:', ('Random Forest Classifier', 'Report SVM', 'Gradient Boosting'))
+    if chart_type_previsao == 'Random Forest Classifier':
+        # PREVISAO COM RANDOM FOREST CLASSIFIER
+        st.title('Random Forest Classifier')
 
-    rf_model_2 = train_model(rf2, X, y, 'rf4_2', MODELS_DIR)
+        X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+        y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
 
-    # Obtendo a importância das colunas
-    importances = rf_model_2.feature_importances_
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-    # Criando um DataFrame com as importâncias das colunas
-    df_importances = pd.DataFrame({
-        "Feature": X.columns,
-        "Importance": importances
-    })
+        # Instantiate a RandomForestClassifier object
+        rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 
-    # Ordenando o DataFrame pela importância em ordem decrescente
-    df_importances = df_importances.sort_values(by="Importance", ascending=True)
+        # Fit the classifier to the training data
+        rfc.fit(X_train, y_train)
 
-    # Criando o gráfico de barras horizontais
-    fig, ax = plt.subplots()
-    ax.barh(df_importances["Feature"], df_importances["Importance"])
-    ax.set_xlabel("Importance")
-    ax.set_title("Importance of each feature")
+        # Use the classifier to predict dropout for the testing data
+        y_pred = rfc.predict(X_test)
 
-    # Exibindo o gráfico no streamlit
-    st.pyplot(fig)
+        # Evaluate the performance of the classifier
+        report = (classification_report(y_test, y_pred))
+
+        st.text(report)
+
+        report = metrics.classification_report(y_test, y_pred, output_dict=True)
+        df = pd.DataFrame(report).transpose()
+        def format_percent(x):
+            if isinstance(x, str):
+                return x
+            else:
+                return "{:.2f}".format(x)
+
+        df = df.applymap(format_percent)
+
+        st.write(df)
+
+    elif chart_type_previsao == 'Report SVM':
+
+        # REPORT SVM
+        X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+        y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+        # Instantiate a Support Vector Machine object
+        svm = SVC(kernel='rbf', C=1, gamma='scale')
+
+        # Fit the SVM to the training data
+        svm.fit(X_train, y_train)
+
+        # Use the SVM to predict dropout for the testing data
+        y_pred = svm.predict(X_test)
+
+        # Evaluate the performance of the SVM
+        report = (classification_report(y_test, y_pred))
+        st.title('Report SVM')
+        st.text(report)
+
+        report_dict = classification_report(y_test, y_pred, output_dict=True)
+        df = pd.DataFrame(report_dict).transpose()
+        def format_percent(x):
+            if isinstance(x, str):
+                return x
+            else:
+                return "{:.2f}".format(x)
+
+        df = df.applymap(format_percent)
+
+        st.write(df)
+
+    else:
+        # GRADIENT BOOSTING
+        X = dataset_nota_satisfatoria.drop(['nota_satisfatória_dos_semestres', 'Escolaridade_Maes&Pais', 'Target', 'Admission grade', 'Curricular units 2nd sem (credited)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 2nd sem (approved)', 'Curricular units 2nd sem (grade)', 'Curricular units 2nd sem (without evaluations)', 'Curricular units 1st sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 1st sem (approved)', 'Curricular units 1st sem (without evaluations)', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'age_range'], axis=1)
+        y = dataset_nota_satisfatoria['nota_satisfatória_dos_semestres']
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+        # Instantiate a GradientBoostingClassifier object
+        gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
+
+        # Fit the classifier to the training data
+        gbc.fit(X_train, y_train)
+
+        # Use the classifier to predict dropout for the testing data
+        y_pred = gbc.predict(X_test)
+
+        # Evaluate the performance of the classifier
+        report = (classification_report(y_test, y_pred))
+        st.title('Report Gradient Boosting')
+
+
+        report_dict = classification_report(y_test, y_pred, output_dict=True)
+        df = pd.DataFrame(report_dict).transpose()
+        def format_percent(x):
+            if isinstance(x, str):
+                return x
+            else:
+                return "{:.2f}".format(x)
+
+        df = df.applymap(format_percent)
+
+        st.text(report)
+        st.write(df)
