@@ -6,7 +6,6 @@ from style_funcs import *
 from streamlit_pandas_profiling import st_profile_report
 
 title = "Caracterização dos dados de evasão acadêmica"
-config_page(title)
 page_style()
 tabs_style()
 dataframe_style()

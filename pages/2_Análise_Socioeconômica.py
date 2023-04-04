@@ -18,7 +18,6 @@ from style_funcs import *
 from consts import *
 
 title = 'Página 2 - Dados Socioeconômicos dos estudantes'
-config_page(title)
 page_style()
 
 header = st.container()
@@ -679,7 +678,7 @@ with dataset:
 
     st.text(report)
 
-    importances = rfc.feature_importances_
+    importances = rfc_model.feature_importances_
 
     # Get feature names
     feature_names = list(x_rf.columns)
@@ -736,11 +735,10 @@ with dataset:
     # Instantiate a GradientBoostingClassifier object
     gbc = GradientBoostingClassifier(n_estimators=100, max_depth=10, random_state=42)
 
-    # Fit the classifier to the training data
-    gbc.fit(X_train, y_train)
+    gbc_model = train_model(gbc, X_train, y_train, 'gbc2', MODELS_DIR)
 
     # Use the classifier to predict dropout for the testing data
-    y_pred = gbc.predict(X_test)
+    y_pred = gbc_model.predict(X_test)
 
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
@@ -799,17 +797,17 @@ with dataset:
     # Instantiate a Support Vector Machine object
     svm = SVC(kernel='rbf', C=1, gamma='scale')
 
-    # Fit the SVM to the training data
-    svm.fit(X_train, y_train)
+
+    svm_model = train_model(svm, X_train, y_train, 'svm2', MODELS_DIR)
 
     # Use the SVM to predict dropout for the testing data
-    y_pred = svm.predict(X_test)
+    y_pred = svm_model.predict(X_test)
 
     # Evaluate the performance of the SVM
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
     st.text(report)
-    importances = rfc.feature_importances_
+    importances = rfc_model.feature_importances_
 
 
 
@@ -828,7 +826,7 @@ with dataset:
     st.write(df)
 
 
-    importances_svm = rfc.feature_importances_
+    importances_svm = rfc_model.feature_importances_
 
     # Get feature names
     feature_names = list(X_svm.columns)

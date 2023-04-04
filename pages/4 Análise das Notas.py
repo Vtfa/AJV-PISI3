@@ -20,9 +20,15 @@ from sklearn.ensemble import GradientBoostingClassifier
 from aux_funcs import *
 from style_funcs import *
 from ml_funcs import *
+from consts import *
 
 header = st.container()
 dataset = st.container()
+
+title = 'Análise das Notas'
+
+# config_page(title)
+page_style()
 
 with header:
     st.title(title)
@@ -30,20 +36,6 @@ with header:
 with dataset:
     dropout_data0 = st.session_state['dropout_data']
     dropout_data = dropout_data0.drop(index=dropout_data0[dropout_data0['Target'] == 'Enrolled'].index)
-
-    # # Divisão das notas de admissão em 2 tipos
-    # dropout_data.loc[dropout_data['Admission grade'] <= 145, 'nota_do_vestibular'] = '95 - 145'
-    # dropout_data.loc[dropout_data['Admission grade'] > 145, 'nota_do_vestibular'] = '146 - 200'
-
-    # # Divisão das notas dos semestres em 3 tipos
-    # dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] < 9.75, 'nota_1o_sem'] = '0 - 1'
-    # dropout_data.loc[dropout_data['Curricular units 1st sem (grade)'] > 15, 'nota_1o_sem'] = '15 - 20'
-    # dropout_data['nota_1o_sem'].fillna('10 - 15', inplace=True)
-
-    # dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] < 9.75, 'nota_2o_sem'] = '0 - 1'
-    # dropout_data.loc[dropout_data['Curricular units 2nd sem (grade)'] > 15, 'nota_2o_sem'] = '15 - 20'
-    # dropout_data['nota_2o_sem'].fillna('10 - 15', inplace=True)
-
 
     # definindo cores
     cores_notas_vestibular = [COR3, COR4]
@@ -108,10 +100,6 @@ with dataset:
 
     st.title('Influência da renda dos pais nas notas')
 
-    # # Definição de Classes Sociais
-    # dropout_data.loc[dropout_data['Renda total'] <= 1405, 'Classe social'] = 'Classe baixa'
-    # dropout_data.loc[dropout_data['Renda total'] >= 3000, 'Classe social'] = 'Classe alta'
-    # dropout_data['Classe social'].fillna('Classe média', inplace=True)
 
     # Gráficos de comparação Notas Admission x Classe Social
     st.subheader('Relação entre Notas do Vestibular e Classe Social')
@@ -206,13 +194,6 @@ with dataset:
     df_both_primary = dropout_data[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto')]
 
 
-    # # add coluna de escolaridade dos pais no dropout_data
-    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') & (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'ambos com ensino superior'
-    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'ensino superior') ^ (dropout_data['Escolaridade pai'] == 'ensino superior'), 'Escolaridade_Maes&Pais'] = 'um com ensino superior'
-    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'medio completo') & (dropout_data['Escolaridade pai'] == 'medio completo'), 'Escolaridade_Maes&Pais'] = 'ambos com medio completo'
-    # dropout_data.loc[(dropout_data['Escolaridade mae'] == 'fundamental incompleto') & (dropout_data['Escolaridade pai'] == 'fundamental incompleto'), 'Escolaridade_Maes&Pais'] = 'ambos com fundamental incompleto'
-
-
     # Plots de Escolaridade dos Pais X Classe Social
     st.subheader('Relação entre Escolaridade dos Pais e Notas')
     ordem_escolaridade = ['ambos com fundamental incompleto', 'ambos com medio completo', 'um com ensino superior', 'ambos com ensino superior']
@@ -288,10 +269,10 @@ with dataset:
         rf = RandomForestRegressor()
 
         # Treinando o modelo
-        rf.fit(X, y)
+        rf_model = train_model(rf, X, y, 'rf4-1', MODELS_DIR)
 
         # Obtendo a importância das colunas
-        importances = rf.feature_importances_
+        importances = rf_model.feature_importances_
 
         # Criando um DataFrame com as importâncias das colunas
         df_importances = pd.DataFrame({
@@ -320,10 +301,10 @@ with dataset:
         rf = RandomForestRegressor()
 
         # Treinando o modelo
-        rf.fit(X, y)
+        rf_model = train_model(rf, X, y, 'rf4-2', MODELS_DIR)
 
         # Obtendo a importância das colunas
-        importances = rf.feature_importances_
+        importances = rf_model.feature_importances_
 
         # Criando um DataFrame com as importâncias das colunas
         df_importances = pd.DataFrame({
@@ -373,10 +354,11 @@ with dataset:
         rfc = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 
         # Fit the classifier to the training data
-        rfc.fit(X_train, y_train)
+        rfc_model = train_model(rfc, X_train, y_train, 'rfc4', MODELS_DIR)
+
 
         # Use the classifier to predict dropout for the testing data
-        y_pred = rfc.predict(X_test)
+        y_pred = rfc_model.predict(X_test)
 
         # Evaluate the performance of the classifier
         report = (classification_report(y_test, y_pred))
@@ -407,10 +389,10 @@ with dataset:
         svm = SVC(kernel='rbf', C=1, gamma='scale')
 
         # Fit the SVM to the training data
-        svm.fit(X_train, y_train)
+        svm_model = train_model(svm, X_train, y_train, 'svm4', MODELS_DIR)
 
         # Use the SVM to predict dropout for the testing data
-        y_pred = svm.predict(X_test)
+        y_pred = svm_model.predict(X_test)
 
         # Evaluate the performance of the SVM
         report = (classification_report(y_test, y_pred))
@@ -441,9 +423,10 @@ with dataset:
 
         # Fit the classifier to the training data
         gbc.fit(X_train, y_train)
+        gbc_model = train_model(gbc, X_train, y_train, 'gbc4', MODELS_DIR)
 
         # Use the classifier to predict dropout for the testing data
-        y_pred = gbc.predict(X_test)
+        y_pred = gbc_model.predict(X_test)
 
         # Evaluate the performance of the classifier
         report = (classification_report(y_test, y_pred))
