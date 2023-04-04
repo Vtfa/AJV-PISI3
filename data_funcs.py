@@ -197,6 +197,12 @@ def get_schooling_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
+
+    if 'colunas' in filters.keys() and isinstance(filters['colunas'], list):
+        if len(filters['colunas']) > 0:
+            df_copy = df_copy[filters['colunas']]
+
+
     select_fields = {
         'marital_status': 'Marital status',
         'course': 'Course',
@@ -236,6 +242,7 @@ def reset_filters():
     st.session_state['age_range'] = []
     st.session_state['escolaridade_mae'] = ''
     st.session_state['escolaridade_pai'] = ''
+    st.session_state['dataframe_columns'] = []
 
 
 def format_percent(item):

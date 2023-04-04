@@ -1,7 +1,10 @@
+from enum import Enum
 import time
 import streamlit as st
 import pandas as pd
 
+
+tabs_01 = Enum('tabs_01', ['table', 'plots', 'profile'])
 
 def config_page(title: str) -> None:
     st.set_page_config(
@@ -12,51 +15,10 @@ def config_page(title: str) -> None:
             'About': '''
             #### **Equipe**
             Aldemar S R Filho\n
-            Arthur de Barros Botelho dos Santos\n
             Douglas Rafael Miranda de Souza\n
             João Vitor da Silva Pires\n
             Vinicius Thalles Ferreira Araujo''',
         }
-    )
-
-
-def page_style(menu_title: str = '#AJV'):
-    st.markdown(f"""
-        <style>
-        .justified-text {{
-            text-align: justify;
-        }}
-        .content-size {{
-            font-size:1.05em !important;
-        }}
-        .indent-text {{
-            text-indent: 40px;
-        }}
-        .italic {{
-            font-style: italic;
-        }}
-        .streamlit-expanderHeader {{
-            font-size: 1.05em;
-            font-weight: bold;
-            color: IndianRed;
-        }}
-        [data-testid="stSidebarNav"]::before {{
-            content: "{menu_title}";
-            color: indianred;
-            font-weight: bold;
-            margin-left: 20px;
-            font-size: 30px;
-            position: relative;
-            top: 100px;
-        }}
-        [data-baseweb="tab"] {{
-            font-size: 1.15rem;
-            font-weight: bold;
-
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True,
     )
 
 
@@ -128,6 +90,12 @@ def dataset_table_filters(options: dict[str: any]):
                     help='Escolaridade do pai a ser filtrada na tabela de dados',
                 )
 
+                columns = st.multiselect(
+                    'Colunas',
+                    options['columns'],
+                    help='Colunas a serem exibidas na tabela de dados. Vazio representa TODAS',
+                )
+
                 submitted = st.form_submit_button('Filtrar')
 
                 if submitted:
@@ -137,9 +105,10 @@ def dataset_table_filters(options: dict[str: any]):
                     st.session_state['age_range'] = age_range
                     st.session_state['escolaridade_mae'] = escolaridade_mae
                     st.session_state['escolaridade_pai'] = escolaridade_pai
+                    st.session_state['dataframe_columns'] = columns
 
 
-def sidebar_01():
+def sidebar_01_table():
     data: pd.DataFrame = st.session_state['dropout_data'][[
         'Marital status',
         'Course',
@@ -148,6 +117,8 @@ def sidebar_01():
         'Escolaridade mae',
         'Escolaridade pai',
     ]]
+
+    columns = st.session_state['dropout_data'].columns
 
     options = {column: data[column].dropna().unique().tolist()
             for column in data}
@@ -159,46 +130,66 @@ def sidebar_01():
             option.append('')
             option.sort()
 
+    options['columns'] = columns
+
+    st.header('Configuração de exibição da tabela')
+
+    dataset_table_filters(options)
+
+
+def sidebar_01_plots():
+    st.header('Mapa de gêneros')
+    st.session_state['gender_select'] = st.selectbox(
+        'Gender',
+        ['Female', 'Male'],
+        help='Define the gender to be used at gender related plots',
+    )
+    st.session_state['age_interval'] = st.number_input(
+        'Age range interval',
+        step=1,
+        help='Define o intervalo (em anos) a ser utilizado nos plts demográficos',
+    )
+
+    st.header('Mapa de relações')
+    path_options = {
+        'Faixa etária': 'age_range',
+        'Status': 'Target',
+        'Possui débito': 'debt',
+        'Gênero': 'Gender',
+    }
+
+    path =  st.multiselect(
+                'Faixa etária',
+                path_options,
+                default=['Faixa etária', 'Possui débito'],
+                help='Define the variables to be ploted at treemap',
+            )
+
+    path = {path_options[var] for var in path}
+    st.session_state['tree_path'] = path
+
+
+def sidebar_01(tab: tabs_01):
     with st.sidebar:
-        st.header('Configuração de exibição da tabela')
+        match tab:
+            case tabs_01.table:
+                sidebar_01_table()
 
-        with st.expander('Filtros', True):
-            dataset_table_filters(options)
+            case tabs_01.plots:
+                sidebar_01_plots()
 
+            case tabs_01.profile:
+                pass
 
-        st.header('Mapa de gêneros')
-        st.session_state['gender_select'] = st.selectbox(
-            'Gender',
-            ['Female', 'Male'],
-            help='Define the gender to be used at gender related plots',
-        )
-        st.session_state['age_interval'] = st.number_input(
-            'Age range interval',
-            step=1,
-            help='Define the interval (in years) to be used at demographic plots',
-        )
-
-        st.header('Mapa de relações')
-        path_options = {
-            'Faixa etária': 'age_range',
-            'Status': 'Target',
-            'Possui débito': 'debt',
-            'Gênero': 'Gender',
-        }
-
-        path =  st.multiselect(
-                    'Faixa etária',
-                    path_options,
-                    default=['Faixa etária', 'Possui débito'],
-                    help='Define the variables to be ploted at treemap',
-                )
-
-        path = {path_options[var] for var in path}
-        st.session_state['tree_path'] = path
+            case _:
+                pass
 
 
-def translate(map: dict[str: str], word: str) -> str:
-    return map[word]
+def change_tab_state(current_tab: str, tabs: list[str]):
+    for tab in tabs:
+        st.session_state[tab] = False
+
+    st.session_state[current_tab] = True
 
 
 def sidebar_page3():
