@@ -1,7 +1,8 @@
+import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
-
+from pandas_profiling import ProfileReport
 
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path, engine='pyarrow')
@@ -242,3 +243,13 @@ def format_percent(item):
         return f'{item:.0%}'
 
     return item
+
+def pandas_profile(df: pd.DataFrame) -> ProfileReport:
+    report = ProfileReport(
+        df,
+        title="Perfil do dataset de evasão acadêmica",
+        minimal=True,
+        lazy=False,
+    )
+
+    return report

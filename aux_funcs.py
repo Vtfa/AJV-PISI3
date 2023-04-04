@@ -49,6 +49,11 @@ def page_style(menu_title: str = '#AJV'):
             position: relative;
             top: 100px;
         }}
+        [data-baseweb="tab"] {{
+            font-size: 1.15rem;
+            font-weight: bold;
+
+        }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -90,37 +95,37 @@ def dataset_table_filters(options: dict[str: any]):
                 marital_status = st.selectbox(
                     'Estado Civil',
                     options['Marital status'],
-                    help='Define the gender to be filtered at dataset',
+                    help='Estado civil a ser filtrado na tabela de dados',
                 )
 
                 course = st.selectbox(
                     'Curso',
                     options['Course'],
-                    help='Define the course to be filtered at dataset',
+                    help='Curso a ser filtrado na tabela de dados',
                 )
 
                 gender = st.multiselect(
                     'Gender',
                     options['Gender'],
-                    help='Define the gender to be filtered at dataset',
+                    help='Genero a ser filtrado na tabela de dados',
                 )
 
                 age_range = st.multiselect(
                     'Faixa etária',
                     options['age_range'],
-                    help='Define the age range to be filtered at dataset',
+                    help='Faixa etária a ser filtrada na tabela de dados',
                 )
 
                 escolaridade_mae = st.selectbox(
                     'Escolaridade da mãe',
                     options['Escolaridade mae'],
-                    help='Define the mothers schooling to be filtered at dataset',
+                    help='Escolaridade da mãe a ser filtrada na tabela de dados',
                 )
 
                 escolaridade_pai = st.selectbox(
                     'Escolaridade do pai',
                     options['Escolaridade pai'],
-                    help='Define the fathers schooling to be filtered at dataset',
+                    help='Escolaridade do pai a ser filtrada na tabela de dados',
                 )
 
                 submitted = st.form_submit_button('Filtrar')
@@ -155,7 +160,7 @@ def sidebar_01():
             option.sort()
 
     with st.sidebar:
-        st.header('Dataset table configuration')
+        st.header('Configuração de exibição da tabela')
 
         with st.expander('Filtros', True):
             dataset_table_filters(options)
