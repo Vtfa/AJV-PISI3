@@ -3,6 +3,7 @@ import streamlit as st
 from data_funcs import *
 from plot_funcs import *
 from aux_funcs import *
+from style_funcs import *
 
 
 title = "Predição de evasão acadêmica"

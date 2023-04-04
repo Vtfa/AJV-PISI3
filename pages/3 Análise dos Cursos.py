@@ -2,6 +2,7 @@ import streamlit as st
 from plot_funcs import *
 from data_funcs import *
 from aux_funcs import *
+from style_funcs import *
 
 
 title = "Análise dos cursos"
@@ -10,7 +11,7 @@ page_style()
 
 
 def page_3():
-    
+
 
     dataframes = ['dropout_data', 'gender_data', 'course_data', 'debt_data']
 
@@ -43,8 +44,8 @@ def page_3():
           st.subheadder= "Plots genéricos"
           financial_status()
 
-       
-        
+
+
 
 
 page_3()

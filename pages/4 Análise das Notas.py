@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 from ml_funcs import *
 from aux_funcs import *
+from style_funcs import *
 from consts import *
 
 title = 'Análise das Notas'

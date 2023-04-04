@@ -14,6 +14,7 @@ from sklearn.svm import SVC
 from aux_funcs import *
 from data_funcs import *
 from ml_funcs import *
+from style_funcs import *
 from consts import *
 
 title = 'Página 2 - Dados Socioeconômicos dos estudantes'
