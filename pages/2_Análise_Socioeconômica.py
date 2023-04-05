@@ -10,6 +10,8 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
+
 
 from aux_funcs import *
 from data_funcs import *
@@ -646,7 +648,6 @@ with dataset:
     st.title('Random forest')
 
     dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
-    st.write(dropout_data)
 
     dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
@@ -676,7 +677,19 @@ with dataset:
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
 
-    st.text(report)
+    
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.2f}".format(x)
+
+    df = df.applymap(format_percent)
+
+    st.write(df)
+
 
     importances = rfc_model.feature_importances_
 
@@ -712,18 +725,6 @@ with dataset:
 
 
 
-    report = metrics.classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
-    st.write(df)
-
 
     # Split the data into features and target
     X_gb = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
@@ -755,7 +756,6 @@ with dataset:
 
     df = df.applymap(format_percent)
     st.write(df)
-    st.text(report)
 
     # Get feature names
     feature_names = list(X_gb.columns)
@@ -806,7 +806,6 @@ with dataset:
     # Evaluate the performance of the SVM
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
-    st.text(report)
     importances = rfc_model.feature_importances_
 
 
