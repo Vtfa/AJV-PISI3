@@ -10,6 +10,8 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
+
 
 from aux_funcs import *
 from data_funcs import *
@@ -646,7 +648,6 @@ with dataset:
     st.title('Random forest')
 
     dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
-    st.write(dropout_data)
 
     dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
@@ -676,7 +677,19 @@ with dataset:
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
 
-    st.text(report)
+    
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.2f}".format(x)
+
+    df = df.applymap(format_percent)
+
+    st.write(df)
+
 
     importances = rfc_model.feature_importances_
 
@@ -740,11 +753,13 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
+
     data = pd.DataFrame(report_dict).transpose()
     data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
     data.iloc[:, -1] = data.iloc[:, -1].astype(int)
     st.write(data)
     st.text(report)
+
 
     # Get feature names
     feature_names = list(X_gb.columns)
@@ -795,7 +810,6 @@ with dataset:
     # Evaluate the performance of the SVM
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
-    st.text(report)
     importances = rfc_model.feature_importances_
 
 

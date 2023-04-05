@@ -53,23 +53,23 @@ def renda_pais(data: pd.Series) -> pd.Series:
 # funcao para substituir o codido pelo nome dos cursos
 def rename_courses(df: pd.DataFrame, course_col: str) -> pd.Series:
     courses_map = {
-        33: 'Biofuel Production Technologies',
-        171: 'Animation and Multimedia Design',
-        8014: 'Social Service',
-        9003: 'Agronomy',
-        9070: 'Communication Design',
-        9085: 'Veterinary Nursing',
-        9119: 'Informatics Engineering',
-        9130: 'Equinculture',
-        9147: 'Management',
-        9238: 'Social Service',
-        9254: 'Tourism',
-        9500: 'Nursing',
-        9556: 'Oral Hygiene',
-        9670: 'Advertising and Marketing Management',
-        9773: 'Journalism and Communication',
-        9853: 'Basic Education',
-        9991: 'Management(Evening)'
+        33: 'Tecnologias de Produção de Biocombustíveis',
+       171: 'Animação e Design Multimídia',
+      8014: 'Serviço Social',
+      9003: 'Agronomia',
+      9070: 'Design de Comunicação',
+      9085: 'Enfermagem Veterinária',
+      9119: 'Engenharia Informática',
+      9130: 'Equinocultura',
+      9147: 'Gestão',
+      9238: 'Serviço Social',
+      9254: 'Turismo',
+      9500: 'Enfermagem',
+      9556: 'Higiene Oral',
+      9670: 'Gestão de Publicidade e Marketing',
+      9773: 'Jornalismo e Comunicação',
+      9853: 'Educação Básica',
+      9991: 'Gestão (Noturno)'
     }
     return df[course_col].map(courses_map)
 
