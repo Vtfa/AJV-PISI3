@@ -713,10 +713,10 @@ with dataset:
 
 
     report = metrics.classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report).transpose()
-    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
-    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
-    st.write(df)
+    data = pd.DataFrame(report).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
 
 
     # Split the data into features and target
@@ -740,10 +740,10 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
-    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
     st.text(report)
 
     # Get feature names
@@ -802,10 +802,10 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-    df.iloc[:, :-1] = df.iloc[:, :-1].applymap(format_percent)
-    df.iloc[:, -1] = df.iloc[:, -1].astype(int)
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
 
 
     importances_svm = rfc_model.feature_importances_
