@@ -1,3 +1,6 @@
+import logging
+import os
+import shutil
 import time
 import streamlit as st
 import pandas as pd
@@ -274,3 +277,8 @@ def sidebar_page3():
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
         )
+
+def remove_models(dir='./models'):
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+        logging.info(f"Relizada a limpeza do diretório [{os.path.relpath(dir)}].")
