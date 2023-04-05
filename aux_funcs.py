@@ -1,10 +1,8 @@
-from enum import Enum
 import time
 import streamlit as st
 import pandas as pd
 
-
-tabs_01 = Enum('tabs_01', ['table', 'plots', 'profile'])
+from consts import *
 
 def config_page(title: str) -> None:
     st.set_page_config(
@@ -50,6 +48,20 @@ def valid_session_data(dataframes: list[str], message: str, sleep_time: float = 
         return False
 
     return True
+
+
+def reset_filters():
+    st.session_state['marital_status'] = ''
+    st.session_state['course'] = ''
+    st.session_state['gender'] = []
+    st.session_state['age_range'] = []
+    st.session_state['escolaridade_mae'] = ''
+    st.session_state['escolaridade_pai'] = ''
+    st.session_state['dataframe_columns'] = []
+
+    st.session_state['target_plots'] = ''
+    st.session_state['course_plots'] = ''
+    st.session_state['age_range_plots'] = ''
 
 
 def dataset_table_filters(options: dict[str: any]):
@@ -108,6 +120,34 @@ def dataset_table_filters(options: dict[str: any]):
                     st.session_state['dataframe_columns'] = columns
 
 
+def funnel_plot_filters(options: dict[str: any]):
+    with st.form("plots_form"):
+        course = st.selectbox(
+            'Curso',
+            options['Course'],
+            help='Curso a ser filtrado na tabela de dados',
+        )
+
+        age_range = st.selectbox(
+            'Faixa etária',
+            options['age_range'],
+            help='Faixa etária a ser filtrada na tabela de dados',
+        )
+
+        target = st.selectbox(
+            'Situação',
+            options['Target'],
+            help='Faixa etária a ser filtrada na tabela de dados',
+        )
+
+        submitted = st.form_submit_button('Filtrar')
+
+        if submitted:
+            st.session_state['course_plots'] = course
+            st.session_state['target_plots'] = target
+            st.session_state['age_range_plots'] = age_range
+
+
 def sidebar_01_table():
     data: pd.DataFrame = st.session_state['dropout_data'][[
         'Marital status',
@@ -132,53 +172,62 @@ def sidebar_01_table():
 
     options['columns'] = columns
 
-    st.header('Configuração de exibição da tabela')
+    st.header('Filtros')
 
     dataset_table_filters(options)
 
 
 def sidebar_01_plots():
-    st.header('Mapa de gêneros')
-    st.session_state['gender_select'] = st.selectbox(
+    data: pd.DataFrame = st.session_state['dropout_data'][[
+        'Course',
         'Gender',
-        ['Female', 'Male'],
-        help='Define the gender to be used at gender related plots',
-    )
-    st.session_state['age_interval'] = st.number_input(
-        'Age range interval',
-        step=1,
-        help='Define o intervalo (em anos) a ser utilizado nos plts demográficos',
+        'age_range',
+        'Target',
+    ]]
+
+    options = {column: sorted(data[column].dropna().unique().tolist())
+            for column in data}
+
+    st.header('Filtros')
+    st.subheader('Funil')
+    funnel_plot_filters(options)
+
+    st.subheader('Mapa de árvore e Explosão solar')
+    st.session_state['gender_select'] = st.selectbox(
+        'Gênero',
+        [Gender.Female, Gender.Male, ''],
+        help='Restringe a exibição dos gráficos ao genero selecionado',
     )
 
-    st.header('Mapa de relações')
     path_options = {
         'Faixa etária': 'age_range',
         'Status': 'Target',
         'Possui débito': 'debt',
         'Gênero': 'Gender',
+        'Curso': 'Course',
     }
 
     path =  st.multiselect(
-                'Faixa etária',
+                'Variáveis',
                 path_options,
                 default=['Faixa etária', 'Possui débito'],
-                help='Define the variables to be ploted at treemap',
+                help='Define as variáveis que serão relacionadas no TreeMap',
             )
 
     path = {path_options[var] for var in path}
     st.session_state['tree_path'] = path
 
 
-def sidebar_01(tab: tabs_01):
+def sidebar_01(tab: Tabs_01):
     with st.sidebar:
         match tab:
-            case tabs_01.table:
+            case Tabs_01.TABLE:
                 sidebar_01_table()
 
-            case tabs_01.plots:
+            case Tabs_01.PLOTS:
                 sidebar_01_plots()
 
-            case tabs_01.profile:
+            case Tabs_01.PROFILE:
                 pass
 
             case _:

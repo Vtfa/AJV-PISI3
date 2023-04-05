@@ -725,6 +725,12 @@ with dataset:
 
 
 
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    data = pd.DataFrame(report).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
+
 
     # Split the data into features and target
     X_gb = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem', 'nota_2o_sem', 'Escolaridade_Maes&Pais', 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)', 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)', 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)', 'Previous qualification (grade)'], axis=1)
@@ -747,15 +753,13 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
 
-    df = df.applymap(format_percent)
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
+    st.text(report)
+
 
     # Get feature names
     feature_names = list(X_gb.columns)
@@ -812,17 +816,10 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
 
 
     importances_svm = rfc_model.feature_importances_
