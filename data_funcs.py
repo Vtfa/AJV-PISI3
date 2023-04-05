@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from pandas_profiling import ProfileReport
 
+from consts import Gender
+
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path, engine='pyarrow')
 
@@ -122,6 +124,22 @@ def get_gender_data(df: pd.DataFrame) -> pd.DataFrame:
     gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
     return gender_data
 
+def get_funnel_data(data: pd.DataFrame, course: str, age_range: str, target: str) -> pd.DataFrame:
+    cols = ['Course', 'age_range', 'Target', 'Gender']
+
+    dfs = []
+    for gender in Gender._member_names_:
+        dt = data[cols].query('Gender == @gender').copy()
+        course_count = dt.query('Course == @course').count().values[0]
+        age_count = dt.query('Course == @course and age_range == @age_range').count().values[0]
+        target_count = dt.query('Course == @course and age_range == @age_range and Target == @target').count().values[0]
+        df = pd.DataFrame({'count': [course_count, age_count, target_count], 'stages': [course, age_range, target], 'gender': [gender]*3})
+        dfs.append(df)
+
+
+    df = pd.concat(dfs).reset_index().sort_values('count', ascending=False)
+    return df
+
 
 def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
     course_data = (
@@ -197,10 +215,12 @@ def get_schooling_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
+    columns = []
 
     if 'colunas' in filters.keys() and isinstance(filters['colunas'], list):
         if len(filters['colunas']) > 0:
-            df_copy = df_copy[filters['colunas']]
+            columns = filters['colunas']
+            df_copy = df_copy[columns]
 
 
     select_fields = {
@@ -218,6 +238,9 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
+            if select_fields[key] not in columns:
+                continue
+
             if len(query) > 0:
                 query += ' and '
 
@@ -225,6 +248,8 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
             continue
 
         if key in multiselect_fields and filters[key] != []:
+            if multiselect_fields[key] not in columns:
+                continue
             if len(query) > 0:
                 query += ' and '
 
@@ -234,15 +259,6 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
         df_copy = df_copy.query(query)
 
     return df_copy
-
-def reset_filters():
-    st.session_state['marital_status'] = ''
-    st.session_state['course'] = ''
-    st.session_state['gender'] = []
-    st.session_state['age_range'] = []
-    st.session_state['escolaridade_mae'] = ''
-    st.session_state['escolaridade_pai'] = ''
-    st.session_state['dataframe_columns'] = []
 
 
 def format_percent(item):
