@@ -238,7 +238,7 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
-            if select_fields[key] not in columns:
+            if len(columns) > 0 and select_fields[key] not in columns:
                 continue
 
             if len(query) > 0:
@@ -248,7 +248,7 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
             continue
 
         if key in multiselect_fields and filters[key] != []:
-            if multiselect_fields[key] not in columns:
+            if len(columns) > 0 and multiselect_fields[key] not in columns:
                 continue
             if len(query) > 0:
                 query += ' and '
