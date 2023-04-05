@@ -34,7 +34,9 @@ def page_3():
 
         st.header('Dados dos cursos')
         plots= ["Histograma de evasão", "Relação das notas com cursos", "Dados socioeconômicos", "Machine Learning"]
-
+        selected_plot= st.selectbox("Selecione para visualizar",plots)
+        if selected_plot == "Histograma de evasão":
+          dropout_histogram()
 
         elif selected_plot == "Relação das notas com cursos":
           grade_semesters()
@@ -56,12 +58,12 @@ def page_3():
            'Informatics Engineering',
            'Journalism and Communication',
            'Management',
-           'Management(Evening)'
+           'Management(Evening)',
            'Nursing',
            'Social Service',
            'Tourism',
            'Veterinary Nursing',]
-          st.title('Random forest')
+          st.title('Machine Learning')
 
           selected_course= st.selectbox("Selecione o curso", courses)
           
@@ -75,8 +77,13 @@ def page_3():
           dropout_data = pd.get_dummies(dropout_data, columns=categorical_features)
 
           # Split the data into features and target
-          X = dropout_data.drop(['Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem',
-                                'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
+          X = dropout_data.drop([
+                                 'Curricular units 1st sem (approved)', 'Curricular units 2nd sem (approved)', 'Curricular units 1st sem (grade)',
+                                 'Curricular units 2nd sem (grade)', 'Curricular units 1st sem (evaluations)', 'Curricular units 2nd sem (evaluations)',
+                                 'Curricular units 1st sem (enrolled)', 'Curricular units 2nd sem (enrolled)', 'Curricular units 1st sem (credited)', 'Curricular units 2nd sem (credited)',
+                                 'Previous qualification (grade)',
+                                 'Target', 'age_range', 'Tuition fees up to date', 'nota_do_vestibular', 'nota_1o_sem',
+                                 'nota_2o_sem', 'Escolaridade_Maes&Pais'], axis=1)
           y = dropout_data['Target']
 
           # Split the dataset into training and testing sets
