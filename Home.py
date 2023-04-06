@@ -81,4 +81,11 @@ def main():
         st.markdown(objectives, unsafe_allow_html=True)
 
 
+        with st.container():
+            st.markdown('<br><br><br>', unsafe_allow_html=True)
+            st.subheader('Atenção')
+            st.write('Caso queira reiniciar os filtros e modelos treinados, utilizar o botão abaixo.')
+            st.button("Limpar dados", on_click=clean_data, type='primary')
+
+
 main()
