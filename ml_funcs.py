@@ -9,7 +9,7 @@ def train_model(model_instance,
                 preffix: str,
                 dir='./models'):
 
-    model_name = f'{preffix}_model'
+    model_name = f'{preffix}'
     model_path = os.path.join(dir, model_name)
 
     if not os.path.exists(dir):

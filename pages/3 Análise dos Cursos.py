@@ -9,6 +9,7 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
+from ml_funcs import *
 
 title = "Análise dos cursos"
 
@@ -49,7 +50,7 @@ def page_3():
           financial_status(dropout_data)
 
         elif selected_plot == "Machine Learning":
-          courses = dropout_data['Course'].unique()
+          courses = sorted(dropout_data['Course'].unique())
 
 
           st.title('Machine Learning')
@@ -86,11 +87,13 @@ def page_3():
           }
 
           for name, model in models.items():
+              model_name = f'{name.replace(" ", "")}_{selected_course.replace(" ", "")}'
+
               # Fit the model to the training data
-              model.fit(X_train, y_train)
+              trained_model = train_model(model, X_train, y_train, model_name, MODELS_DIR)
 
               # Use the model to predict dropout for the testing data
-              y_pred = model.predict(X_test)
+              y_pred = trained_model.predict(X_test)
 
               # Evaluate the performance of the model
               report = (classification_report(y_test, y_pred))
@@ -104,7 +107,7 @@ def page_3():
 
               if name == 'Random Forest Classifier':
                   # Get feature importances
-                  importances = model.feature_importances_
+                  importances = trained_model.feature_importances_
 
                   # Get feature names
                   feature_names = list(X.columns)
