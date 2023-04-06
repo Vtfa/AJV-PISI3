@@ -9,7 +9,7 @@ from style_funcs import *
 title = "Predição de evasão acadêmica"
 config_page(title)
 page_style()
-remove_models()
+reset_filters()
 
 if 'dropout_data_raw' not in st.session_state:
     dropout_data_raw = load_data('data/dropout.csv')
