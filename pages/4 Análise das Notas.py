@@ -35,7 +35,7 @@ with header:
 
 with dataset:
     dropout_data0 = st.session_state['dropout_data']
-    dropout_data = dropout_data0.drop(index=dropout_data0[dropout_data0['Target'] == 'Enrolled'].index)
+    dropout_data = dropout_data0.drop(index=dropout_data0[dropout_data0['Target'] == Target.Enrolled].index)
 
     # definindo cores
     cores_notas_vestibular = [COR3, COR4]
@@ -44,8 +44,8 @@ with dataset:
 
 
     # Início dos gráficos de comparação de nota com classe social
-    df41grad = dropout_data.loc[(dropout_data['Target']=='Graduate')]
-    df41drop= dropout_data.loc[(dropout_data['Target']=='Dropout')]
+    df41grad = dropout_data.loc[(dropout_data['Target']== Target.Graduate)]
+    df41drop= dropout_data.loc[(dropout_data['Target']== Target.Dropout)]
 
 
     st.title('Relação entre as notas')

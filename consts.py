@@ -24,9 +24,17 @@ class Tabs_01(Enum):
     def __str__(self):
         return f'{self.name}'
 
-class Gender(Enum):
-    Female = 'Female',
-    Male = 'Male',
+class Gender(str, Enum):
+    Female = 'Feminino',
+    Male = 'Masculino',
+
+    def __str__(self):
+        return f'{self.name}'
+
+class Target(str, Enum):
+    Graduate = 'Graduado',
+    Enrolled = 'Retido',
+    Dropout = 'Evadiu',
 
     def __str__(self):
         return f'{self.name}'

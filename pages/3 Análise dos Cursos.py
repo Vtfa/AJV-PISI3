@@ -22,7 +22,6 @@ def page_3():
     if not valid_session_data(dataframes, '## :construction: Please, go to _Home_ page before :construction:', 0.15):
         return
 
-    datasets = {data: st.session_state[data] for data in dataframes}
 
     reset_filters()
 
@@ -36,41 +35,31 @@ def page_3():
         plots= ["Histograma de evasão", "Relação das notas com cursos", "Dados socioeconômicos", "Machine Learning"]
         selected_plot= st.selectbox("Selecione para visualizar",plots)
         if selected_plot == "Histograma de evasão":
-          dropout_histogram()
+          dropout_histogram(dropout_data)
 
         elif selected_plot == "Relação das notas com cursos":
-          grade_semesters()
+          grade_semesters(dropout_data)
 
         elif selected_plot=="Dados socioeconômicos":
           st.subheader = "Plots sobre gênero dos estudantes"
-          gender = st.radio("Select a gender", ["Male", "Female"])
-          gender_course(gender)
+          gender = st.radio("Select a gender", [Gender.Male.value, Gender.Female.value])
+          gender_course(dropout_data, gender)
 
           st.subheadder= "Plots genéricos"
-          financial_status()
+          financial_status(dropout_data)
 
         elif selected_plot == "Machine Learning":
-          courses= ['Advertising and Marketing Management',
-           'Agronomy',
-           'Basic Education', 
-           'Communication Design',
-           'Equinculture',
-           'Informatics Engineering',
-           'Journalism and Communication',
-           'Management',
-           'Management(Evening)',
-           'Nursing',
-           'Social Service',
-           'Tourism',
-           'Veterinary Nursing',]
+          courses = dropout_data['Course'].unique()
+
+
           st.title('Machine Learning')
 
           selected_course= st.selectbox("Selecione o curso", courses)
-          
 
-        
+
+
           dropout_data= dropout_data[dropout_data['Course']==selected_course]
-          dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
+          dropout_data = dropout_data[dropout_data['Target'] != Target.Enrolled]
          # One-hot encode categorical features
           categorical_features = ['Marital status', 'Course', 'Gender', 'Scholarship holder', 'International',
                                   'Escolaridade mae', 'Escolaridade pai', 'Classe social']
@@ -135,8 +124,8 @@ def page_3():
                   fig, ax = plt.subplots(figsize=(10, 5))
                   ax.barh(sorted_feature_names, sorted_importances)
                   st.pyplot(fig)
-                      
-                        
+
+
 
 
 page_3()
