@@ -221,7 +221,9 @@ def funnel_pop(df, **kwargs):
     color_map = {Gender.Male: MALE_COLOR, Gender.Female: FEMALE_COLOR}
     funnel_pop = px.funnel(df, color_discrete_map=color_map, **kwargs)
 
-    funnel_pop.update_traces(textinfo='value+percent initial')
+    funnel_pop.update_traces(
+        textinfo='value+percent initial'
+        )
     funnel_pop.update_layout(
         margin_pad=5,
         showlegend=True,

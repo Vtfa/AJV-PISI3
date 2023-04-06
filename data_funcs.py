@@ -139,7 +139,7 @@ def get_funnel_data(data: pd.DataFrame, course: str, age_range: str, target: str
     cols = ['Course', 'age_range', 'Target', 'Gender']
 
     dfs = []
-    for gender in [Gender.Female, Gender.Male]:
+    for gender in [Gender.Female.value, Gender.Male.value]:
         dt = data[cols].query('Gender == @gender').copy()
         course_count = dt.query('Course == @course').count().values[0]
         age_count = dt.query('Course == @course and age_range == @age_range').count().values[0]
@@ -147,7 +147,7 @@ def get_funnel_data(data: pd.DataFrame, course: str, age_range: str, target: str
         df = pd.DataFrame({'count': [course_count, age_count, target_count], 'stages': [course, age_range, target], 'gender': [gender]*3})
         dfs.append(df)
 
-    df = pd.concat(dfs).reset_index().sort_values('count', ascending=False)
+    df = pd.concat(dfs).sort_values('count', ascending=False).reset_index()
     return df
 
 
