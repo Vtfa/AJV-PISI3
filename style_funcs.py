@@ -87,12 +87,33 @@ def dataframe_style():
     )
 
 
+def pdf_style():
+    st.markdown(
+        f'''
+        <style>
+         embed {{
+            font-size: 1.10rem;
+            font-weight: bold;
+            height: calc(100vh - 380px)  !important;
+        }}
+        .block-container {{
+            padding-bottom: 3rem;
+            max-width: 2000px;
+            padding-left: 5rem;
+            padding-right: 5rem;
+        }}
+        </style>
+        ''',
+        unsafe_allow_html=True,
+    )
+
+
 def page1_style():
     st.markdown(
         f'''
         <style>
          .block-container {{
-            padding-bottom: 0px;
+            padding-bottom: 0;
         }}
         </style>
         ''',
