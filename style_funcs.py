@@ -36,6 +36,9 @@ def page_style(menu_title: str = '#AJV'):
             font-weight: bold;
 
         }}
+        .block-container {{
+            padding-top: 2rem;
+        }}
         </style>
         ''',
         unsafe_allow_html=True,
@@ -76,7 +79,7 @@ def dataframe_style():
          [data-testid="stDataFrameResizable"] {{
             font-size: 1.10rem;
             font-weight: bold;
-            height: calc(100vh - 520px)  !important;
+            height: calc(100vh - 430px)  !important;
         }}
         </style>
         ''',

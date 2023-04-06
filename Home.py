@@ -9,6 +9,7 @@ from style_funcs import *
 title = "Predição de evasão acadêmica"
 config_page(title)
 page_style()
+reset_filters()
 
 if 'dropout_data_raw' not in st.session_state:
     dropout_data_raw = load_data('data/dropout.csv')
@@ -78,6 +79,13 @@ def main():
         )
 
         st.markdown(objectives, unsafe_allow_html=True)
+
+
+        with st.container():
+            st.markdown('<br><br><br>', unsafe_allow_html=True)
+            st.subheader('Atenção')
+            st.write('Caso queira reiniciar os filtros e modelos treinados, utilizar o botão abaixo.')
+            st.button("Limpar dados", on_click=clean_data, type='primary')
 
 
 main()

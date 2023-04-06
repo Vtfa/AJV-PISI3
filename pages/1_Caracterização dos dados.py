@@ -65,34 +65,37 @@ def page_1():
             sidebar_01(Tabs_01.PLOTS)
 
             with st.container():
-                st.header('Gráficos populacionais')
-                pyramyd, histo, funnel = st.tabs(['Pirâmide populacional', 'População por curso', 'Funil'])
+                st.header('Gráficos de barra')
+                pyramyd, histo = st.tabs(['Pirâmide populacional', 'População por curso'])
                 with pyramyd:
                     demographic_pyramid(datasets['gender_data'])
 
                 with histo:
                     gender_by_course(datasets['course_data'])
 
-                with funnel:
-                    fun_data = get_funnel_data(datasets['dropout_data'], course=st.session_state['course_plots'], age_range=st.session_state['age_range_plots'], target=st.session_state['target_plots'])
-
-                    funnel_pop(fun_data, x='count', y='stages', color='gender')
-                    # population_tree(datasets['course_data'])
-
             with st.container():
-                st.header('Gráficos genéricos')
-                tree2, sunburst = st.tabs(['Mapa de árvore', 'Explosão solar (sunburst)'])
-                with tree2:
-                    generic_treemap(datasets['debt_data'], st.session_state['tree_path'], gender=st.session_state['gender_select'])
+                st.header('Gráficos hierárquicos')
+
+                tree, sunburst, funnel = st.tabs(['Mapa de árvore', 'Explosão solar (sunburst)', 'Funil'])
+                with tree:
+                    treemap_filters()
+                    generic_treemap(datasets['debt_data'], st.session_state['tree_path'], gender=st.session_state['treemap_gender'])
 
                 with sunburst:
-                    generic_sunbust(datasets['debt_data'], st.session_state['tree_path'], gender=st.session_state['gender_select'])
+                    sunburst_filters()
+                    generic_sunburst(datasets['debt_data'], st.session_state['sunburst_path'], gender=st.session_state['sunburst_gender'])
+
+                with funnel:
+                    funnel_filters()
+                    fun_data = get_funnel_data(datasets['dropout_data'], course=st.session_state['course_plots'], age_range=st.session_state['age_range_plots'], target=st.session_state['target_plots'])
+
+                    funnel_pop(fun_data, x='count', y='stages', color='gender', labels={'stages': 'Segmentos', 'gender': 'Gênero'})
+                    # population_tree(datasets['course_data'])
 
         if st.session_state[profile_tab]:
             sidebar_01(Tabs_01.PROFILE)
             st_profile_report(
                 datasets['pandas_profile'],
-                key='pandas_profile_wdgt',
             )
 
 

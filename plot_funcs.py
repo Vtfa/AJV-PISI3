@@ -6,9 +6,6 @@ from data_funcs import *
 
 from consts import *
 
-Dropout = pd.read_csv('data/dropout.csv')
-Dropout = treat_data(Dropout)
-
 
 TITLE_FONT_SIZE = 26
 
@@ -17,10 +14,10 @@ def demographic_pyramid(data: pd.DataFrame):
     dem_pyramid = go.Figure()
     dem_pyramid.add_trace(
         go.Bar(
-            x=data["Male"],
+            x=data[Gender.Male],
             y=data.index,
             orientation="h",
-            name="Masculino",
+            name=Gender.Male,
             marker={"color": MALE_COLOR},
             hoverinfo="x",
         )
@@ -28,12 +25,12 @@ def demographic_pyramid(data: pd.DataFrame):
 
     dem_pyramid.add_trace(
         go.Bar(
-            x=data["Female"] * -1,
+            x=data[Gender.Female] * -1,
             y=data.index,
-            text=data["Female"],
+            text=data[Gender.Female],
             textfont_color="rgba(0, 0, 0, 0)",
             orientation="h",
-            name="Feminino",
+            name=Gender.Female,
             marker={"color": FEMALE_COLOR},
             hoverinfo="text",
         )
@@ -69,7 +66,7 @@ def demographic_pyramid(data: pd.DataFrame):
 def population_tree(data: pd.DataFrame) -> None:
     gender_tree = px.treemap(
         data,
-        title="Mapa da distribuição de gêneros por curso (escala colorífica)",
+        title="Mapa da distribuição de gêneros por curso (escala contínua)",
         path=["Course", "Gender"],
         color_continuous_scale="RdBu",
         color="count",
@@ -95,48 +92,39 @@ def population_tree(data: pd.DataFrame) -> None:
 
 
 def gender_by_course(data: pd.DataFrame) -> None:
-    course_gender_age = go.Figure()
-    course_gender_age_index = (
+    courses = (
         data["Course"]
         .str.replace("(", " ", regex=False)
-        .str.replace(" ", "<br>")
         .str.replace(")", "", regex=False)
         .unique()
     )
-    course_gender_age_range = [0, 650]
+    MAX = 23
+    courses_map = {course: course[:MAX-3] + '...' if len(course) > MAX else course for course in courses}
+    courses_labels = sorted(courses_map.values())
+
+    course_gender_age = go.Figure()
 
     course_gender_data = data.groupby(["Course", "Gender"])[["count"]].sum()
     course_gender_data = course_gender_data.unstack().droplevel(0, 1)
 
     course_gender_age.add_trace(
         go.Bar(
-            name="Feminino",
-            x=course_gender_age_index,
-            y=course_gender_data["Female"],
-            orientation="v",
+            name=Gender.Female,
+            x=course_gender_data[Gender.Female],
+            y=courses_labels,
+            orientation='h',
             marker={"color": FEMALE_COLOR},
         ),
     )
 
     course_gender_age.add_trace(
         go.Bar(
-            name="Masculino",
-            x=course_gender_age_index,
-            y=course_gender_data["Male"],
-            orientation="v",
+            name=Gender.Male,
+            x=course_gender_data[Gender.Male],
+            y=courses_labels,
+            orientation='h',
             marker={"color": MALE_COLOR},
         ),
-    )
-
-    course_gender_age.update_xaxes(
-        title_text="Course",
-        title_standoff=35,
-        tickangle=-90,
-    )
-
-    course_gender_age.update_yaxes(
-        title_text="Students",
-        title_standoff=25,
     )
 
     course_gender_age.update_layout(
@@ -144,9 +132,20 @@ def gender_by_course(data: pd.DataFrame) -> None:
         height=900,
         title="Distribuição de gêneros por curso",
         barmode="stack",
-        hovermode="x unified",
+        hovermode="y unified",
         margin={"b": 190},
-        margin_pad=10,
+        margin_pad=5,
+        showlegend=True,
+    )
+
+    course_gender_age.update_xaxes(
+        title_text="# de estudantes",
+        title_standoff=35,
+    )
+
+    course_gender_age.update_yaxes(
+        title_text="Curso",
+        title_standoff=5,
     )
 
     course_gender_age.update_layout(
@@ -157,17 +156,13 @@ def gender_by_course(data: pd.DataFrame) -> None:
 
 
 def generic_treemap(df: pd.DataFrame, path: list[str], gender: Gender = '') -> None:
-    title = f'Mapa de árvore'
     data = df
 
-    if gender is not '':
-        genero = "Feminino" if gender == Gender.Female else "Masculino"
-        title = f'{title} ({genero})'
+    if gender != '':
         data = data.query(f'Gender == "{gender}"')
 
     tree_map = px.treemap(
                 data,
-                title=title,
                 path=path,
                 values='count',
                 height=1000,
@@ -191,18 +186,14 @@ def generic_treemap(df: pd.DataFrame, path: list[str], gender: Gender = '') -> N
     st.plotly_chart(tree_map, use_container_width=True)
 
 
-def generic_sunbust(df: pd.DataFrame, path: list[str], gender: Gender = '') -> None:
-    title = f'Explosão solar'
+def generic_sunburst(df: pd.DataFrame, path: list[str], gender: Gender = '') -> None:
     data = df
 
-    if gender is not '':
-        genero = "Feminino" if gender == Gender.Female else "Masculino"
-        title = f'{title} ({genero})'
+    if gender != '':
         data = data.query(f'Gender == "{gender}"')
 
     sunburst = px.sunburst(
                 data,
-                title=title,
                 path=path,
                 values='count',
                 height=1000,
@@ -227,19 +218,26 @@ def generic_sunbust(df: pd.DataFrame, path: list[str], gender: Gender = '') -> N
 
 
 def funnel_pop(df, **kwargs):
-    color_map = {'Male': MALE_COLOR, 'Female': FEMALE_COLOR}
+    color_map = {Gender.Male: MALE_COLOR, Gender.Female: FEMALE_COLOR}
     funnel_pop = px.funnel(df, color_discrete_map=color_map, **kwargs)
+
+    funnel_pop.update_traces(textinfo='value+percent initial')
+    funnel_pop.update_layout(
+        margin_pad=5,
+        showlegend=True,
+        height=600,
+    )
 
     st.plotly_chart(funnel_pop, use_container_width=True)
 
 
-def dropout_histogram():
+def dropout_histogram(Dropout):
     st.subheader("Histograma de evasão por curso")
     histograma_drop= px.histogram(Dropout, x="Course", color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=[COR3, COR2, COR4],).update_layout(title={"text": "Percent :Course - Target","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
     st.write(histograma_drop)
 
 
-def grade_semesters():
+def grade_semesters(Dropout):
     st.subheader("Distribuição de notas por curso ")
     box_1stSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 1st sem (grade)", color= "Course")
     box_2ndSemester= px.box (Dropout.sort_values(by='Course'),  x="Course" , y="Curricular units 2nd sem (grade)", color= "Course")
@@ -261,7 +259,7 @@ def grade_semesters():
     st.write(scatter)
 
 
-def gender_course(gender):
+def gender_course(Dropout, gender):
     filtered_df = Dropout[Dropout['Gender'] == gender]
     st.subheader="Estado de estudante por gênero"
     Gender_PercentBar= px.histogram( filtered_df, x="Course",title=f' {gender} Students' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=[COR3, COR2, COR4],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
@@ -276,13 +274,13 @@ def gender_course(gender):
 
 
 
-def financial_status():
+def financial_status(Dropout):
     Financial_Status= px.scatter(Dropout.sort_values(by='Course'), x= "Course", y= "Renda total" )
     st.subheader="Índice de renda por curso"
     Financial_Status.update_layout(xaxis_title="Status do estudante", yaxis_title= "Renda total")
     st.write(Financial_Status)
 
-    st.subheader= "Dropout por idade"
+    st.subheader= "Evasão por idade"
     Dropout= Dropout.sort_values(by= "age_range")
     Age_percent= px.histogram( Dropout.sort_values(by= "age_range"), x="age_range",title=f' Age of Students in course dropout' ,color="Target",barnorm = "percent",text_auto= True, color_discrete_sequence=[COR3, COR2, COR4],).update_layout(title={"text": "Percent :Course - Gender","x": 0.5},yaxis_title="Percent").update_xaxes(categoryorder='total descending')
     st.write(Age_percent)
