@@ -36,6 +36,9 @@ def page_style(menu_title: str = '#AJV'):
             font-weight: bold;
 
         }}
+        .block-container {{
+            padding-top: 2rem;
+        }}
         </style>
         ''',
         unsafe_allow_html=True,
@@ -76,7 +79,28 @@ def dataframe_style():
          [data-testid="stDataFrameResizable"] {{
             font-size: 1.10rem;
             font-weight: bold;
-            height: calc(100vh - 520px)  !important;
+            height: calc(100vh - 430px)  !important;
+        }}
+        </style>
+        ''',
+        unsafe_allow_html=True,
+    )
+
+
+def pdf_style():
+    st.markdown(
+        f'''
+        <style>
+         embed {{
+            font-size: 1.10rem;
+            font-weight: bold;
+            height: calc(100vh - 380px)  !important;
+        }}
+        .block-container {{
+            padding-bottom: 3rem;
+            max-width: 2000px;
+            padding-left: 5rem;
+            padding-right: 5rem;
         }}
         </style>
         ''',
@@ -89,7 +113,7 @@ def page1_style():
         f'''
         <style>
          .block-container {{
-            padding-bottom: 0px;
+            padding-bottom: 0;
         }}
         </style>
         ''',

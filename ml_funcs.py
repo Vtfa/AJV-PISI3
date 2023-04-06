@@ -1,6 +1,6 @@
 import logging
 import os
-import pickle
+import joblib
 
 
 def train_model(model_instance,
@@ -9,7 +9,7 @@ def train_model(model_instance,
                 preffix: str,
                 dir='./models'):
 
-    model_name = f'{preffix}_model'
+    model_name = f'{preffix}'
     model_path = os.path.join(dir, model_name)
 
     if not os.path.exists(dir):
@@ -18,7 +18,7 @@ def train_model(model_instance,
 
     if os.path.isfile(model_path):
         with open(model_path, 'rb') as file:
-            model = pickle.load(file)
+            model = joblib.load(file)
 
         logging.info(f'model loaded from {model_path}')
         return model
@@ -27,7 +27,7 @@ def train_model(model_instance,
     model = model_instance.fit(x_train, y_train)
 
     with open(model_path, 'wb') as file:
-        pickle.dump(model, file)
+        joblib.dump(model, file, ('bz2', 4))
 
     logging.info(f'model trained and saved at {model_path}')
 

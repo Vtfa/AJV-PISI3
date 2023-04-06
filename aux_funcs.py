@@ -1,10 +1,12 @@
-from enum import Enum
+import datetime
+import logging
+import os
+import shutil
 import time
 import streamlit as st
 import pandas as pd
 
-
-tabs_01 = Enum('tabs_01', ['table', 'plots', 'profile'])
+from consts import *
 
 def config_page(title: str) -> None:
     st.set_page_config(
@@ -45,11 +47,30 @@ def valid_session_data(dataframes: list[str], message: str, sleep_time: float = 
         with st.expander('Errors', True):
             for df, exists in df_exists.items():
                 if not exists:
-                    st.error(f'⚠️ Could not find _**{df}**_ data')
+                    st.error(f'⚠️ Não foi possível encontrar os dados: _**{df}**_')
 
         return False
 
     return True
+
+
+def reset_filters():
+    st.session_state['marital_status'] = ''
+    st.session_state['course'] = ''
+    st.session_state['gender'] = []
+    st.session_state['age_range'] = []
+    st.session_state['escolaridade_mae'] = ''
+    st.session_state['escolaridade_pai'] = ''
+    st.session_state['dataframe_columns'] = []
+
+    st.session_state['target_plots'] = Target.Dropout
+    st.session_state['age_range_plots'] = '17 - 21'
+    st.session_state['course_plots'] = 'Agronomy'
+
+    st.session_state['sunburst_path'] = []
+    st.session_state['sunburst_gender'] = ''
+    st.session_state['treemap_path'] = []
+    st.session_state['treemap_gender'] = ''
 
 
 def dataset_table_filters(options: dict[str: any]):
@@ -120,65 +141,120 @@ def sidebar_01_table():
 
     columns = st.session_state['dropout_data'].columns
 
-    options = {column: data[column].dropna().unique().tolist()
+    options = {column: sorted(data[column].dropna().unique())
             for column in data}
 
     multiselect_fields = ['Gender', 'age_range']
 
     for field, option in options.items():
         if field not in multiselect_fields:
-            option.append('')
-            option.sort()
+            option.insert(0, '')
 
-    options['columns'] = columns
+    options['columns'] = sorted(columns)
 
-    st.header('Configuração de exibição da tabela')
+    st.header('Filtros')
 
     dataset_table_filters(options)
 
 
-def sidebar_01_plots():
-    st.header('Mapa de gêneros')
-    st.session_state['gender_select'] = st.selectbox(
-        'Gender',
-        ['Female', 'Male'],
-        help='Define the gender to be used at gender related plots',
-    )
-    st.session_state['age_interval'] = st.number_input(
-        'Age range interval',
-        step=1,
-        help='Define o intervalo (em anos) a ser utilizado nos plts demográficos',
+def funnel_filters():
+    data: pd.DataFrame = st.session_state['dropout_data'][[
+        'Course',
+        'age_range',
+        'Target',
+    ]]
+
+    options = {column: sorted(data[column].dropna().unique()) for column in data}
+
+    course = st.selectbox(
+        'Curso',
+        options['Course'],
+        help='Curso a ser filtrado na tabela de dados',
     )
 
-    st.header('Mapa de relações')
+    age_range = st.selectbox(
+        'Faixa etária',
+        options['age_range'],
+        help='Faixa etária a ser filtrada na tabela de dados',
+    )
+
+    target = st.selectbox(
+        'Situação',
+        options['Target'],
+        help='Faixa etária a ser filtrada na tabela de dados',
+    )
+
+    st.session_state['course_plots'] = course
+    st.session_state['target_plots'] = target
+    st.session_state['age_range_plots'] = age_range
+
+
+def sunburst_filters():
     path_options = {
         'Faixa etária': 'age_range',
-        'Status': 'Target',
+        'Situação': 'Target',
         'Possui débito': 'debt',
         'Gênero': 'Gender',
+        'Curso': 'Course',
     }
 
+    st.session_state['sunburst_gender'] = st.selectbox(
+        'Gênero',
+        ['', Gender.Female.value, Gender.Male.value],
+        help='Restringe a exibição dos gráficos ao gênero selecionado. Vazio significa TODOS.',
+        key='sunburst_select',
+    )
+
     path =  st.multiselect(
-                'Faixa etária',
+                'Variáveis',
                 path_options,
-                default=['Faixa etária', 'Possui débito'],
-                help='Define the variables to be ploted at treemap',
+                default=['Curso', 'Situação', 'Possui débito'],
+                help='Define as variáveis que serão relacionadas no TreeMap',
+                key='sunburst_multiselect',
+            )
+
+    path = {path_options[var] for var in path}
+    st.session_state['sunburst_path'] = path
+
+
+def treemap_filters():
+    path_options = {
+        'Faixa etária': 'age_range',
+        'Situação': 'Target',
+        'Possui débito': 'debt',
+        'Gênero': 'Gender',
+        'Curso': 'Course',
+    }
+
+    st.session_state['treemap_gender'] = st.selectbox(
+        'Gênero',
+        ['', Gender.Female.value, Gender.Male.value],
+        help='Restringe a exibição dos gráficos ao gênero selecionado. Vazio significa TODOS.',
+        key='treemap_select',
+    )
+
+    path =  st.multiselect(
+                'Variáveis',
+                path_options,
+                default=['Curso', 'Faixa etária'],
+                help='Define as variáveis que serão relacionadas no TreeMap',
+                key='treemap_multiselect',
             )
 
     path = {path_options[var] for var in path}
     st.session_state['tree_path'] = path
 
 
-def sidebar_01(tab: tabs_01):
+def sidebar_01(tab: Tabs_01):
     with st.sidebar:
         match tab:
-            case tabs_01.table:
+            case Tabs_01.TABLE:
                 sidebar_01_table()
 
-            case tabs_01.plots:
-                sidebar_01_plots()
+            case Tabs_01.PLOTS:
+                pass
 
-            case tabs_01.profile:
+            case Tabs_01.PROFILE:
                 pass
 
             case _:
@@ -217,7 +293,7 @@ def sidebar_page3():
         st.header('Plots configuration')
         st.session_state['gender_select'] = st.selectbox(
             'Gender',
-            ['Female', 'Male'],
+            [Gender.Female, Gender.Male],
             help='Define the gender to be used at gender related plots',
         )
         st.session_state['age_interval'] = st.number_input(
@@ -225,3 +301,13 @@ def sidebar_page3():
             step=1,
             help='Define the interval (in years) to be used at demographic plots',
         )
+
+def remove_models(dir='./models'):
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+        logging.info(f"Relizada a limpeza do diretório [{os.path.relpath(dir)}].")
+
+
+def clean_data():
+    remove_models()
+    reset_filters()

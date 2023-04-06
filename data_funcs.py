@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from pandas_profiling import ProfileReport
 
+from consts import *
+
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path, engine='pyarrow')
 
@@ -86,8 +88,17 @@ def age_range_calc(df: pd.DataFrame, age_col: str, interval: int = 5) -> pd.Seri
     )
 
 
-def rename_gender(df: pd.DataFrame, gender_col: str) -> pd.Series:
-    return np.where(df['Gender'], 'Male', 'Female')
+def rename_gender(df: pd.DataFrame) -> pd.Series:
+    return np.where(df['Gender'], Gender.Male.value, Gender.Female.value)
+
+
+def rename_target(df: pd.DataFrame) -> pd.Series:
+    target_map = {
+        'Graduate': Target.Graduate.value,
+        'Enrolled': Target.Enrolled.value,
+        'Dropout': Target.Dropout.value,
+    }
+    return df['Target'].map(target_map)
 
 
 def marital_status_rename(df: pd.DataFrame, marital_status_col: str) -> pd.Series:
@@ -105,10 +116,12 @@ def treat_data(df: pd.DataFrame, age_interval: int = 5) -> pd.DataFrame:
     df_copy["Renda total"] = df_copy["Renda pai"] + df_copy["Renda mae"]
     df_copy['Course'] = rename_courses(df_copy, 'Course')
     df_copy['age_range'] = age_range_calc(df_copy, 'Age at enrollment', age_interval)
-    df_copy['Gender'] = rename_gender(df_copy, 'Gender')
+    df_copy['Gender'] = rename_gender(df_copy)
+    df_copy['Target'] = rename_target(df_copy)
     df_copy = get_grade_data(df_copy)
     df_copy = get_social_classes_data(df_copy)
     df_copy = get_schooling_data(df_copy)
+
 
     return df_copy
 
@@ -121,6 +134,21 @@ def get_gender_data(df: pd.DataFrame) -> pd.DataFrame:
     )
     gender_data = gender_data.unstack('Gender').droplevel(0, 'columns')
     return gender_data
+
+def get_funnel_data(data: pd.DataFrame, course: str, age_range: str, target: str) -> pd.DataFrame:
+    cols = ['Course', 'age_range', 'Target', 'Gender']
+
+    dfs = []
+    for gender in [Gender.Female.value, Gender.Male.value]:
+        dt = data[cols].query('Gender == @gender').copy()
+        course_count = dt.query('Course == @course').count().values[0]
+        age_count = dt.query('Course == @course and age_range == @age_range').count().values[0]
+        target_count = dt.query('Course == @course and age_range == @age_range and Target == @target').count().values[0]
+        df = pd.DataFrame({'count': [course_count, age_count, target_count], 'stages': [course, age_range, target], 'gender': [gender]*3})
+        dfs.append(df)
+
+    df = pd.concat(dfs).sort_values('count', ascending=False).reset_index()
+    return df
 
 
 def get_course_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -148,7 +176,7 @@ def get_debt_data(df: pd.DataFrame) -> pd.DataFrame:
         .count()
         .reset_index()
     )
-    # debt_data = debt_data[~debt_data['Target'].isin(['Enrolled'])]
+
     debt_data.rename(columns={'Displaced': 'count'}, inplace=True)
     return debt_data
 
@@ -197,10 +225,12 @@ def get_schooling_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     df_copy = df.copy()
+    columns = []
 
     if 'colunas' in filters.keys() and isinstance(filters['colunas'], list):
         if len(filters['colunas']) > 0:
-            df_copy = df_copy[filters['colunas']]
+            columns = filters['colunas']
+            df_copy = df_copy[columns]
 
 
     select_fields = {
@@ -218,6 +248,9 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
     query = ''
     for key in filters.keys():
         if key in select_fields and filters[key] != '':
+            if len(columns) > 0 and select_fields[key] not in columns:
+                continue
+
             if len(query) > 0:
                 query += ' and '
 
@@ -225,6 +258,8 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
             continue
 
         if key in multiselect_fields and filters[key] != []:
+            if len(columns) > 0 and multiselect_fields[key] not in columns:
+                continue
             if len(query) > 0:
                 query += ' and '
 
@@ -234,15 +269,6 @@ def dataset_filter(df: pd.DataFrame, **filters) -> pd.DataFrame:
         df_copy = df_copy.query(query)
 
     return df_copy
-
-def reset_filters():
-    st.session_state['marital_status'] = ''
-    st.session_state['course'] = ''
-    st.session_state['gender'] = []
-    st.session_state['age_range'] = []
-    st.session_state['escolaridade_mae'] = ''
-    st.session_state['escolaridade_pai'] = ''
-    st.session_state['dataframe_columns'] = []
 
 
 def format_percent(item):

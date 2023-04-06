@@ -10,12 +10,14 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
+
 
 from aux_funcs import *
 from data_funcs import *
 from ml_funcs import *
 from style_funcs import *
-from consts import *
+from consts import Gender, Target
 
 title = 'Página 2 - Dados Socioeconômicos dos estudantes'
 page_style()
@@ -48,11 +50,11 @@ with dataset:
     status_totals = dropout_data.groupby('Target').size()
     total_students = len(dropout_data)
 
-    female_data = dropout_data[dropout_data['Gender'] == 'Female']
+    female_data = dropout_data[dropout_data['Gender'] == Gender.Female]
     female_target_totals = female_data.groupby('Target').size()
     female_students_total = len(female_data)
 
-    male_data = dropout_data[dropout_data['Gender'] == 'Male']
+    male_data = dropout_data[dropout_data['Gender'] == Gender.Male]
     male_target_totals = male_data.groupby('Target').size()
     male_students_total = len(male_data)
 
@@ -60,8 +62,8 @@ with dataset:
     result_df = pd.concat([result_df, status_totals.to_frame().T], axis=1)
 
     funnel_total = go.Figure(go.Funnel(
-        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
-        x=[total_students, status_totals["Graduate"], status_totals["Dropout"], status_totals["Enrolled"]],
+        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
+        x=[total_students, status_totals[Target.Graduate], status_totals[Target.Dropout], status_totals[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR2, COR3, COR4]}
         #marker={"color": [COR1, COR4, COR2, COR5]}
@@ -79,8 +81,8 @@ with dataset:
 
 
     funnel_female = go.Figure(go.Funnel(
-        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
-        x=[female_students_total, female_target_totals["Graduate"], female_target_totals["Dropout"], female_target_totals["Enrolled"]],
+        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
+        x=[female_students_total, female_target_totals[Target.Graduate], female_target_totals[Target.Dropout], female_target_totals[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR2, COR3, COR4]}
     ))
@@ -93,8 +95,8 @@ with dataset:
         st.write(funnel_female)
 
     funnel_male = go.Figure(go.Funnel(
-        y=["Total Students", "Dropout", "Graduate", "Enrolled"],
-        x=[male_students_total, male_target_totals["Dropout"], male_target_totals["Graduate"], male_target_totals["Enrolled"]],
+        y=["Total Students", Target.Dropout, Target.Graduate, Target.Enrolled],
+        x=[male_students_total, male_target_totals[Target.Dropout], male_target_totals[Target.Graduate], male_target_totals[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR3, COR2, COR4]}
     ))
@@ -252,14 +254,14 @@ with dataset:
 
     # inicia df que terá totais e porcentagens de graduate, dropout e enrolled por taxa de inflação
     inflation_totals_pct = inflation_totals.pivot(index='Inflation rate', columns='Target', values='num_students').reset_index()
-    inflation_totals_pct.columns = ['Inflation rate', 'dropout', 'enrolled', 'graduate']
+    inflation_totals_pct.columns = ['Inflation rate', Target.Dropout, Target.Enrolled, Target.Graduate]
 
-    inflation_totals_pct['total_students'] = inflation_totals_pct['enrolled'] + inflation_totals_pct['dropout'] + inflation_totals_pct['graduate']
+    inflation_totals_pct['total_students'] = inflation_totals_pct[Target.Enrolled] + inflation_totals_pct[Target.Dropout] + inflation_totals_pct[Target.Graduate]
 
     # 🍝
-    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['enrolled'] / inflation_totals_pct['total_students'] * 100
-    inflation_totals_pct['Dropout percentage'] = inflation_totals_pct['dropout'] / inflation_totals_pct['total_students'] * 100
-    inflation_totals_pct['Graduate percentage'] = inflation_totals_pct['graduate'] / inflation_totals_pct['total_students'] * 100
+    inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct[Target.Enrolled] / inflation_totals_pct['total_students'] * 100
+    inflation_totals_pct['Dropout percentage'] = inflation_totals_pct[Target.Dropout] / inflation_totals_pct['total_students'] * 100
+    inflation_totals_pct['Graduate percentage'] = inflation_totals_pct[Target.Graduate] / inflation_totals_pct['total_students'] * 100
     inflation_totals_pct['Enrolled percentage'] = inflation_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
     inflation_totals_pct['Dropout percentage'] = inflation_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
     inflation_totals_pct['Graduate percentage'] = inflation_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -286,13 +288,13 @@ with dataset:
     gdp_totals = dropout_data.groupby(['GDP', 'Target'])['Target'].count().reset_index(name='num_students')
 
     gdp_totals_pct = gdp_totals.pivot(index='GDP', columns='Target', values='num_students').reset_index()
-    gdp_totals_pct.columns = ['GDP', 'dropout', 'enrolled', 'graduate']
+    gdp_totals_pct.columns = ['GDP', Target.Dropout, Target.Enrolled, Target.Graduate]
 
-    gdp_totals_pct['total_students'] = gdp_totals_pct['enrolled'] + gdp_totals_pct['dropout'] + gdp_totals_pct['graduate']
+    gdp_totals_pct['total_students'] = gdp_totals_pct[Target.Enrolled] + gdp_totals_pct[Target.Dropout] + gdp_totals_pct[Target.Graduate]
 
-    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['enrolled'] / gdp_totals_pct['total_students'] * 100
-    gdp_totals_pct['Dropout percentage'] = gdp_totals_pct['dropout'] / gdp_totals_pct['total_students'] * 100
-    gdp_totals_pct['Graduate percentage'] = gdp_totals_pct['graduate'] / gdp_totals_pct['total_students'] * 100
+    gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct[Target.Enrolled] / gdp_totals_pct['total_students'] * 100
+    gdp_totals_pct['Dropout percentage'] = gdp_totals_pct[Target.Dropout] / gdp_totals_pct['total_students'] * 100
+    gdp_totals_pct['Graduate percentage'] = gdp_totals_pct[Target.Graduate] / gdp_totals_pct['total_students'] * 100
     gdp_totals_pct['Enrolled percentage'] = gdp_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
     gdp_totals_pct['Dropout percentage'] = gdp_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
     gdp_totals_pct['Graduate percentage'] = gdp_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -319,13 +321,13 @@ with dataset:
     unemployment_totals = dropout_data.groupby(['Unemployment rate', 'Target'])['Target'].count().reset_index(name='num_students')
 
     unemployment_totals_pct = unemployment_totals.pivot(index='Unemployment rate', columns='Target', values='num_students').reset_index()
-    unemployment_totals_pct.columns = ['Unemployment rate', 'dropout', 'enrolled', 'graduate']
+    unemployment_totals_pct.columns = ['Unemployment rate', Target.Dropout, Target.Enrolled, Target.Graduate]
 
-    unemployment_totals_pct['total_students'] = unemployment_totals_pct['enrolled'] + unemployment_totals_pct['dropout'] + gdp_totals_pct['graduate']
+    unemployment_totals_pct['total_students'] = unemployment_totals_pct[Target.Enrolled] + unemployment_totals_pct[Target.Dropout] + gdp_totals_pct[Target.Graduate]
 
-    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['enrolled'] / unemployment_totals_pct['total_students'] * 100
-    unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['dropout'] / unemployment_totals_pct['total_students'] * 100
-    unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['graduate'] / unemployment_totals_pct['total_students'] * 100
+    unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct[Target.Enrolled] / unemployment_totals_pct['total_students'] * 100
+    unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct[Target.Dropout] / unemployment_totals_pct['total_students'] * 100
+    unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct[Target.Graduate] / unemployment_totals_pct['total_students'] * 100
     unemployment_totals_pct['Enrolled percentage'] = unemployment_totals_pct['Enrolled percentage'].apply(lambda x: '{:.2f}'.format(x))
     unemployment_totals_pct['Dropout percentage'] = unemployment_totals_pct['Dropout percentage'].apply(lambda x: '{:.2f}'.format(x))
     unemployment_totals_pct['Graduate percentage'] = unemployment_totals_pct['Graduate percentage'].apply(lambda x: '{:.2f}'.format(x))
@@ -378,8 +380,8 @@ with dataset:
     st.title('Situação dos estudantes por classe econômica')
 
     funnel_classe_baixa = go.Figure(go.Funnel(
-        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
-        x=[classe_baixa_total, classe_baixa_target_total["Graduate"], classe_baixa_target_total["Dropout"], classe_baixa_target_total["Enrolled"]],
+        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
+        x=[classe_baixa_total, classe_baixa_target_total[Target.Graduate], classe_baixa_target_total[Target.Dropout], classe_baixa_target_total[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR4, COR2, COR5]}
     ))
@@ -390,8 +392,8 @@ with dataset:
     )
 
     funnel_classe_media = go.Figure(go.Funnel(
-        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
-        x=[classe_media_total, classe_media_target_total["Graduate"], classe_media_target_total["Dropout"], classe_media_target_total["Enrolled"]],
+        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
+        x=[classe_media_total, classe_media_target_total[Target.Graduate], classe_media_target_total[Target.Dropout], classe_media_target_total[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR4, COR2, COR5]}
     ))
@@ -402,8 +404,8 @@ with dataset:
     )
 
     funnel_classe_alta = go.Figure(go.Funnel(
-        y=["Total Students", "Graduate", "Dropout", "Enrolled"],
-        x=[classe_alta_total, classe_alta_target_total["Graduate"], classe_alta_target_total["Dropout"], classe_alta_target_total["Enrolled"]],
+        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
+        x=[classe_alta_total, classe_alta_target_total[Target.Graduate], classe_alta_target_total[Target.Dropout], classe_alta_target_total[Target.Enrolled]],
         textinfo="value+percent initial",
         marker={"color": [COR1, COR4, COR2, COR5]}
     ))
@@ -506,7 +508,7 @@ with dataset:
     colors = [COR2, COR4, COR3]
 
     bar_age_target = px.bar(df_age_target_count, x='Age group', y='Percentage', color='Target', barmode='stack', color_discrete_sequence=colors,
-                category_orders={'Age group': ['17-29', '30+'], 'Target': ['Graduate', 'Enrolled', 'Dropout']},
+                category_orders={'Age group': ['17-29', '30+'], 'Target': [Target.Graduate, Target.Enrolled, Target.Dropout]},
                 text=df_age_target_count['Percentage'].round(2)
                 )
 
@@ -645,8 +647,7 @@ with dataset:
 
     st.title('Random forest')
 
-    dropout_data = dropout_data[dropout_data['Target'] != 'Enrolled']
-    st.write(dropout_data)
+    dropout_data = dropout_data[dropout_data['Target'] != Target.Enrolled]
 
     dropout_data = pd.get_dummies(dropout_data, columns=['Marital status'])
     dropout_data = pd.get_dummies(dropout_data, columns=['Course'])
@@ -676,7 +677,19 @@ with dataset:
     # Evaluate the performance of the classifier
     report = (classification_report(y_test, y_pred))
 
-    st.text(report)
+
+    report = metrics.classification_report(y_test, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    def format_percent(x):
+        if isinstance(x, str):
+            return x
+        else:
+            return "{:.2f}".format(x)
+
+    df = df.applymap(format_percent)
+
+    st.write(df)
+
 
     importances = rfc_model.feature_importances_
 
@@ -713,16 +726,10 @@ with dataset:
 
 
     report = metrics.classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
-    st.write(df)
+    data = pd.DataFrame(report).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
 
 
     # Split the data into features and target
@@ -746,16 +753,13 @@ with dataset:
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
 
-    df = df.applymap(format_percent)
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
     st.text(report)
+
 
     # Get feature names
     feature_names = list(X_gb.columns)
@@ -806,24 +810,16 @@ with dataset:
     # Evaluate the performance of the SVM
     report = (classification_report(y_test, y_pred))
     st.title('report svm')
-    st.text(report)
     importances = rfc_model.feature_importances_
 
 
 
 
     report_dict = classification_report(y_test, y_pred, output_dict=True)
-    df = pd.DataFrame(report_dict).transpose()
-
-    def format_percent(x):
-        if isinstance(x, str):
-            return x
-        else:
-            return "{:.2f}".format(x)
-
-    df = df.applymap(format_percent)
-
-    st.write(df)
+    data = pd.DataFrame(report_dict).transpose()
+    data.iloc[:, :-1] = data.iloc[:, :-1].applymap(format_percent)
+    data.iloc[:, -1] = data.iloc[:, -1].astype(int)
+    st.write(data)
 
 
     importances_svm = rfc_model.feature_importances_
