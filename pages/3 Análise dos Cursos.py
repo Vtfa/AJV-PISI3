@@ -46,8 +46,12 @@ def page_3():
           gender = st.radio("Select a gender", [Gender.Male.value, Gender.Female.value])
           gender_course(dropout_data, gender)
 
-          st.subheadder= "Plots genéricos"
-          financial_status(dropout_data)
+          st.subheadder= "Plots sobre renda e finanças"
+          fig = px.scatter(dropout_data, x="Age at enrollment", y= "Renda total")
+          st.write(fig)
+
+          histograma_age= px.histogram(dropout_data, x="Age at enrollment", y= "Renda total")
+          st.write(histograma_age)
 
         elif selected_plot == "Machine Learning":
           courses = sorted(dropout_data['Course'].unique())
