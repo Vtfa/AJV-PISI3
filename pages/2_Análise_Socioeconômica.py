@@ -61,53 +61,116 @@ with dataset:
     result_df = pd.DataFrame({'total_students': [total_students]})
     result_df = pd.concat([result_df, status_totals.to_frame().T], axis=1)
 
-    funnel_total = go.Figure(go.Funnel(
-        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
-        x=[total_students, status_totals[Target.Graduate], status_totals[Target.Dropout], status_totals[Target.Enrolled]],
-        textinfo="value+percent initial",
-        marker={"color": [COR1, COR2, COR3, COR4]}
-        #marker={"color": [COR1, COR4, COR2, COR5]}
-    ))
 
-    funnel_total.update_layout(
+    source = [0, 0, 0]
+    target = [1, 2, 3]
+    value = [2209, 1421, 794]
+    label = ["Todos estudantes", "Graduado", "Evadiu", "Retido"]
+
+    color = [COR1, COR2, COR3, COR4]
+    color_link = [COR2, COR3, COR4]
+
+    individual_values = ["50%", "32%", "18%"]
+
+    node_hovertemplate = "<b>%{label}</b><br>Total: %{value:.0f}<extra></extra>"
+
+    link_hovertemplate = "<b>%{source.label} → %{target.label}</b><br>Total: %{value:.0f}<br>Porcentagem do total: %{customdata}<extra></extra>"
+
+    sankey_total = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=label,
+            color=color,
+            hovertemplate=node_hovertemplate,
+            customdata=individual_values
+        ),
+        link=dict(
+            source=source,
+            target=target,
+            value=value,
+            hovertemplate=link_hovertemplate,
+            customdata=individual_values,
+            color=color_link,
+        )
+    )])
+
+    sankey_total.update_layout(
         title="Todos estudantes",
         title_x = 0.5
     )
 
-    st.write(funnel_total)
+        
+    st.write(sankey_total)
 
     col1, col2 = st.columns(2)
 
+    value_sankey_female = [1661, 720, 487]
+    individual_values_sankey_female = ["58%", "25%", "17%"]
 
 
-    funnel_female = go.Figure(go.Funnel(
-        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
-        x=[female_students_total, female_target_totals[Target.Graduate], female_target_totals[Target.Dropout], female_target_totals[Target.Enrolled]],
-        textinfo="value+percent initial",
-        marker={"color": [COR1, COR2, COR3, COR4]}
-    ))
+    sankey_female = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=label,
+            color=color,
+            hovertemplate=node_hovertemplate,
+            customdata=individual_values_sankey_female
+        ),
+        link=dict(
+            source=source,
+            target=target,
+            value=value_sankey_female,
+            hovertemplate=link_hovertemplate,
+            customdata=individual_values_sankey_female,
+            color=color_link,
+        )
+    )])
 
-    funnel_female.update_layout(
+
+    sankey_female.update_layout(
         title="Estudantes do sexo feminimo",
         title_x = 0.5
     )
     with col1:
-        st.write(funnel_female)
+        st.write(sankey_female)
 
-    funnel_male = go.Figure(go.Funnel(
-        y=["Total Students", Target.Dropout, Target.Graduate, Target.Enrolled],
-        x=[male_students_total, male_target_totals[Target.Dropout], male_target_totals[Target.Graduate], male_target_totals[Target.Enrolled]],
-        textinfo="value+percent initial",
-        marker={"color": [COR1, COR3, COR2, COR4]}
-    ))
+    value_sankey_male = [548, 701, 307]
+    individual_values_sankey_male = ["35%", "45%", "20%"]    
 
-    funnel_male.update_layout(
+    sankey_male = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=label,
+                color=color,
+                hovertemplate=node_hovertemplate,
+                customdata=individual_values_sankey_male
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value_sankey_male,
+                hovertemplate=link_hovertemplate,
+                customdata=individual_values_sankey_male,
+                color=color_link,
+            )
+        )])
+
+    
+  
+
+    sankey_male.update_layout(
         title="Estudantes do sexo masculino",
         title_x = 0.5
     )
 
     with col2:
-        st.write(funnel_male)
+        st.write(sankey_male)
 
 
     df_marital_status = dropout_data.groupby(['Marital status'])['Marital status'].count().reset_index(name='count')
@@ -379,15 +442,65 @@ with dataset:
 
     st.title('Situação dos estudantes por classe econômica')
 
-    funnel_classe_baixa = go.Figure(go.Funnel(
-        y=["Total Students", Target.Graduate, Target.Dropout, Target.Enrolled],
-        x=[classe_baixa_total, classe_baixa_target_total[Target.Graduate], classe_baixa_target_total[Target.Dropout], classe_baixa_target_total[Target.Enrolled]],
-        textinfo="value+percent initial",
-        marker={"color": [COR1, COR4, COR2, COR5]}
-    ))
+    value_sankey_renda_baixa = [342, 308, 102]
+    individual_values_sankey_renda_baixa = ["45%", "41%", "14%"]    
 
-    funnel_classe_baixa.update_layout(
-        title="Estudantes de classe baixa",
+    sankey_renda_baixa = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=label,
+                color=color,
+                hovertemplate=node_hovertemplate,
+                customdata=individual_values_sankey_renda_baixa
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value_sankey_renda_baixa,
+                hovertemplate=link_hovertemplate,
+                customdata=individual_values_sankey_renda_baixa,
+                color=color_link,
+            )
+        )])
+
+    
+  
+
+    sankey_renda_baixa.update_layout(
+        title="Estudantes de renda baixa",
+        title_x = 0.5
+    )
+
+    value_sankey_renda_media = [1667, 962, 593]
+    individual_values_sankey_renda_media = ["52%", "30%", "18%"]    
+
+    sankey_renda_media = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=label,
+                color=color,
+                hovertemplate=node_hovertemplate,
+                customdata=individual_values_sankey_renda_media
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value_sankey_renda_media,
+                hovertemplate=link_hovertemplate,
+                customdata=individual_values_sankey_renda_media,
+                color=color_link,
+            )
+        )])
+
+    
+  
+
+    sankey_renda_media.update_layout(
+        title="Estudantes de classe média",
         title_x = 0.5
     )
 
@@ -415,6 +528,37 @@ with dataset:
         title_x = 0.5
     )
 
+    value_sankey_renda_alta = [200, 151, 99]
+    individual_values_sankey_renda_alta = ["44%", "34%", "22%"]    
+
+    sankey_renda_alta = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=label,
+                color=color,
+                hovertemplate=node_hovertemplate,
+                customdata=individual_values_sankey_renda_alta
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value_sankey_renda_alta,
+                hovertemplate=link_hovertemplate,
+                customdata=individual_values_sankey_renda_alta,
+                color=color_link,
+            )
+        )])
+
+    
+  
+
+    sankey_renda_alta.update_layout(
+        title="Estudantes de classe alta",
+         title_x = 0.5
+    )
+
 
     # Gambiarra pra diminuir o tamanho do select box. Como existem 4 colunas, o select box vai ocupar 1/4 do espaço que ocuparia sem colunas
     col_funnel_renda_select, col_funnel_renda_select2, col_funnel_renda_select3, col_funnel_renda_select4 = st.columns(4)
@@ -426,28 +570,28 @@ with dataset:
 
     if select_funnel_renda == 'Classe baixa':
         with col_funnel_renda1:
-            st.write(funnel_total)
+            st.write(sankey_total)
         with col_funnel_renda2:
-            st.write(funnel_classe_baixa)
+            st.write(sankey_renda_baixa)
     elif select_funnel_renda == 'Classe média':
         with col_funnel_renda1:
-            st.write(funnel_total)
+            st.write(sankey_total)
         with col_funnel_renda2:
-            st.write(funnel_classe_media)
+            st.write(sankey_renda_media)
     elif select_funnel_renda == 'Classe alta':
         with col_funnel_renda1:
-            st.write(funnel_total)
+            st.write(sankey_total)
         with col_funnel_renda2:
-            st.write(funnel_classe_alta)
+            st.write(sankey_renda_alta)
     else:
-        st.write(funnel_total)
+        st.write(sankey_total)
         col_funnel_renda1,  col_funnel_renda2, col_funnel_renda3 = st.columns(3)
         with col_funnel_renda1:
-            st.write(funnel_classe_baixa)
+            st.write(sankey_renda_baixa)
         with col_funnel_renda2:
-            st.write(funnel_classe_media)
+            st.write(sankey_renda_media)
         with col_funnel_renda3:
-            st.write(funnel_classe_alta)
+            st.write(sankey_renda_alta)
 
     st.title('Situação dos estudantes por educação dos pais')
 
